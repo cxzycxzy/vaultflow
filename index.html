@@ -2958,7 +2958,7 @@ function getHoldingUITFSpec(h) {
   const curr = (h.currency || 'PHP').toUpperCase();
 
   if (sym === 'ATRAM-TECH' || name.includes('global technology feeder')) {
-    return { bankId: '31', keywords: ['global technology', 'feeder', 'a php unit class'], currency: curr };
+    return { bankId: '31', keywords: ['global technology', 'feeder', 'a php unit class'], currency: curr, navpuDecimals: 6 };
   }
   if (sym === 'ATRAM-CONSUMER' || name.includes('global consumer trends')) {
     return { bankId: '31', keywords: ['global consumer trends', 'feeder'], currency: curr };
@@ -2984,7 +2984,7 @@ function getHoldingUITFSpec(h) {
   return null;
 }
 
-function extractUITFNavpuFromHTML(html, keywords, targetCurrency = 'PHP') {
+function extractUITFNavpuFromHTML(html, keywords, targetCurrency = 'PHP', navpuDecimals = null) {
   if (!html) return null;
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const rows = Array.from(doc.querySelectorAll('tr'));
@@ -2993,27 +2993,47 @@ function extractUITFNavpuFromHTML(html, keywords, targetCurrency = 'PHP') {
     const cells = Array.from(tr.querySelectorAll('td')).map((td) =>
       td.textContent.replace(/\s+/g, ' ').trim()
     );
-    if (cells.length < 3) continue;
+    if (!cells.length) continue;
 
-    const rowText = cells.join(' ').toLowerCase();
+    const rowText = cells.join(' ').replace(/\s+/g, ' ').trim().toLowerCase();
     if (!keywords.every((kw) => rowText.includes(kw.toLowerCase()))) continue;
 
-    // Current UITF.com.ph layout: Fund Name | Classification | NAVPU | ROI-YOY | ROI-YTD.
-    // The NAVPU cell may also contain a date annotation, e.g. "522.205073 * as of Nov 11, 2026".
-    // Extract only the leading NAVPU number from that specific column; never fall through to ROI.
-    const navpuCell = cells[2] || '';
-    const leadingNavpu = navpuCell.replace(/,/g, '').match(/^\s*(\d+(?:\.\d+)?)/);
-    if (leadingNavpu) {
-      const nav = Number(leadingNavpu[1]);
-      if (Number.isFinite(nav) && nav > 0) return nav;
+    // ATRAM Global Technology A PHP NAVPU is published to 6 decimal places,
+    // while ROI-YOY and ROI-YTD are only 4 decimals. Search the WHOLE matched
+    // fund row for a 6-decimal NAVPU; do not rely on a hard-coded td index.
+    // This avoids accidentally interpreting 23.9850 (ROI-YOY) as the NAVPU.
+    if (Number.isInteger(navpuDecimals) && navpuDecimals > 0) {
+      const precisionPattern = new RegExp(`(?<![\\d.])\\d+(?:,\\d{3})*\\.\\d{${navpuDecimals}}(?!\\d)`, 'g');
+      const matches = [...rowText.matchAll(precisionPattern)];
+      if (matches.length) {
+        const nav = Number(matches[0][0].replace(/,/g, ''));
+        if (Number.isFinite(nav) && nav > 0) return nav;
+      }
+      // For a precision-constrained fund, fail closed instead of falling
+      // through to an ROI column or another fund's value.
+      continue;
     }
 
-    // Legacy layout: Bank | Fund Name | Classification | Currency | NAVPU | Date ...
+    // General UITF fallback: use the currency column when present, then
+    // inspect numeric values in the NAVPU area only. Never use ROI values
+    // as a fallback merely because they look numeric.
     const currIdx = cells.findIndex((c) => c.toUpperCase() === targetCurrency.toUpperCase());
     if (currIdx !== -1 && cells[currIdx + 1]) {
-      const legacyNavpu = cells[currIdx + 1].replace(/,/g, '').match(/^\s*(\d+(?:\.\d+)?)/);
-      if (legacyNavpu) {
-        const nav = Number(legacyNavpu[1]);
+      const match = cells[currIdx + 1].replace(/,/g, '').match(/^\s*(\d+(?:\.\d+)?)/);
+      if (match) {
+        const nav = Number(match[1]);
+        if (Number.isFinite(nav) && nav > 0) return nav;
+      }
+    }
+
+    // Current layout: Fund Name | Classification | NAVPU | ROI-YOY | ROI-YTD.
+    // Find the first numeric cell after the fund/classification text, but
+    // reject 4-decimal ROI values if no explicit NAVPU cell can be identified.
+    const fundCellIdx = cells.findIndex((c) => keywords.some((kw) => c.toLowerCase().includes(kw.toLowerCase())));
+    for (let i = Math.max(0, fundCellIdx + 1); i < cells.length; i++) {
+      const match = cells[i].replace(/,/g, '').match(/^\s*(\d+\.\d{6})(?!\d)/);
+      if (match) {
+        const nav = Number(match[1]);
         if (Number.isFinite(nav) && nav > 0) return nav;
       }
     }
@@ -3070,7 +3090,8 @@ async function refreshIBKRQuotes(manual = false) {
             const navpu = extractUITFNavpuFromHTML(
               uitfHtmlCache[uitfUrl],
               uitfSpec.keywords,
-              uitfSpec.currency
+              uitfSpec.currency,
+              uitfSpec.navpuDecimals || null
             );
             if (navpu && navpu > 0) {
               h.prevClose = Number(h.price) > 1 ? Number(h.price) : navpu;
@@ -3423,7 +3444,7 @@ async function refreshIBKRQuotes(manual = false) {
     function formatHoldingUnitPrice(h) {
       if (getHoldingUITFSpec(h)) {
         const value = Number(h.price) || 0;
-        return `₱${value.toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 })}`;
+        return `₱${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       }
       return formatMoney(h.price, h.currency);
     }
