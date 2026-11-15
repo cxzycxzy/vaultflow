@@ -1822,6 +1822,8 @@ service cloud.firestore {
     let unsubscribeSnapshot = null;
     let cloudSaveTimer = null;
     let pendingCloudSaveFn = null;
+    let cloudWriteQueue = Promise.resolve();
+    let cloudWriteSequence = 0;
     let hasShownCloudErrorToast = false;
     let ibkrAutoRefreshTimer = null;
 
@@ -4271,60 +4273,53 @@ async function refreshIBKRQuotes(manual = false) {
       showToast('Signed out.', 'info');
     }
 
-    function persistState(immediate = false) {
+    function persistState(immediate = true) {
+      // Sandbox data is intentionally device-local and cannot sync to another device.
       if (isSandboxMode || !currentUser || !fbDb) {
         try {
           localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
         } catch (e) {}
+        updateSyncIndicators('offline', 'Local Sandbox · Device Only', 'localStorage');
         return;
       }
 
       const uid = currentUser.uid;
       const uidCacheKey = `vaultflow_cloud_cache_${uid}`;
+      // Snapshot the complete vault at the moment of the change so queued writes
+      // cannot accidentally serialize a later, partially-mutated state.
       const snapshotPayload = JSON.parse(JSON.stringify(state));
+      const writeSequence = ++cloudWriteSequence;
 
       try {
         localStorage.setItem(uidCacheKey, JSON.stringify(snapshotPayload));
       } catch (e) {}
 
-      const writeToFirestore = () => {
-        if (!currentUser || currentUser.uid !== uid || !fbDb) return;
-        updateSyncIndicators('syncing', 'Saving...', `users/${uid}/vault/state`);
-        fbDb
-          .collection('users')
-          .doc(uid)
-          .collection('vault')
-          .doc('state')
-          .set(snapshotPayload)
-          .then(() => {
-            if (currentUser && currentUser.uid === uid) {
-              updateSyncIndicators('online', 'Cloud Synced', `users/${uid}/vault/state`);
-            }
-          })
-          .catch((err) => {
-            updateSyncIndicators('offline', 'Sync Error', `users/${uid}/vault/state`);
+      updateSyncIndicators('syncing', 'Uploading Changes…', `users/${uid}/vault/state`);
+
+      const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
+      // Upload every persisted change immediately. Serialize writes so rapid edits
+      // cannot finish out of order and let an older snapshot overwrite a newer one.
+      cloudWriteQueue = cloudWriteQueue
+        .catch(() => {})
+        .then(() => {
+          if (!currentUser || currentUser.uid !== uid || !fbDb) return null;
+          return docRef.set(snapshotPayload);
+        })
+        .then(() => {
+          if (currentUser && currentUser.uid === uid && writeSequence === cloudWriteSequence) {
+            updateSyncIndicators('online', 'Cloud Synced', `users/${uid}/vault/state`);
+            hasShownCloudErrorToast = false;
+          }
+        })
+        .catch((err) => {
+          if (currentUser && currentUser.uid === uid) {
+            updateSyncIndicators('offline', 'Cloud Save Failed', `users/${uid}/vault/state`);
             if (!hasShownCloudErrorToast) {
               hasShownCloudErrorToast = true;
               showToast(`Cloud save failed: ${err.message}`, 'error');
             }
-          });
-      };
-
-      if (cloudSaveTimer) {
-        clearTimeout(cloudSaveTimer);
-        cloudSaveTimer = null;
-      }
-
-      if (immediate) {
-        pendingCloudSaveFn = null;
-        writeToFirestore();
-      } else {
-        pendingCloudSaveFn = writeToFirestore;
-        cloudSaveTimer = setTimeout(() => {
-          pendingCloudSaveFn = null;
-          writeToFirestore();
-        }, 450);
-      }
+          }
+        });
     }
 
     // =========================================================================
@@ -4559,18 +4554,8 @@ async function refreshIBKRQuotes(manual = false) {
     // =========================================================================
     // BOOTSTRAP ON WINDOW LOAD
     // =========================================================================
-    const flushOnBackground = () => {
-      if (pendingCloudSaveFn) {
-        const fn = pendingCloudSaveFn;
-        pendingCloudSaveFn = null;
-        fn();
-      }
-    };
-    window.addEventListener('beforeunload', flushOnBackground);
-    window.addEventListener('pagehide', flushOnBackground);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') flushOnBackground();
-    });
+    // Firestore writes are queued immediately by persistState(); no debounce timer
+    // is required when the page is backgrounded or closed.
 
     window.onload = function () {
       if (window.lucide) lucide.createIcons();
