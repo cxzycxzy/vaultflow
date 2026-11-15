@@ -3059,11 +3059,16 @@ service cloud.firestore {
         return;
       }
       const cleaned = rawUrl.replace(/\/+$/, '');
-      const testUrl = `${cleaned}${cleaned.includes('?') ? '&' : '/?'}url=${encodeURIComponent('https://ndcdyn.interactivebrokers.com/')}&_t=${Date.now()}`;
+      const probeEndpoint = 'https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest';
+      const testUrl = `${cleaned}${cleaned.includes('?') ? '&' : '/?'}url=${encodeURIComponent(probeEndpoint)}&_t=${Date.now()}`;
       setIBKRFlexStatus('Testing connection to Cloudflare Worker...', 'info');
       try {
         const res = await fetchWithTimeout(testUrl, 8000);
-        setIBKRFlexStatus(`Worker reachable! (HTTP ${res.status}). Click "Save Credentials & Fetch Flex Positions" to sync.`, 'success');
+        const body = (await res.text().catch(() => '')).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+        setIBKRFlexStatus(
+          `Worker reachable! (HTTP ${res.status}${body ? `: ${body}` : ''}). Click "Save Credentials & Fetch Flex Positions" to sync.`,
+          'success'
+        );
       } catch (err) {
         const detail = err?.message || 'NetworkError';
         setIBKRFlexStatus(
@@ -3084,9 +3089,8 @@ service cloud.firestore {
       }
     }
 
-    async function fetchTextWithCORSFallback(targetUrl, proxyMode = 'auto', customProxyUrl = '') {
-      const bustSep = targetUrl.includes('?') ? '&' : '?';
-      const freshTargetUrl = `${targetUrl}${bustSep}_cb=${Date.now()}`;
+    async function fetchTextWithCORSFallback(targetUrl, proxyMode = 'auto', customProxyUrl = '', stepLabel = '') {
+      const cacheBust = Date.now();
       const attempts = [];
       if (proxyMode === 'custom') {
         if (!customProxyUrl) {
@@ -3094,14 +3098,14 @@ service cloud.firestore {
         }
         const cleaned = customProxyUrl.replace(/\/+$/, '');
         const sep = cleaned.includes('?') ? '&url=' : '/?url=';
-        attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(freshTargetUrl)}`, mode: 'text' });
+        attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
       } else if (proxyMode === 'direct') {
-        attempts.push({ label: 'Direct', url: freshTargetUrl, mode: 'text' });
+        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
       } else {
-        attempts.push({ label: 'CodeTabs Relay', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(freshTargetUrl)}`, mode: 'text' });
-        attempts.push({ label: 'AllOrigins JSON', url: `https://api.allorigins.win/get?url=${encodeURIComponent(freshTargetUrl)}`, mode: 'allorigins-json' });
-        attempts.push({ label: 'CorsProxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(freshTargetUrl)}`, mode: 'text' });
-        attempts.push({ label: 'Direct', url: freshTargetUrl, mode: 'text' });
+        attempts.push({ label: 'CodeTabs Relay', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
+        attempts.push({ label: 'AllOrigins JSON', url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'allorigins-json' });
+        attempts.push({ label: 'CorsProxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
+        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
       }
 
       const failures = [];
@@ -3109,7 +3113,9 @@ service cloud.firestore {
         try {
           const res = await fetchWithTimeout(attempt.url, 12000);
           if (!res.ok) {
-            failures.push(`${attempt.label}: HTTP ${res.status}`);
+            const rawErr = await res.text().catch(() => '');
+            const cleanSnippet = rawErr.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+            failures.push(`${attempt.label}: HTTP ${res.status}${cleanSnippet ? ` (${cleanSnippet})` : ''}`);
             continue;
           }
           if (attempt.mode === 'allorigins-json') {
@@ -3131,8 +3137,9 @@ service cloud.firestore {
         }
       }
 
+      const prefix = stepLabel ? `${stepLabel} failed` : 'Could not reach IBKR from browser';
       throw new Error(
-        `Could not reach IBKR from browser (${failures.join(' | ')}). Use Method B below to upload/paste your Flex XML/CSV, or click "Test" next to your Worker URL.`
+        `${prefix} (${failures.join(' | ')}). Use Method B below to upload/paste your Flex XML/CSV, or check your Flex Query ID & Token.`
       );
     }
 
@@ -3159,8 +3166,20 @@ service cloud.firestore {
 
       try {
         setIBKRFlexStatus('Step 1/2: Requesting statement from IBKR Flex Web Service...', 'info');
-        const sendUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
-        const sendXmlText = await fetchTextWithCORSFallback(sendUrl, proxyMode, customProxyUrl);
+        const primarySendUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
+        const backupSendUrl = `https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
+
+        let sendXmlText = '';
+        try {
+          sendXmlText = await fetchTextWithCORSFallback(primarySendUrl, proxyMode, customProxyUrl, 'Step 1 (SendRequest)');
+        } catch (step1Err) {
+          if (String(step1Err?.message || '').includes('HTTP 404')) {
+            setIBKRFlexStatus('Step 1/2: Retrying via backup IBKR Flex gateway...', 'info');
+            sendXmlText = await fetchTextWithCORSFallback(backupSendUrl, proxyMode, customProxyUrl, 'Step 1 Backup (SendRequest)');
+          } else {
+            throw step1Err;
+          }
+        }
 
         const parser = new DOMParser();
         const sendDoc = parser.parseFromString(sendXmlText, 'text/xml');
@@ -3183,13 +3202,14 @@ service cloud.firestore {
 
         // Step 2: Poll GetStatement (up to 8 attempts for larger multi-section Flex queries)
         let statementPayload = '';
-        const getUrl = `${baseStatementUrl}?q=${encodeURIComponent(refCode)}&t=${encodeURIComponent(token)}&v=3`;
+        const getSep = baseStatementUrl.includes('?') ? '&' : '?';
+        const getUrl = `${baseStatementUrl}${getSep}q=${encodeURIComponent(refCode)}&t=${encodeURIComponent(token)}&v=3`;
 
         for (let attempt = 1; attempt <= 8; attempt++) {
           setIBKRFlexStatus(`Step 2/2: Downloading Flex statement (attempt ${attempt}/8)...`, 'info');
           await new Promise((r) => setTimeout(r, attempt === 1 ? 1800 : 2500));
 
-          const rawResp = await fetchTextWithCORSFallback(getUrl, proxyMode, customProxyUrl);
+          const rawResp = await fetchTextWithCORSFallback(getUrl, proxyMode, customProxyUrl, 'Step 2 (GetStatement)');
           if (rawResp.includes('<FlexStatementResponse')) {
             const checkDoc = parser.parseFromString(rawResp, 'text/xml');
             const st = checkDoc.querySelector('Status')?.textContent?.trim();
