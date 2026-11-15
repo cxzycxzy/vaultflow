@@ -96,6 +96,20 @@
     .safe-bottom {
       padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
     }
+
+    /* Drag-and-drop sorting feedback & touch handle isolation */
+    .touch-drag-handle {
+      touch-action: none;
+    }
+    .drag-source-active {
+      opacity: 0.55;
+      transform: scale(0.98);
+    }
+    .drag-over-target {
+      outline: 2px solid rgba(129, 140, 248, 0.85);
+      outline-offset: -2px;
+      background-color: rgba(99, 102, 241, 0.08) !important;
+    }
   </style>
 </head>
 <body class="bg-[#080c14] text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
@@ -531,7 +545,19 @@
               <h2 class="text-sm sm:text-base font-bold text-white">Savings & Checking Money Pots</h2>
               <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Configure APYs, withholding tax deductions, and crediting cycles.</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <div class="flex items-center gap-1.5 bg-[#080c14] border border-white/[0.08] rounded-xl px-2.5 py-1.5">
+                <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                <select id="pots-sort-select" onchange="setPotsSort(this.value)" aria-label="Sort Money Pots" class="bg-transparent text-[11px] sm:text-xs font-medium text-slate-200 focus:outline-none cursor-pointer">
+                  <option value="custom" class="bg-[#0f1623]">Custom (Drag ⋮⋮)</option>
+                  <option value="value-desc" class="bg-[#0f1623]">Value: High &rarr; Low</option>
+                  <option value="value-asc" class="bg-[#0f1623]">Value: Low &rarr; High</option>
+                  <option value="name-asc" class="bg-[#0f1623]">Name: A &rarr; Z</option>
+                  <option value="name-desc" class="bg-[#0f1623]">Name: Z &rarr; A</option>
+                  <option value="apy-desc" class="bg-[#0f1623]">Net APY: High &rarr; Low</option>
+                  <option value="currency" class="bg-[#0f1623]">Currency (A &rarr; Z)</option>
+                </select>
+              </div>
               <button onclick="creditAllDuePots()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 text-emerald-400 text-xs font-semibold transition">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Credit Due
               </button>
@@ -541,7 +567,7 @@
             </div>
           </div>
 
-          <div id="pots-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-4">
+          <div id="pots-grid" class="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4">
             <!-- Full Money Pot cards rendered via JS -->
           </div>
         </div>
@@ -620,8 +646,24 @@
           <!-- IBKR Holdings Table (Desktop) & Cards (Mobile) -->
           <div class="bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl overflow-hidden">
             <div class="px-3.5 sm:px-5 py-3 sm:py-4 border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-2">
-              <h3 class="text-xs sm:text-sm font-bold text-white">Open Positions</h3>
-              <span id="ibkr-last-updated" class="text-[10px] sm:text-[11px] font-mono text-slate-400">Updated just now</span>
+              <div class="flex items-center gap-2.5">
+                <h3 class="text-xs sm:text-sm font-bold text-white">Open Positions</h3>
+                <span id="ibkr-last-updated" class="text-[10px] sm:text-[11px] font-mono text-slate-400">Updated just now</span>
+              </div>
+              <div class="flex items-center gap-1.5 bg-[#080c14] border border-white/[0.08] rounded-xl px-2.5 py-1.5">
+                <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                <select id="ibkr-sort-select" onchange="setIBKRSort(this.value)" aria-label="Sort IBKR Positions" class="bg-transparent text-[11px] sm:text-xs font-medium text-slate-200 focus:outline-none cursor-pointer">
+                  <option value="custom" class="bg-[#0f1623]">Custom (Drag ⋮⋮)</option>
+                  <option value="value-desc" class="bg-[#0f1623]">Value / Weight: High &rarr; Low</option>
+                  <option value="value-asc" class="bg-[#0f1623]">Value / Weight: Low &rarr; High</option>
+                  <option value="symbol-asc" class="bg-[#0f1623]">Ticker: A &rarr; Z</option>
+                  <option value="symbol-desc" class="bg-[#0f1623]">Ticker: Z &rarr; A</option>
+                  <option value="pnl-desc" class="bg-[#0f1623]">Unrealized P&amp;L: High &rarr; Low</option>
+                  <option value="pnl-asc" class="bg-[#0f1623]">Unrealized P&amp;L: Low &rarr; High</option>
+                  <option value="pnl-pct-desc" class="bg-[#0f1623]">Return (%): High &rarr; Low</option>
+                  <option value="pnl-pct-asc" class="bg-[#0f1623]">Return (%): Low &rarr; High</option>
+                </select>
+              </div>
             </div>
 
             <!-- Desktop Table -->
@@ -629,6 +671,7 @@
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="border-b border-white/[0.08] bg-[#141d2e]/60 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    <th class="py-3 pl-3 pr-1 w-8"></th>
                     <th class="py-3 px-4">Ticker / Asset</th>
                     <th class="py-3 px-4 text-right">Shares</th>
                     <th class="py-3 px-4 text-right">Avg Cost</th>
@@ -1373,6 +1416,19 @@ service cloud.firestore {
   <!-- ===================================================================== -->
   <script>
     // =========================================================================
+    // HTML ESCAPING UTILITY
+    // =========================================================================
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // =========================================================================
     // 67-INSTITUTION BRAND ICON CATALOG (REAL BRAND LOGOS + VECTOR FALLBACKS)
     // =========================================================================
     const INSTITUTION_CATALOG = [
@@ -1631,7 +1687,9 @@ service cloud.firestore {
         ],
         ibkrCredentials: { flexToken: '', flexQueryId: '', proxyMode: 'auto', customProxyUrl: '' },
         ibkrQuoteSource: 'Sample / Cached',
-        ibkrLastUpdated: 'Sample data'
+        ibkrLastUpdated: 'Sample data',
+        potsSortBy: 'custom',
+        ibkrSortBy: 'custom'
       };
     }
 
@@ -1676,7 +1734,6 @@ service cloud.firestore {
   appId: "1:243673941991:web:54e5c65cf9ecc551399f42",
   measurementId: "G-FE2G42K26P"
 };
-
     const FB_CONFIG_STORAGE_KEY = 'vaultflow_firebase_config_v1';
     const SANDBOX_STORAGE_KEY = 'vaultflow_sandbox_state_v2';
 
@@ -1708,7 +1765,9 @@ service cloud.firestore {
         transactions: [],
         ibkrCredentials: { flexToken: '', flexQueryId: '', proxyMode: 'auto', customProxyUrl: '' },
         ibkrQuoteSource: 'Cached',
-        ibkrLastUpdated: 'Never'
+        ibkrLastUpdated: 'Never',
+        potsSortBy: 'custom',
+        ibkrSortBy: 'custom'
       };
     }
 
@@ -1723,6 +1782,8 @@ service cloud.firestore {
         accounts: Array.isArray(raw.accounts) ? raw.accounts : [],
         holdings: Array.isArray(raw.holdings) ? raw.holdings : [],
         transactions: Array.isArray(raw.transactions) ? raw.transactions : [],
+        potsSortBy: raw.potsSortBy || 'custom',
+        ibkrSortBy: raw.ibkrSortBy || 'custom',
         ibkrCredentials: {
           ...base.ibkrCredentials,
           ...(raw.ibkrCredentials || {})
@@ -1733,16 +1794,478 @@ service cloud.firestore {
     let state = createEmptyState();
 
     // =========================================================================
-    // GENERAL UTILITIES, TOASTS & MODALS
+    // SORTING & DRAG-AND-DROP REORDER ENGINE (MOUSE + MOBILE TOUCH)
     // =========================================================================
-    function escapeHTML(str) {
-      if (str === null || str === undefined) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    function getSortedAccounts() {
+      const mode = state.potsSortBy || 'custom';
+      const list = [...state.accounts];
+      if (mode === 'custom') return list;
+
+      const disp = state.displayCurrency;
+      const getSignedVal = (acc) => {
+        const val = convertCurrency(acc.balance, acc.currency, disp);
+        return acc.type === 'Credit Card' ? -val : val;
+      };
+
+      list.sort((a, b) => {
+        if (mode === 'value-desc') return getSignedVal(b) - getSignedVal(a);
+        if (mode === 'value-asc') return getSignedVal(a) - getSignedVal(b);
+        if (mode === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+        if (mode === 'name-desc') return (b.name || '').localeCompare(a.name || '');
+        if (mode === 'apy-desc') return calculatePotYieldMetrics(b).netApy - calculatePotYieldMetrics(a).netApy;
+        if (mode === 'currency') return (a.currency || '').localeCompare(b.currency || '');
+        return 0;
+      });
+      return list;
+    }
+
+    function setPotsSort(sortKey) {
+      state.potsSortBy = sortKey || 'custom';
+      persistState(true);
+      renderPots();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function getSortedHoldings() {
+      const mode = state.ibkrSortBy || 'custom';
+      const list = [...state.holdings];
+      if (mode === 'custom') return list;
+
+      const disp = state.displayCurrency;
+      const getValDisp = (h) => convertCurrency(h.shares * h.price, h.currency, disp);
+      const getPnlDisp = (h) => convertCurrency(h.shares * (h.price - h.avgCost), h.currency, disp);
+      const getPnlPct = (h) => (h.avgCost > 0 ? ((h.price - h.avgCost) / h.avgCost) * 100 : 0);
+
+      list.sort((a, b) => {
+        if (mode === 'value-desc') return getValDisp(b) - getValDisp(a);
+        if (mode === 'value-asc') return getValDisp(a) - getValDisp(b);
+        if (mode === 'symbol-asc') return (a.symbol || '').localeCompare(b.symbol || '');
+        if (mode === 'symbol-desc') return (b.symbol || '').localeCompare(a.symbol || '');
+        if (mode === 'pnl-desc') return getPnlDisp(b) - getPnlDisp(a);
+        if (mode === 'pnl-asc') return getPnlDisp(a) - getPnlDisp(b);
+        if (mode === 'pnl-pct-desc') return getPnlPct(b) - getPnlPct(a);
+        if (mode === 'pnl-pct-asc') return getPnlPct(a) - getPnlPct(b);
+        return 0;
+      });
+      return list;
+    }
+
+    function setIBKRSort(sortKey) {
+      state.ibkrSortBy = sortKey || 'custom';
+      persistState(true);
+      renderAll();
+    }
+
+    function reorderItemsByIds(listType, draggedId, targetId) {
+      if (!draggedId || !targetId || draggedId === targetId) return;
+      if (listType === 'pots') {
+        const ordered = getSortedAccounts();
+        const fromIdx = ordered.findIndex((a) => a.id === draggedId);
+        const toIdx = ordered.findIndex((a) => a.id === targetId);
+        if (fromIdx === -1 || toIdx === -1) return;
+        const [moved] = ordered.splice(fromIdx, 1);
+        ordered.splice(toIdx, 0, moved);
+        state.accounts = ordered;
+        state.potsSortBy = 'custom';
+        persistState(true);
+        renderAll();
+      } else if (listType === 'ibkr') {
+        const ordered = getSortedHoldings();
+        const fromIdx = ordered.findIndex((h) => h.id === draggedId);
+        const toIdx = ordered.findIndex((h) => h.id === targetId);
+        if (fromIdx === -1 || toIdx === -1) return;
+        const [moved] = ordered.splice(fromIdx, 1);
+        ordered.splice(toIdx, 0, moved);
+        state.holdings = ordered;
+        state.ibkrSortBy = 'custom';
+        persistState(true);
+        renderAll();
+      }
+    }
+
+    function bindSortableContainer(containerEl, listType, itemAttr) {
+      if (!containerEl) return;
+      let draggedId = null;
+      let currentTargetId = null;
+
+      const clearHighlights = () => {
+        containerEl.querySelectorAll(`[${itemAttr}]`).forEach((el) => {
+          el.classList.remove('drag-source-active', 'drag-over-target');
+        });
+      };
+
+      const items = containerEl.querySelectorAll(`[${itemAttr}]`);
+      items.forEach((itemEl) => {
+        const id = itemEl.getAttribute(itemAttr);
+        const handleEl = itemEl.querySelector('[data-drag-handle]');
+
+        // Desktop HTML5 Drag & Drop
+        itemEl.setAttribute('draggable', 'true');
+        itemEl.addEventListener('dragstart', (e) => {
+          draggedId = id;
+          itemEl.classList.add('drag-source-active');
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', id);
+          }
+        });
+        itemEl.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!draggedId || draggedId === id) return;
+          containerEl.querySelectorAll(`[${itemAttr}]`).forEach((el) => el.classList.remove('drag-over-target'));
+          itemEl.classList.add('drag-over-target');
+          currentTargetId = id;
+        });
+        itemEl.addEventListener('dragleave', () => {
+          itemEl.classList.remove('drag-over-target');
+        });
+        itemEl.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const srcId = draggedId || (e.dataTransfer ? e.dataTransfer.getData('text/plain') : null);
+          clearHighlights();
+          if (srcId && srcId !== id) {
+            reorderItemsByIds(listType, srcId, id);
+          }
+          draggedId = null;
+          currentTargetId = null;
+        });
+        itemEl.addEventListener('dragend', () => {
+          clearHighlights();
+          draggedId = null;
+          currentTargetId = null;
+        });
+
+        // Mobile Touch Drag & Drop via Grip Handle
+        if (handleEl) {
+          handleEl.addEventListener(
+            'touchstart',
+            (e) => {
+              e.stopPropagation();
+              draggedId = id;
+              currentTargetId = null;
+              itemEl.classList.add('drag-source-active');
+            },
+            { passive: true }
+          );
+
+          handleEl.addEventListener(
+            'touchmove',
+            (e) => {
+              if (!draggedId) return;
+              e.preventDefault();
+              const touch = e.touches[0];
+              if (!touch) return;
+              const hit = document.elementFromPoint(touch.clientX, touch.clientY);
+              const targetCard = hit ? hit.closest(`[${itemAttr}]`) : null;
+              containerEl.querySelectorAll(`[${itemAttr}]`).forEach((el) => el.classList.remove('drag-over-target'));
+              if (targetCard && containerEl.contains(targetCard)) {
+                const tid = targetCard.getAttribute(itemAttr);
+                if (tid && tid !== draggedId) {
+                  targetCard.classList.add('drag-over-target');
+                  currentTargetId = tid;
+                } else {
+                  currentTargetId = null;
+                }
+              }
+            },
+            { passive: false }
+          );
+
+          handleEl.addEventListener('touchend', () => {
+            const srcId = draggedId;
+            const dstId = currentTargetId;
+            clearHighlights();
+            draggedId = null;
+            currentTargetId = null;
+            if (srcId && dstId && srcId !== dstId) {
+              reorderItemsByIds(listType, srcId, dstId);
+            }
+          });
+        }
+      });
+    }
+
+    // =========================================================================
+    // RENDER MONEY POTS (OVERVIEW SNAPSHOT + FULL POTS SECTION)
+    // =========================================================================
+    function renderPots() {
+      const disp = state.displayCurrency;
+      const overviewList = document.getElementById('overview-pots-list');
+      const fullGrid = document.getElementById('pots-grid');
+      const sortSelect = document.getElementById('pots-sort-select');
+      if (sortSelect) sortSelect.value = state.potsSortBy || 'custom';
+
+      if (!state.accounts.length) {
+        const empty = `<div class="col-span-full p-8 text-center rounded-2xl bg-[#0f1623] border border-dashed border-white/15 text-xs text-slate-400">No money pots yet. Click <strong>+ Add Money Pot</strong> to create your first savings, checking, or FX account.</div>`;
+        overviewList.innerHTML = empty;
+        fullGrid.innerHTML = empty;
+        return;
+      }
+
+      const sortedAccounts = getSortedAccounts();
+
+      // Overview Compact Snapshot (Top 4)
+      overviewList.innerHTML = sortedAccounts
+        .slice(0, 4)
+        .map((acc) => {
+          const isCC = acc.type === 'Credit Card';
+          const metrics = calculatePotYieldMetrics(acc);
+          const convDisp = convertCurrency(acc.balance, acc.currency, disp);
+          const svg = renderInstitutionBadgeSVG(acc.institution, acc.customColor, acc.customMono);
+          return `
+            <div onclick="openAccountModal('${acc.id}')" class="p-2.5 sm:p-3.5 rounded-xl bg-[#141d2e] hover:bg-[#1a253a] border border-white/[0.08] cursor-pointer transition flex items-center justify-between gap-2.5 sm:gap-3">
+              <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl overflow-hidden shrink-0">${svg}</div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-white truncate">${escapeHTML(acc.name)}</div>
+                  <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">
+                    ${isCC ? '<span class="text-rose-400">Credit Card</span>' : (metrics.netApy > 0 ? `<span class="text-emerald-400">${metrics.netApy.toFixed(2)}% net APY</span>` : escapeHTML(acc.type))}
+                  </div>
+                </div>
+              </div>
+              <div class="text-right tabular-nums shrink-0">
+                <div class="text-xs font-bold ${isCC ? 'text-rose-400' : 'text-white'}">${isCC ? '-' : ''}${formatMoney(acc.balance, acc.currency)}</div>
+                ${acc.currency !== disp ? `<div class="text-[10px] font-mono text-slate-400">≈ ${formatMoney(convDisp, disp)}</div>` : ''}
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      // Full Money Pots Grid (2 per row on mobile, 3 per row on xl desktop)
+      fullGrid.innerHTML = sortedAccounts
+        .map((acc) => {
+          const isCC = acc.type === 'Credit Card';
+          const metrics = calculatePotYieldMetrics(acc);
+          const convDisp = convertCurrency(acc.balance, acc.currency, disp);
+          const svg = renderInstitutionBadgeSVG(acc.institution, acc.customColor, acc.customMono);
+
+          const utilPct = isCC && acc.creditLimit > 0 ? Math.min(100, (acc.balance / acc.creditLimit) * 100) : 0;
+
+          return `
+            <div data-pot-id="${acc.id}" class="bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl p-2.5 sm:p-5 flex flex-col justify-between gap-2 sm:gap-4 hover:border-white/15 transition select-none">
+              <div class="flex items-start justify-between gap-1.5 sm:gap-3">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div class="w-7 h-7 sm:w-11 sm:h-11 rounded-lg sm:rounded-[13px] overflow-hidden shrink-0 shadow-md">${svg}</div>
+                  <div class="min-w-0">
+                    <h3 class="text-[11px] sm:text-sm font-bold text-white truncate">${escapeHTML(acc.name)}</h3>
+                    <p class="text-[9px] sm:text-[11px] text-slate-400 truncate">${escapeHTML(acc.type)}${acc.tag ? ` • ${escapeHTML(acc.tag)}` : ''}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
+                  <span class="text-[9px] sm:text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300 border border-white/[0.08]">
+                    ${acc.currency}
+                  </span>
+                  <button type="button" data-drag-handle title="Drag to reorder" aria-label="Drag to reorder" class="touch-drag-handle cursor-grab active:cursor-grabbing p-1 rounded-md text-slate-500 hover:text-slate-300 hover:bg-white/[0.05]">
+                    <i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="tabular-nums">
+                <div class="text-sm sm:text-2xl font-bold truncate ${isCC ? 'text-rose-400' : 'text-white'}">
+                  ${isCC ? '-' : ''}${formatMoney(acc.balance, acc.currency)}
+                </div>
+                <div class="text-[9px] sm:text-xs font-mono text-slate-400 mt-0.5 truncate">
+                  ${acc.currency !== disp ? `≈ ${isCC ? '-' : ''}${formatMoney(convDisp, disp)}` : 'In display currency'}
+                </div>
+              </div>
+
+              ${
+                isCC
+                  ? `
+                    <div class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-rose-500/[0.06] border border-rose-500/20 space-y-1 sm:space-y-2 text-[10px] sm:text-xs">
+                      <div class="flex items-center justify-between gap-1">
+                        <span class="text-slate-400">Due:</span>
+                        <span class="font-mono text-rose-300 truncate">${acc.dueDate || 'Not set'}</span>
+                      </div>
+                      ${
+                        acc.creditLimit > 0
+                          ? `
+                            <div>
+                              <div class="flex justify-between text-[9px] sm:text-[11px] text-slate-400 mb-1">
+                                <span>${utilPct.toFixed(0)}% used</span>
+                                <span class="font-mono truncate">${formatMoney(acc.creditLimit, acc.currency)}</span>
+                              </div>
+                              <div class="w-full h-1.5 rounded-full bg-[#080c14] overflow-hidden">
+                                <div class="h-full bg-rose-500 rounded-full" style="width:${utilPct}%"></div>
+                              </div>
+                            </div>
+                          `
+                          : ''
+                      }
+                    </div>
+                  `
+                  : `
+                    <div class="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-[#141d2e] border border-white/[0.06] grid grid-cols-2 gap-1.5 sm:gap-2 text-[10px] sm:text-xs tabular-nums">
+                      <div class="min-w-0">
+                        <span class="text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-400 block truncate">Net APY</span>
+                        <span class="font-bold text-emerald-400">${metrics.netApy.toFixed(2)}%</span>
+                      </div>
+                      <div class="text-right min-w-0">
+                        <span class="text-[8px] sm:text-[10px] uppercase tracking-wider text-slate-400 block truncate">${acc.freq}</span>
+                        <span class="font-bold text-white truncate block">${formatMoney(metrics.cyclePayout, acc.currency)}</span>
+                      </div>
+                    </div>
+                  `
+              }
+
+              <div class="pt-1.5 sm:pt-3 border-t border-white/[0.08] flex items-center justify-between gap-1">
+                ${
+                  !isCC && metrics.cyclePayout > 0
+                    ? `<button onclick="creditPotInterest('${acc.id}')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-[10px] sm:text-[11px] font-semibold truncate transition">+ Interest</button>`
+                    : `<span></span>`
+                }
+                <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                  <button onclick="openAccountModal('${acc.id}')" title="Edit Pot" class="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition">
+                    <i data-lucide="pencil" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </button>
+                  <button onclick="deleteAccount('${acc.id}')" title="Delete Pot" class="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-white/[0.06] transition">
+                    <i data-lucide="trash-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      bindSortableContainer(fullGrid, 'pots', 'data-pot-id');
+    }
+
+    // =========================================================================
+    // RENDER IBKR PORTFOLIO TABLE & MOBILE CARDS
+    // =========================================================================
+    function renderIBKR(ibkrValueDisp, ibkrCostDisp, ibkrUnrealizedDisp, ibkrUnrealizedPct, ibkrDailyDisp) {
+      const disp = state.displayCurrency;
+      const ibkrValueUSD = convertCurrency(ibkrValueDisp, disp, 'USD');
+      const ibkrSortSel = document.getElementById('ibkr-sort-select');
+      if (ibkrSortSel) ibkrSortSel.value = state.ibkrSortBy || 'custom';
+
+      document.getElementById('ibkr-quote-status-badge').textContent = state.ibkrQuoteSource || 'Simulated / Cached';
+      document.getElementById('ibkr-last-updated').textContent = `Updated ${state.ibkrLastUpdated || 'just now'}`;
+
+      document.getElementById('ibkr-kpi-value').textContent = formatMoney(ibkrValueDisp, disp);
+      document.getElementById('ibkr-kpi-value-usd').textContent = `Base USD: ${formatMoney(ibkrValueUSD, 'USD')}`;
+      document.getElementById('ibkr-kpi-cost').textContent = formatMoney(ibkrCostDisp, disp);
+
+      const unrEl = document.getElementById('ibkr-kpi-unrealized');
+      const unrPctEl = document.getElementById('ibkr-kpi-unrealized-pct');
+      unrEl.textContent = formatMoney(ibkrUnrealizedDisp, disp, true);
+      unrEl.className = `mt-1.5 text-xl font-bold tabular-nums ${ibkrUnrealizedDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      unrPctEl.textContent = `${ibkrUnrealizedPct >= 0 ? '+' : ''}${ibkrUnrealizedPct.toFixed(2)}%`;
+      unrPctEl.className = `mt-0.5 text-[11px] font-mono font-semibold tabular-nums ${ibkrUnrealizedDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      const dayEl = document.getElementById('ibkr-kpi-daily');
+      const dayPctEl = document.getElementById('ibkr-kpi-daily-pct');
+      const prevTotal = ibkrValueDisp - ibkrDailyDisp;
+      const dayPct = prevTotal > 0 ? (ibkrDailyDisp / prevTotal) * 100 : 0;
+      dayEl.textContent = formatMoney(ibkrDailyDisp, disp, true);
+      dayEl.className = `mt-1.5 text-xl font-bold tabular-nums ${ibkrDailyDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      dayPctEl.textContent = `${dayPct >= 0 ? '+' : ''}${dayPct.toFixed(2)}% today`;
+
+      const tbody = document.getElementById('ibkr-positions-tbody');
+      const mobileList = document.getElementById('ibkr-positions-mobile');
+
+      if (!state.holdings.length) {
+        const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-slate-400">No IBKR positions yet. Click <strong>+ Add Holding</strong> or <strong>Import / Sync IBKR</strong>.</td></tr>`;
+        tbody.innerHTML = emptyRow;
+        mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No IBKR positions yet.</div>`;
+        return;
+      }
+
+      const sortedHoldings = getSortedHoldings();
+
+      tbody.innerHTML = sortedHoldings
+        .map((h) => {
+          const mktVal = h.shares * h.price;
+          const costVal = h.shares * h.avgCost;
+          const pnl = mktVal - costVal;
+          const pnlPct = costVal > 0 ? (pnl / costVal) * 100 : 0;
+          const dispVal = convertCurrency(mktVal, h.currency, disp);
+          const weight = ibkrValueDisp > 0 ? (dispVal / ibkrValueDisp) * 100 : 0;
+
+          return `
+            <tr data-hold-id="${h.id}" class="hover:bg-white/[0.02] transition tabular-nums">
+              <td class="py-3.5 pl-3 pr-1">
+                <button type="button" data-drag-handle title="Drag to reorder" class="touch-drag-handle cursor-grab active:cursor-grabbing p-1 rounded text-slate-500 hover:text-slate-300">
+                  <i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i>
+                </button>
+              </td>
+              <td class="py-3.5 px-4">
+                <div class="font-bold font-mono text-white">${escapeHTML(h.symbol)}</div>
+                <div class="text-[11px] text-slate-400 max-w-[200px] truncate">${escapeHTML(h.name)}</div>
+              </td>
+              <td class="py-3.5 px-4 text-right font-mono text-slate-200">${Number(h.shares).toLocaleString()}</td>
+              <td class="py-3.5 px-4 text-right font-mono text-slate-300">${formatMoney(h.avgCost, h.currency)}</td>
+              <td class="py-3.5 px-4 text-right font-mono font-semibold text-white">${formatMoney(h.price, h.currency)}</td>
+              <td class="py-3.5 px-4 text-right font-mono font-bold text-white">${formatMoney(mktVal, h.currency)}</td>
+              <td class="py-3.5 px-4 text-right font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                <div>${formatMoney(pnl, h.currency, true)}</div>
+                <div class="text-[10px]">(${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%)</div>
+              </td>
+              <td class="py-3.5 px-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-14 h-1.5 rounded-full bg-[#080c14] overflow-hidden">
+                    <div class="h-full bg-sky-400 rounded-full" style="width:${weight}%"></div>
+                  </div>
+                  <span class="font-mono text-[11px] text-slate-400">${weight.toFixed(1)}%</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 text-right font-mono font-semibold text-sky-300">${formatMoney(dispVal, disp)}</td>
+              <td class="py-3.5 px-4 text-right">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="openHoldingModal('${h.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06]"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="deleteHolding('${h.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-white/[0.06]"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+
+      mobileList.innerHTML = sortedHoldings
+        .map((h) => {
+          const mktVal = h.shares * h.price;
+          const costVal = h.shares * h.avgCost;
+          const pnl = mktVal - costVal;
+          const pnlPct = costVal > 0 ? (pnl / costVal) * 100 : 0;
+          const dispVal = convertCurrency(mktVal, h.currency, disp);
+
+          return `
+            <div data-hold-id="${h.id}" class="p-3 sm:p-4 space-y-1.5 sm:space-y-2.5 tabular-nums select-none">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-start gap-2 min-w-0">
+                  <button type="button" data-drag-handle title="Drag to reorder" aria-label="Drag to reorder" class="touch-drag-handle cursor-grab active:cursor-grabbing p-1 mt-0.5 rounded text-slate-500 hover:text-slate-300 shrink-0">
+                    <i data-lucide="grip-vertical" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <div class="min-w-0">
+                    <span class="font-mono font-bold text-xs sm:text-sm text-white">${escapeHTML(h.symbol)}</span>
+                    <span class="ml-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-300">${h.shares} sh</span>
+                    <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">${escapeHTML(h.name)}</p>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-xs sm:text-sm font-bold text-white">${formatMoney(mktVal, h.currency)}</div>
+                  <div class="text-[10px] sm:text-[11px] font-mono text-sky-300">${formatMoney(dispVal, disp)}</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] sm:text-xs pt-0.5 pl-6">
+                <span class="font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                  ${formatMoney(pnl, h.currency, true)} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%)
+                </span>
+                <div class="flex items-center gap-2.5">
+                  <button onclick="openHoldingModal('${h.id}')" class="text-slate-400 hover:text-white text-[11px] sm:text-xs font-semibold">Edit</button>
+                  <button onclick="deleteHolding('${h.id}')" class="text-rose-400 hover:text-rose-300 text-[11px] sm:text-xs font-semibold">Remove</button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      bindSortableContainer(tbody, 'ibkr', 'data-hold-id');
+      bindSortableContainer(mobileList, 'ibkr', 'data-hold-id');
     }
 
     function showToast(message, type = 'info') {
@@ -2165,6 +2688,7 @@ service cloud.firestore {
         unsubscribeSnapshot = docRef.onSnapshot(
           (snap) => {
             if (!currentUser || currentUser.uid !== uid) return;
+            if (pendingCloudSaveFn) return;
             if (snap.exists) {
               state = normalizeVaultState(snap.data());
               try {
@@ -3067,7 +3591,7 @@ service cloud.firestore {
           return;
         }
 
-        state.holdings = parsed;
+        state.holdings = preserveHoldingsCustomOrder(parsed);
         state.ibkrQuoteSource = 'IBKR Flex Live';
         state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         persistState(true);
@@ -3215,6 +3739,19 @@ service cloud.firestore {
       reader.readAsText(file);
     }
 
+    function preserveHoldingsCustomOrder(incomingList) {
+      if (!Array.isArray(state.holdings) || !state.holdings.length) return incomingList;
+      const orderMap = new Map();
+      state.holdings.forEach((h, idx) => {
+        if (h && h.symbol) orderMap.set(h.symbol.toUpperCase(), idx);
+      });
+      return [...incomingList].sort((a, b) => {
+        const idxA = orderMap.has(a.symbol) ? orderMap.get(a.symbol) : Number.MAX_SAFE_INTEGER;
+        const idxB = orderMap.has(b.symbol) ? orderMap.get(b.symbol) : Number.MAX_SAFE_INTEGER;
+        return idxA - idxB;
+      });
+    }
+
     function parseAndImportIBKRText() {
       const raw = document.getElementById('ibkr-raw-import')?.value || '';
       const parsed = parseIBKRFlexContent(raw);
@@ -3222,7 +3759,7 @@ service cloud.firestore {
         showToast('Could not detect any Open Positions in the pasted XML/CSV.', 'error');
         return;
       }
-      state.holdings = parsed;
+      state.holdings = preserveHoldingsCustomOrder(parsed);
       state.ibkrQuoteSource = 'IBKR Flex Report';
       state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       persistState(true);
@@ -3549,261 +4086,6 @@ service cloud.firestore {
     }
 
     // =========================================================================
-    // RENDER MONEY POTS (OVERVIEW SNAPSHOT + FULL POTS SECTION)
-    // =========================================================================
-    function renderPots() {
-      const disp = state.displayCurrency;
-      const overviewList = document.getElementById('overview-pots-list');
-      const fullGrid = document.getElementById('pots-grid');
-
-      if (!state.accounts.length) {
-        const empty = `<div class="col-span-full p-8 text-center rounded-2xl bg-[#0f1623] border border-dashed border-white/15 text-xs text-slate-400">No money pots yet. Click <strong>+ Add Money Pot</strong> to create your first savings, checking, or FX account.</div>`;
-        overviewList.innerHTML = empty;
-        fullGrid.innerHTML = empty;
-        return;
-      }
-
-      // Overview Compact Snapshot (Top 4)
-      overviewList.innerHTML = state.accounts
-        .slice(0, 4)
-        .map((acc) => {
-          const isCC = acc.type === 'Credit Card';
-          const metrics = calculatePotYieldMetrics(acc);
-          const convDisp = convertCurrency(acc.balance, acc.currency, disp);
-          const svg = renderInstitutionBadgeSVG(acc.institution, acc.customColor, acc.customMono);
-          return `
-            <div onclick="openAccountModal('${acc.id}')" class="p-2.5 sm:p-3.5 rounded-xl bg-[#141d2e] hover:bg-[#1a253a] border border-white/[0.08] cursor-pointer transition flex items-center justify-between gap-2.5 sm:gap-3">
-              <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl overflow-hidden shrink-0">${svg}</div>
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-white truncate">${escapeHTML(acc.name)}</div>
-                  <div class="text-[10px] sm:text-[11px] text-slate-400 truncate">
-                    ${isCC ? '<span class="text-rose-400">Credit Card</span>' : (metrics.netApy > 0 ? `<span class="text-emerald-400">${metrics.netApy.toFixed(2)}% net APY</span>` : escapeHTML(acc.type))}
-                  </div>
-                </div>
-              </div>
-              <div class="text-right tabular-nums shrink-0">
-                <div class="text-xs font-bold ${isCC ? 'text-rose-400' : 'text-white'}">${isCC ? '-' : ''}${formatMoney(acc.balance, acc.currency)}</div>
-                ${acc.currency !== disp ? `<div class="text-[10px] font-mono text-slate-400">≈ ${formatMoney(convDisp, disp)}</div>` : ''}
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      // Full Money Pots Grid
-      fullGrid.innerHTML = state.accounts
-        .map((acc) => {
-          const isCC = acc.type === 'Credit Card';
-          const metrics = calculatePotYieldMetrics(acc);
-          const convDisp = convertCurrency(acc.balance, acc.currency, disp);
-          const svg = renderInstitutionBadgeSVG(acc.institution, acc.customColor, acc.customMono);
-
-          const utilPct = isCC && acc.creditLimit > 0 ? Math.min(100, (acc.balance / acc.creditLimit) * 100) : 0;
-
-          return `
-            <div class="bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between gap-2.5 sm:gap-4 hover:border-white/15 transition">
-              <div class="flex items-start justify-between gap-2.5 sm:gap-3">
-                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-[13px] overflow-hidden shrink-0 shadow-md">${svg}</div>
-                  <div class="min-w-0">
-                    <h3 class="text-xs sm:text-sm font-bold text-white truncate">${escapeHTML(acc.name)}</h3>
-                    <p class="text-[10px] sm:text-[11px] text-slate-400 truncate">${escapeHTML(acc.type)}${acc.tag ? ` • ${escapeHTML(acc.tag)}` : ''}</p>
-                  </div>
-                </div>
-                <span class="text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300 border border-white/[0.08] shrink-0">
-                  ${acc.currency}
-                </span>
-              </div>
-
-              <div class="tabular-nums flex items-baseline justify-between sm:block gap-2">
-                <div class="text-lg sm:text-2xl font-bold ${isCC ? 'text-rose-400' : 'text-white'}">
-                  ${isCC ? '-' : ''}${formatMoney(acc.balance, acc.currency)}
-                </div>
-                <div class="text-[11px] sm:text-xs font-mono text-slate-400 sm:mt-0.5 truncate">
-                  ${acc.currency !== disp ? `≈ ${isCC ? '-' : ''}${formatMoney(convDisp, disp)} in ${disp}` : 'Matches display currency'}
-                </div>
-              </div>
-
-              ${
-                isCC
-                  ? `
-                    <div class="p-2.5 sm:p-3 rounded-xl bg-rose-500/[0.06] border border-rose-500/20 space-y-1.5 sm:space-y-2 text-xs">
-                      <div class="flex items-center justify-between">
-                        <span class="text-slate-400">Due Date:</span>
-                        <span class="font-mono text-rose-300">${acc.dueDate || 'Not set'}</span>
-                      </div>
-                      ${
-                        acc.creditLimit > 0
-                          ? `
-                            <div>
-                              <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                                <span>Utilization (${utilPct.toFixed(0)}%)</span>
-                                <span class="font-mono">Limit: ${formatMoney(acc.creditLimit, acc.currency)}</span>
-                              </div>
-                              <div class="w-full h-1.5 rounded-full bg-[#080c14] overflow-hidden">
-                                <div class="h-full bg-rose-500 rounded-full" style="width:${utilPct}%"></div>
-                              </div>
-                            </div>
-                          `
-                          : ''
-                      }
-                    </div>
-                  `
-                  : `
-                    <div class="p-2.5 sm:p-3 rounded-xl bg-[#141d2e] border border-white/[0.06] grid grid-cols-2 gap-2 text-xs tabular-nums">
-                      <div>
-                        <span class="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 block">Net APY (${acc.tax || 0}% tax)</span>
-                        <span class="font-bold text-emerald-400">${metrics.netApy.toFixed(2)}%</span>
-                      </div>
-                      <div class="text-right">
-                        <span class="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 block">Cycle (${acc.freq})</span>
-                        <span class="font-bold text-white">${formatMoney(metrics.cyclePayout, acc.currency)}</span>
-                      </div>
-                    </div>
-                  `
-              }
-
-              <div class="pt-2 sm:pt-3 border-t border-white/[0.08] flex items-center justify-between gap-2">
-                ${
-                  !isCC && metrics.cyclePayout > 0
-                    ? `<button onclick="creditPotInterest('${acc.id}')" class="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-[11px] font-semibold transition">+ Credit Interest</button>`
-                    : `<span></span>`
-                }
-                <div class="flex items-center gap-1">
-                  <button onclick="openAccountModal('${acc.id}')" title="Edit Pot" class="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition">
-                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                  </button>
-                  <button onclick="deleteAccount('${acc.id}')" title="Delete Pot" class="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-white/[0.06] transition">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-    }
-
-    // =========================================================================
-    // RENDER IBKR PORTFOLIO TABLE & MOBILE CARDS
-    // =========================================================================
-    function renderIBKR(ibkrValueDisp, ibkrCostDisp, ibkrUnrealizedDisp, ibkrUnrealizedPct, ibkrDailyDisp) {
-      const disp = state.displayCurrency;
-      const ibkrValueUSD = convertCurrency(ibkrValueDisp, disp, 'USD');
-
-      document.getElementById('ibkr-quote-status-badge').textContent = state.ibkrQuoteSource || 'Simulated / Cached';
-      document.getElementById('ibkr-last-updated').textContent = `Updated ${state.ibkrLastUpdated || 'just now'}`;
-
-      document.getElementById('ibkr-kpi-value').textContent = formatMoney(ibkrValueDisp, disp);
-      document.getElementById('ibkr-kpi-value-usd').textContent = `Base USD: ${formatMoney(ibkrValueUSD, 'USD')}`;
-      document.getElementById('ibkr-kpi-cost').textContent = formatMoney(ibkrCostDisp, disp);
-
-      const unrEl = document.getElementById('ibkr-kpi-unrealized');
-      const unrPctEl = document.getElementById('ibkr-kpi-unrealized-pct');
-      unrEl.textContent = formatMoney(ibkrUnrealizedDisp, disp, true);
-      unrEl.className = `mt-1.5 text-xl font-bold tabular-nums ${ibkrUnrealizedDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-      unrPctEl.textContent = `${ibkrUnrealizedPct >= 0 ? '+' : ''}${ibkrUnrealizedPct.toFixed(2)}%`;
-      unrPctEl.className = `mt-0.5 text-[11px] font-mono font-semibold tabular-nums ${ibkrUnrealizedDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      const dayEl = document.getElementById('ibkr-kpi-daily');
-      const dayPctEl = document.getElementById('ibkr-kpi-daily-pct');
-      const prevTotal = ibkrValueDisp - ibkrDailyDisp;
-      const dayPct = prevTotal > 0 ? (ibkrDailyDisp / prevTotal) * 100 : 0;
-      dayEl.textContent = formatMoney(ibkrDailyDisp, disp, true);
-      dayEl.className = `mt-1.5 text-xl font-bold tabular-nums ${ibkrDailyDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-      dayPctEl.textContent = `${dayPct >= 0 ? '+' : ''}${dayPct.toFixed(2)}% today`;
-
-      const tbody = document.getElementById('ibkr-positions-tbody');
-      const mobileList = document.getElementById('ibkr-positions-mobile');
-
-      if (!state.holdings.length) {
-        const emptyRow = `<tr><td colspan="9" class="py-8 text-center text-xs text-slate-400">No IBKR positions yet. Click <strong>+ Add Holding</strong> or <strong>Import / Sync IBKR</strong>.</td></tr>`;
-        tbody.innerHTML = emptyRow;
-        mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No IBKR positions yet.</div>`;
-        return;
-      }
-
-      tbody.innerHTML = state.holdings
-        .map((h) => {
-          const mktVal = h.shares * h.price;
-          const costVal = h.shares * h.avgCost;
-          const pnl = mktVal - costVal;
-          const pnlPct = costVal > 0 ? (pnl / costVal) * 100 : 0;
-          const dispVal = convertCurrency(mktVal, h.currency, disp);
-          const weight = ibkrValueDisp > 0 ? (dispVal / ibkrValueDisp) * 100 : 0;
-
-          return `
-            <tr class="hover:bg-white/[0.02] transition tabular-nums">
-              <td class="py-3.5 px-4">
-                <div class="font-bold font-mono text-white">${escapeHTML(h.symbol)}</div>
-                <div class="text-[11px] text-slate-400 max-w-[200px] truncate">${escapeHTML(h.name)}</div>
-              </td>
-              <td class="py-3.5 px-4 text-right font-mono text-slate-200">${Number(h.shares).toLocaleString()}</td>
-              <td class="py-3.5 px-4 text-right font-mono text-slate-300">${formatMoney(h.avgCost, h.currency)}</td>
-              <td class="py-3.5 px-4 text-right font-mono font-semibold text-white">${formatMoney(h.price, h.currency)}</td>
-              <td class="py-3.5 px-4 text-right font-mono font-bold text-white">${formatMoney(mktVal, h.currency)}</td>
-              <td class="py-3.5 px-4 text-right font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-                <div>${formatMoney(pnl, h.currency, true)}</div>
-                <div class="text-[10px]">(${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%)</div>
-              </td>
-              <td class="py-3.5 px-4">
-                <div class="flex items-center gap-2">
-                  <div class="w-14 h-1.5 rounded-full bg-[#080c14] overflow-hidden">
-                    <div class="h-full bg-sky-400 rounded-full" style="width:${weight}%"></div>
-                  </div>
-                  <span class="font-mono text-[11px] text-slate-400">${weight.toFixed(1)}%</span>
-                </div>
-              </td>
-              <td class="py-3.5 px-4 text-right font-mono font-semibold text-sky-300">${formatMoney(dispVal, disp)}</td>
-              <td class="py-3.5 px-4 text-right">
-                <div class="inline-flex items-center gap-1">
-                  <button onclick="openHoldingModal('${h.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06]"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-                  <button onclick="deleteHolding('${h.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-white/[0.06]"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                </div>
-              </td>
-            </tr>
-          `;
-        })
-        .join('');
-
-      mobileList.innerHTML = state.holdings
-        .map((h) => {
-          const mktVal = h.shares * h.price;
-          const costVal = h.shares * h.avgCost;
-          const pnl = mktVal - costVal;
-          const pnlPct = costVal > 0 ? (pnl / costVal) * 100 : 0;
-          const dispVal = convertCurrency(mktVal, h.currency, disp);
-
-          return `
-            <div class="p-3 sm:p-4 space-y-1.5 sm:space-y-2.5 tabular-nums">
-              <div class="flex items-start justify-between gap-2">
-                <div class="min-w-0">
-                  <span class="font-mono font-bold text-xs sm:text-sm text-white">${escapeHTML(h.symbol)}</span>
-                  <span class="ml-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-300">${h.shares} sh</span>
-                  <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">${escapeHTML(h.name)}</p>
-                </div>
-                <div class="text-right shrink-0">
-                  <div class="text-xs sm:text-sm font-bold text-white">${formatMoney(mktVal, h.currency)}</div>
-                  <div class="text-[10px] sm:text-[11px] font-mono text-sky-300">${formatMoney(dispVal, disp)}</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between text-[11px] sm:text-xs pt-0.5">
-                <span class="font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-                  ${formatMoney(pnl, h.currency, true)} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%)
-                </span>
-                <div class="flex items-center gap-2.5">
-                  <button onclick="openHoldingModal('${h.id}')" class="text-slate-400 hover:text-white text-[11px] sm:text-xs font-semibold">Edit</button>
-                  <button onclick="deleteHolding('${h.id}')" class="text-rose-400 hover:text-rose-300 text-[11px] sm:text-xs font-semibold">Remove</button>
-                </div>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-    }
-
-    // =========================================================================
     // RENDER UNIFIED TRANSACTIONS LEDGER
     // =========================================================================
     function renderTransactions() {
@@ -4035,10 +4317,17 @@ service cloud.firestore {
     // =========================================================================
     // BOOTSTRAP ON WINDOW LOAD
     // =========================================================================
-    window.addEventListener('beforeunload', () => {
+    const flushOnBackground = () => {
       if (pendingCloudSaveFn) {
-        pendingCloudSaveFn();
+        const fn = pendingCloudSaveFn;
+        pendingCloudSaveFn = null;
+        fn();
       }
+    };
+    window.addEventListener('beforeunload', flushOnBackground);
+    window.addEventListener('pagehide', flushOnBackground);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushOnBackground();
     });
 
     window.onload = function () {
