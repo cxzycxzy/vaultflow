@@ -2952,192 +2952,182 @@ service cloud.firestore {
       applyImportedIBKRText(raw);
     }
 
-    function getHoldingUITFSpec(h) {
-      if (!h) return null;
-      if (h.uitfBankId && h.uitfFundId) {
-        const preset = Object.values(PH_UITF_PRESETS).find((p) => p.bankId === String(h.uitfBankId) && p.fundId === String(h.uitfFundId));
-        return {
-          bankId: String(h.uitfBankId),
-          fundId: String(h.uitfFundId),
-          matchTerms: preset ? preset.matchTerms : [h.name]
-        };
-      }
-      const sym = (h.symbol || '').toUpperCase();
-      const preset = Object.values(PH_UITF_PRESETS).find((p) => p.symbol === sym);
-      if (preset) {
-        return { bankId: preset.bankId, fundId: preset.fundId, matchTerms: preset.matchTerms };
-      }
-      const customMatch = sym.match(/^UITF[:\-](\d+)[:\-](\d+)$/);
-      if (customMatch) {
-        return { bankId: customMatch[1], fundId: customMatch[2], matchTerms: [h.name] };
-      }
-      return null;
+function getHoldingUITFSpec(h) {
+  const sym = (h.symbol || '').toUpperCase().trim();
+  const name = (h.name || '').toLowerCase();
+  const curr = (h.currency || 'PHP').toUpperCase();
+
+  if (sym === 'ATRAM-TECH' || name.includes('global technology feeder')) {
+    return { bankId: '31', keywords: ['global technology', 'feeder'], currency: curr };
+  }
+  if (sym === 'ATRAM-CONSUMER' || name.includes('global consumer trends')) {
+    return { bankId: '31', keywords: ['global consumer trends', 'feeder'], currency: curr };
+  }
+  if (sym === 'ATRAM-GLOBAL-MULTI' || name.includes('global multi-asset')) {
+    return { bankId: '31', keywords: ['global multi-asset'], currency: curr };
+  }
+  if (sym.startsWith('ATRAM-') || name.includes('atram')) {
+    const cleanKeywords = name
+      .replace(/atram|fund|class a|php|usd/g, '')
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length > 3);
+    return { bankId: '31', keywords: cleanKeywords.length ? cleanKeywords : ['atram'], currency: curr };
+  }
+  if (h.uitfBankId) {
+    return {
+      bankId: String(h.uitfBankId),
+      keywords: (h.uitfFundName || h.name || h.symbol).toLowerCase().split(/\s+/).filter((w) => w.length > 3),
+      currency: curr
+    };
+  }
+  return null;
+}
+
+function extractUITFNavpuFromHTML(html, keywords, targetCurrency = 'PHP') {
+  if (!html) return null;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const rows = Array.from(doc.querySelectorAll('tr'));
+
+  for (const tr of rows) {
+    const cells = Array.from(tr.querySelectorAll('td')).map((td) =>
+      td.textContent.replace(/\s+/g, ' ').trim()
+    );
+    if (cells.length < 4) continue;
+
+    const rowText = cells.join(' ').toLowerCase();
+    const matchesFund = keywords.every((kw) => rowText.includes(kw.toLowerCase()));
+    if (!matchesFund) continue;
+
+    // uitf.com.ph columns: [Bank, Fund Name, Classification, Currency, NAVPU, Date, ...]
+    const currIdx = cells.findIndex((c) => c.toUpperCase() === targetCurrency.toUpperCase());
+    if (currIdx !== -1 && cells[currIdx + 1]) {
+      const nav = parseFloat(cells[currIdx + 1].replace(/,/g, ''));
+      if (!isNaN(nav) && nav > 0) return nav;
     }
 
-    function extractUITFNavpuFromHTML(html, spec) {
-      if (!html) return null;
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const rows = Array.from(doc.querySelectorAll('tr'));
-      const fundIdRegex = spec.fundId ? new RegExp(`fund_id=${spec.fundId}(?:[^0-9]|$)`) : null;
+    // Fallback: locate 4-decimal NAVPU cell (excluding % return columns)
+    for (const cell of cells) {
+      if (cell.includes('%') || cell.includes('/')) continue;
+      const match = cell.match(/^\d{1,4}(?:,\d{3})*\.\d{4}$/);
+      if (match) {
+        const nav = parseFloat(match[0].replace(/,/g, ''));
+        if (!isNaN(nav) && nav > 0) return nav;
+      }
+    }
+  }
+  return null;
+}
 
-      for (const row of rows) {
-        const rowHtml = row.innerHTML || '';
-        const rowText = (row.textContent || '').replace(/\s+/g, ' ').trim();
-        const matchesFundId = fundIdRegex ? fundIdRegex.test(rowHtml) : false;
-        const matchesName = Array.isArray(spec.matchTerms) && spec.matchTerms.some((t) => t && rowText.toLowerCase().includes(t.toLowerCase()));
+async function fetchQuoteViaProxy(targetUrl) {
+  const workerBase = (state.ibkrCredentials?.workerUrl || '').trim().replace(/\/+$/, '');
+  if (workerBase) {
+    const normalizedWorker = /^https?:\/\//i.test(workerBase) ? workerBase : `https://${workerBase}`;
+    const proxyUrl = `${normalizedWorker}?url=${encodeURIComponent(targetUrl)}&_cb=${Date.now()}`;
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error(`Worker HTTP ${res.status}`);
+    return await res.text();
+  }
+  if (typeof fetchTextWithCORSFallback === 'function') {
+    return await fetchTextWithCORSFallback(targetUrl);
+  }
+  const res = await fetch(targetUrl);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.text();
+}
 
-        if (matchesFundId || matchesName) {
-          const cells = Array.from(row.querySelectorAll('td')).map((td) => td.textContent.replace(/\s+/g, ' ').trim());
-          for (const cell of cells) {
-            if (!cell || cell.includes('%') || cell.includes('/') || cell.includes('-')) continue;
-            const cleaned = cell.replace(/,/g, '');
-            const m = cleaned.match(/^(\d+\.\d{2,6})$/);
-            if (m) {
-              const val = parseFloat(m[1]);
-              if (val > 0) return val;
+async function refreshIBKRQuotes(manual = false) {
+  if (!state.holdings.length) {
+    if (manual) showToast('No holdings to refresh.', 'warning');
+    return;
+  }
+
+  const btn = document.getElementById('ibkr-refresh-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin"></i> Refreshing...';
+    if (window.lucide) lucide.createIcons({ nodes: [btn] });
+  }
+
+  let liveHits = 0;
+  let failedFeeds = 0;
+  const uitfHtmlCache = {};
+
+  try {
+    await Promise.all(
+      state.holdings.map(async (h) => {
+        const uitfSpec = getHoldingUITFSpec(h);
+
+        // 1. Philippine UITF / ATRAM Feeder Fund Daily NAVPU (uitf.com.ph)
+        if (uitfSpec) {
+          try {
+            const uitfUrl = `https://www.uitf.com.ph/daily_navpu.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}`;
+            if (!uitfHtmlCache[uitfUrl]) {
+              uitfHtmlCache[uitfUrl] = await fetchQuoteViaProxy(uitfUrl);
             }
+            const navpu = extractUITFNavpuFromHTML(
+              uitfHtmlCache[uitfUrl],
+              uitfSpec.keywords,
+              uitfSpec.currency
+            );
+            if (navpu && navpu > 0) {
+              h.prevClose = Number(h.price) > 1 ? Number(h.price) : navpu;
+              h.price = Number(navpu.toFixed(4));
+              liveHits++;
+              return;
+            }
+            failedFeeds++;
+          } catch (err) {
+            failedFeeds++;
           }
+          return;
         }
-      }
 
-      // Fallback for fund-details.php single-fund page
-      const bodyText = (doc.body?.textContent || '').replace(/,/g, ' ');
-      const navMatch = bodyText.match(/Latest\s*NAVPU[^0-9]{0,30}(\d+\.\d{2,6})/i) || bodyText.match(/NAVPU[^0-9]{0,25}(\d+\.\d{2,6})/i);
-      if (navMatch) {
-        const val = parseFloat(navMatch[1]);
-        if (val > 0) return val;
-      }
-      return null;
-    }
-
-    async function fetchSingleYahooQuote(symbol) {
-      const hosts = ['query1.finance.yahoo.com', 'query2.finance.yahoo.com'];
-      for (const host of hosts) {
+        // 2. Stocks & UCITS ETFs (Yahoo Finance)
         try {
-          const url = `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`;
-          const text = await fetchTextWithCORSFallback(url);
-          const data = JSON.parse(text);
-          const meta = data?.chart?.result?.[0]?.meta;
+          const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(h.symbol)}?interval=1d&range=1d`;
+          const rawText = await fetchQuoteViaProxy(yahooUrl);
+          const json = JSON.parse(rawText);
+          const meta = json?.chart?.result?.[0]?.meta;
           if (meta && meta.regularMarketPrice) {
-            return {
-              price: Number(meta.regularMarketPrice),
-              prevClose: Number(meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice)
-            };
+            h.prevClose = Number(meta.chartPreviousClose || meta.previousClose || h.price);
+            h.price = Number(meta.regularMarketPrice);
+            liveHits++;
+          } else {
+            failedFeeds++;
           }
-        } catch (e) {}
-      }
-      return null;
-    }
-
-    async function refreshIBKRQuotes(manual = false) {
-      if (!state.holdings.length) {
-        if (state.ibkrCredentials?.flexToken && state.ibkrCredentials?.flexQueryId) {
-          await fetchIBKRFlexPositions(manual);
-        } else if (manual) {
-          showToast('No holdings yet. Add an equity/UITF or sync via IBKR Flex.', 'info');
+        } catch (err) {
+          failedFeeds++;
         }
-        return;
-      }
+      })
+    );
 
-      const btn = document.getElementById('ibkr-refresh-btn');
-      const icon = document.getElementById('ibkr-refresh-icon');
-      const label = document.getElementById('ibkr-refresh-label');
-      const updatedEl = document.getElementById('ibkr-last-updated');
+    state.ibkrQuoteSource = liveHits > 0 ? 'Live Quotes & NAVPU' : 'Cached Quotes';
+    state.ibkrLastUpdated = new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
 
-      if (btn) btn.disabled = true;
-      if (icon) icon.classList.add('animate-spin');
-      if (label) label.textContent = 'Refreshing...';
-      if (updatedEl && manual) updatedEl.textContent = 'Fetching live quotes & NAVPUs...';
+    persistState(true);
+    renderAll();
 
-      try {
-        let updatedCount = 0;
-        let uitfUpdated = 0;
-        let equityUpdated = 0;
-
-        // 1. Pre-fetch unique UITF bank pages concurrently
-        const uitfSpecs = state.holdings.map((h) => getHoldingUITFSpec(h));
-        const uniqueBankIds = [...new Set(uitfSpecs.filter(Boolean).map((s) => s.bankId))];
-        const uitfBankHtmlMap = new Map();
-
-        await Promise.allSettled(
-          uniqueBankIds.map(async (bankId) => {
-            try {
-              const html = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/daily-navpu.php?bank_id=${encodeURIComponent(bankId)}`);
-              uitfBankHtmlMap.set(bankId, html);
-            } catch (e) {
-              uitfBankHtmlMap.set(bankId, '');
-            }
-          })
-        );
-
-        // 2. Refresh all holdings concurrently
-        await Promise.allSettled(
-          state.holdings.map(async (h, idx) => {
-            const uitfSpec = uitfSpecs[idx];
-            if (uitfSpec) {
-              const bankHtml = uitfBankHtmlMap.get(uitfSpec.bankId) || '';
-              let navpu = extractUITFNavpuFromHTML(bankHtml, uitfSpec);
-              if (!navpu) {
-                try {
-                  const detailHtml = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/fund-details.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}&fund_id=${encodeURIComponent(uitfSpec.fundId)}`);
-                  navpu = extractUITFNavpuFromHTML(detailHtml, uitfSpec);
-                } catch (e) {}
-              }
-              if (navpu && navpu > 0) {
-                h.prevClose = h.price;
-                h.price = navpu;
-                updatedCount++;
-                uitfUpdated++;
-              }
-            } else {
-              const quote = await fetchSingleYahooQuote(h.symbol);
-              if (quote && quote.price > 0) {
-                h.prevClose = quote.prevClose;
-                h.price = quote.price;
-                updatedCount++;
-                equityUpdated++;
-              }
-            }
-          })
-        );
-
-        if (updatedCount > 0) {
-          state.ibkrQuoteSource = 'Live Quotes & NAVPU';
-          state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          persistState(true);
-          renderAll();
-          if (manual) {
-            const details = [];
-            if (equityUpdated > 0) details.push(`${equityUpdated} equity/ETF`);
-            if (uitfUpdated > 0) details.push(`${uitfUpdated} UITF NAVPU`);
-            showToast(`Updated ${updatedCount} holding(s) (${details.join(', ')}).`, 'success');
-          }
-        } else {
-          if (updatedEl) updatedEl.textContent = `Updated ${state.ibkrLastUpdated || 'just now'}`;
-          if (manual) {
-            showToast('Live quote/NAVPU feeds blocked by CORS relays. Update your Cloudflare Worker code in Setup for instant quotes.', 'warning');
-          }
-        }
-      } finally {
-        if (btn) btn.disabled = false;
-        if (icon) icon.classList.remove('animate-spin');
-        if (label) label.textContent = 'Quotes';
-      }
-    }
-
-    function toggleIBKRAutoRefresh(enabled) {
-      if (ibkrAutoRefreshTimer) {
-        clearInterval(ibkrAutoRefreshTimer);
-        ibkrAutoRefreshTimer = null;
-      }
-      if (enabled) {
-        refreshIBKRQuotes(false);
-        ibkrAutoRefreshTimer = setInterval(() => refreshIBKRQuotes(false), 60000);
-        showToast('Holdings 60-second auto-refresh enabled.', 'info');
+    if (manual) {
+      if (liveHits > 0 && failedFeeds === 0) {
+        showToast(`Updated ${liveHits} live quote(s) / NAVPU.`, 'success');
+      } else if (liveHits > 0) {
+        showToast(`Updated ${liveHits} quote(s); ${failedFeeds} feed(s) unavailable.`, 'warning');
       } else {
-        showToast('Holdings auto-refresh paused.', 'info');
+        showToast('Could not fetch live quotes. Check your Cloudflare Worker URL in Setup.', 'error');
       }
     }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Quotes';
+      if (window.lucide) lucide.createIcons({ nodes: [btn] });
+    }
+  }
+}
 
     // =========================================================================
     // MASTER RENDER PIPELINE, KPI AGGREGATION & SVG CHARTS
