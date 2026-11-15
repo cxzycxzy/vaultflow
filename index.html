@@ -583,8 +583,12 @@
                   <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Quotes
                 </button>
 
+                <button id="ibkr-flex-sync-btn" onclick="fetchIBKRFlexPositions(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">
+                  <i data-lucide="cloud-download" class="w-3.5 h-3.5"></i> Sync Flex
+                </button>
+
                 <button onclick="openModal('ibkr-sync-modal')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#141d2e] hover:bg-[#1a253a] border border-white/[0.08] text-white text-xs font-semibold transition">
-                  <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-sky-400"></i> Import / Sync IBKR
+                  <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-sky-400"></i> Import / Setup
                 </button>
 
                 <button onclick="openHoldingModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
@@ -1151,10 +1155,10 @@
       <div class="p-4 rounded-xl bg-[#141d2e] border border-white/[0.08] space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Method A: IBKR Flex Web Service</span>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/15 text-sky-300">Private Firestore Vault</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/15 text-sky-300">2-Step XML/CSV Sync</span>
         </div>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Enter your IBKR Flex Web Service Token & Activity Query ID. Credentials are saved strictly inside your private user document (<code class="text-slate-300">users/{uid}/vault/state</code>).
+          Requires an <strong class="text-slate-200">Activity Flex Query</strong> in IBKR Client Portal with <strong class="text-slate-200">Open Positions</strong> enabled (XML format recommended). Credentials stay inside your private vault.
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -1166,31 +1170,32 @@
             <input id="ibkr-flex-query-id" type="text" placeholder="e.g., 891245" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
           </div>
         </div>
-        <button type="button" onclick="syncIBKRFlexWebService()" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">
-          Save Credentials & Fetch Flex Report
-        </button>
-      </div>
 
-      <!-- Method B: Drag & Drop / Paste IBKR CSV or Flex XML -->
-      <div class="p-4 rounded-xl bg-[#141d2e] border border-white/[0.08] space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Method B: Drag & Drop / Paste CSV or Flex XML</span>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Instant Parser</span>
+        <!-- CORS Relay / Custom Proxy Selector -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Browser CORS Transport</label>
+            <select id="ibkr-proxy-mode" onchange="handleIBKRProxyModeChange()" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-sky-500">
+              <option value="auto">Auto (Direct → CORS Relay)</option>
+              <option value="direct">Direct Only (CORS Extension)</option>
+              <option value="custom">Custom Worker / Proxy URL</option>
+            </select>
+          </div>
+          <div id="ibkr-custom-proxy-wrap" class="hidden">
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Proxy Prefix URL</label>
+            <input id="ibkr-custom-proxy-url" type="url" placeholder="https://your-worker.workers.dev/?url=" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
+          </div>
         </div>
 
-        <!-- Dropzone -->
-        <div id="ibkr-dropzone" ondragover="handleIBKRDragOver(event)" ondragleave="handleIBKRDragLeave(event)" ondrop="handleIBKRDrop(event)" class="border border-dashed border-white/20 hover:border-emerald-400/60 rounded-xl p-4 text-center bg-[#080c14]/70 transition cursor-pointer" onclick="document.getElementById('ibkr-file-input').click()">
-          <i data-lucide="file-spreadsheet" class="w-6 h-6 text-emerald-400 mx-auto mb-1.5"></i>
-          <p class="text-xs font-semibold text-white">Drop IBKR Activity Statement (.csv or .xml) here</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Extracts Symbol, Quantity, CostBasisPrice, MarkPrice & CurrencyPrimary</p>
-          <input id="ibkr-file-input" type="file" accept=".csv,.xml,.txt" onchange="handleIBKRFileUpload(event)" class="hidden" />
-        </div>
+        <!-- Live Flex Sync Diagnostic Status Box -->
+        <div id="ibkr-flex-status" class="hidden p-3 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-slate-300 leading-relaxed"></div>
 
-        <textarea id="ibkr-raw-import" rows="4" placeholder="Symbol,Quantity,CostBasisPrice,MarkPrice,CurrencyPrimary&#10;VWRA.L,85,122.40,143.80,USD&#10;IWDA.L,60,92.10,108.45,USD&#10;SGOV,45,100.12,100.48,USD" class="w-full p-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
-
-        <div class="flex justify-end">
-          <button type="button" onclick="parseAndImportIBKRText()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
-            Parse & Import Holdings
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button id="ibkr-fetch-flex-btn" type="button" onclick="syncIBKRFlexWebService()" class="flex-1 py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">
+            Save Credentials & Fetch Flex Positions
+          </button>
+          <button type="button" onclick="saveIBKRCredentialsOnly()" class="py-2.5 px-3.5 rounded-xl bg-[#080c14] hover:bg-white/[0.06] border border-white/[0.08] text-slate-300 text-xs font-semibold transition">
+            Save Only
           </button>
         </div>
       </div>
@@ -1316,15 +1321,14 @@ service cloud.firestore {
     // =========================================================================
     // Replace the placeholder values below with your actual Firebase Web App
     // credentials before deploying to GitHub Pages:
-const DEFAULT_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDPEZeres-rG_ci4XFiJYY1uR_BzsDJj1M",
-  authDomain: "vaultflow-fa8bb.firebaseapp.com",
-  projectId: "vaultflow-fa8bb",
-  storageBucket: "vaultflow-fa8bb.firebasestorage.app",
-  messagingSenderId: "243673941991",
-  appId: "1:243673941991:web:54e5c65cf9ecc551399f42",
-  measurementId: "G-FE2G42K26P"
-};
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "vaultflow-xxxxx.firebaseapp.com",
+      projectId: "vaultflow-xxxxx",
+      storageBucket: "vaultflow-xxxxx.firebasestorage.app",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
 
     const FIREBASE_CFG_KEY = 'vaultflow_firebase_cfg_v2';
     const SANDBOX_STORAGE_KEY = 'vaultflow_sandbox_state_v2';
@@ -1465,7 +1469,7 @@ const DEFAULT_FIREBASE_CONFIG = {
       accounts: [],
       holdings: [],
       transactions: [],
-      ibkrCredentials: { flexToken: '', flexQueryId: '' },
+      ibkrCredentials: { flexToken: '', flexQueryId: '', proxyMode: 'auto', customProxyUrl: '' },
       ibkrQuoteSource: 'Simulated / Cached',
       ibkrLastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
@@ -1731,6 +1735,9 @@ const DEFAULT_FIREBASE_CONFIG = {
       if (id === 'ibkr-sync-modal') {
         document.getElementById('ibkr-flex-token').value = state.ibkrCredentials?.flexToken || '';
         document.getElementById('ibkr-flex-query-id').value = state.ibkrCredentials?.flexQueryId || '';
+        document.getElementById('ibkr-proxy-mode').value = state.ibkrCredentials?.proxyMode || 'auto';
+        document.getElementById('ibkr-custom-proxy-url').value = state.ibkrCredentials?.customProxyUrl || '';
+        handleIBKRProxyModeChange();
       }
       if (window.lucide) lucide.createIcons();
     }
@@ -2863,7 +2870,11 @@ const DEFAULT_FIREBASE_CONFIG = {
 
     async function refreshIBKRQuotes(manual = false) {
       if (!state.holdings.length) {
-        if (manual) showToast('No IBKR holdings to refresh.', 'warning');
+        if (state.ibkrCredentials?.flexToken && state.ibkrCredentials?.flexQueryId) {
+          await fetchIBKRFlexPositions(manual);
+          return;
+        }
+        if (manual) showToast('No IBKR holdings yet. Click "Import / Setup" to sync Flex or add a ticker.', 'warning');
         return;
       }
 
@@ -2922,19 +2933,294 @@ const DEFAULT_FIREBASE_CONFIG = {
       }
     }
 
-    function syncIBKRFlexWebService() {
-      const token = document.getElementById('ibkr-flex-token').value.trim();
-      const queryId = document.getElementById('ibkr-flex-query-id').value.trim();
-      if (!token || !queryId) {
+    function handleIBKRProxyModeChange() {
+      const mode = document.getElementById('ibkr-proxy-mode')?.value || 'auto';
+      const wrap = document.getElementById('ibkr-custom-proxy-wrap');
+      if (wrap) wrap.classList.toggle('hidden', mode !== 'custom');
+    }
+
+    function setIBKRFlexStatus(message, tone = 'info') {
+      const box = document.getElementById('ibkr-flex-status');
+      if (!box) return;
+      const toneClasses = {
+        info: 'border-sky-500/30 text-sky-300 bg-sky-500/10',
+        success: 'border-emerald-500/30 text-emerald-300 bg-emerald-500/10',
+        error: 'border-rose-500/30 text-rose-300 bg-rose-500/10',
+        warning: 'border-amber-500/30 text-amber-300 bg-amber-500/10'
+      };
+      box.className = `p-3 rounded-lg border text-xs leading-relaxed ${toneClasses[tone] || toneClasses.info}`;
+      box.textContent = message;
+      box.classList.remove('hidden');
+    }
+
+    function readIBKRCredentialInputs() {
+      return {
+        flexToken: (document.getElementById('ibkr-flex-token')?.value || '').trim(),
+        flexQueryId: (document.getElementById('ibkr-flex-query-id')?.value || '').trim(),
+        proxyMode: document.getElementById('ibkr-proxy-mode')?.value || 'auto',
+        customProxyUrl: (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim()
+      };
+    }
+
+    function saveIBKRCredentialsOnly() {
+      const creds = readIBKRCredentialInputs();
+      if (!creds.flexToken || !creds.flexQueryId) {
         showToast('Please enter both your IBKR Flex Token and Query ID.', 'warning');
         return;
       }
+      state.ibkrCredentials = creds;
+      persistState(true);
+      setIBKRFlexStatus('Credentials saved to your private vault.', 'success');
+      showToast('IBKR Flex credentials saved.', 'success');
+    }
 
-      state.ibkrCredentials = { flexToken: token, flexQueryId: queryId };
-      persistState();
-      closeModal('ibkr-sync-modal');
-      refreshIBKRQuotes(true);
-      showToast('IBKR Flex credentials saved to your private vault.', 'success');
+    async function syncIBKRFlexWebService() {
+      const creds = readIBKRCredentialInputs();
+      if (!creds.flexToken || !creds.flexQueryId) {
+        showToast('Please enter both your IBKR Flex Token and Query ID.', 'warning');
+        return;
+      }
+      state.ibkrCredentials = creds;
+      persistState(true);
+      await fetchIBKRFlexPositions(true);
+    }
+
+    async function fetchTextWithCORSFallback(targetUrl, proxyMode = 'auto', customProxyUrl = '') {
+      const attempts = [];
+      if (proxyMode === 'custom' && customProxyUrl) {
+        const sep = customProxyUrl.includes('?') || customProxyUrl.endsWith('/') ? '' : '?url=';
+        attempts.push({ label: 'Custom Proxy', url: `${customProxyUrl}${sep}${encodeURIComponent(targetUrl)}` });
+      } else if (proxyMode === 'direct') {
+        attempts.push({ label: 'Direct', url: targetUrl });
+      } else {
+        attempts.push({ label: 'Direct', url: targetUrl });
+        attempts.push({ label: 'CORS Relay 1', url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` });
+        attempts.push({ label: 'CORS Relay 2', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}` });
+      }
+
+      let lastErr = null;
+      for (const attempt of attempts) {
+        try {
+          const res = await fetch(attempt.url, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status} via ${attempt.label}`);
+          const text = await res.text();
+          if (text && text.trim().length > 0) return text;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error('Network / CORS request blocked by browser.');
+    }
+
+    async function fetchIBKRFlexPositions(manual = true) {
+      const creds = state.ibkrCredentials || {};
+      const token = (creds.flexToken || '').trim();
+      const queryId = (creds.flexQueryId || '').trim();
+      const proxyMode = creds.proxyMode || 'auto';
+      const customProxyUrl = creds.customProxyUrl || '';
+
+      if (!token || !queryId) {
+        openModal('ibkr-sync-modal');
+        showToast('Enter your IBKR Flex Token and Query ID first.', 'warning');
+        return;
+      }
+
+      const toolbarBtn = document.getElementById('ibkr-flex-sync-btn');
+      const modalBtn = document.getElementById('ibkr-fetch-flex-btn');
+      if (toolbarBtn) toolbarBtn.disabled = true;
+      if (modalBtn) {
+        modalBtn.disabled = true;
+        modalBtn.textContent = 'Syncing with IBKR...';
+      }
+
+      try {
+        setIBKRFlexStatus('Step 1/2: Requesting statement from IBKR Flex Web Service...', 'info');
+        const sendUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
+        const sendXmlText = await fetchTextWithCORSFallback(sendUrl, proxyMode, customProxyUrl);
+
+        const parser = new DOMParser();
+        const sendDoc = parser.parseFromString(sendXmlText, 'text/xml');
+        const status = sendDoc.querySelector('Status')?.textContent?.trim();
+
+        if (status !== 'Success') {
+          const errCode = sendDoc.querySelector('ErrorCode')?.textContent?.trim() || 'Unknown';
+          const errMsg = sendDoc.querySelector('ErrorMessage')?.textContent?.trim() || 'IBKR rejected the Flex request.';
+          throw new Error(`IBKR Error ${errCode}: ${errMsg}`);
+        }
+
+        const refCode = sendDoc.querySelector('ReferenceCode')?.textContent?.trim();
+        const baseStatementUrl =
+          sendDoc.querySelector('Url')?.textContent?.trim() ||
+          'https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/GetStatement';
+
+        if (!refCode) {
+          throw new Error('IBKR did not return a statement ReferenceCode.');
+        }
+
+        // Step 2: Poll GetStatement (IBKR often needs 2-5 seconds to generate the report)
+        let statementPayload = '';
+        const getUrl = `${baseStatementUrl}?q=${encodeURIComponent(refCode)}&t=${encodeURIComponent(token)}&v=3`;
+
+        for (let attempt = 1; attempt <= 5; attempt++) {
+          setIBKRFlexStatus(`Step 2/2: Downloading Flex statement (attempt ${attempt}/5)...`, 'info');
+          await new Promise((r) => setTimeout(r, attempt === 1 ? 1800 : 2500));
+
+          const rawResp = await fetchTextWithCORSFallback(getUrl, proxyMode, customProxyUrl);
+          if (rawResp.includes('<FlexStatementResponse')) {
+            const checkDoc = parser.parseFromString(rawResp, 'text/xml');
+            const st = checkDoc.querySelector('Status')?.textContent?.trim();
+            const code = checkDoc.querySelector('ErrorCode')?.textContent?.trim();
+            const msg = checkDoc.querySelector('ErrorMessage')?.textContent?.trim();
+            if (st === 'Fail' && (code === '1019' || code === '1018')) {
+              continue; // Statement still generating; retry
+            }
+            if (st === 'Fail') {
+              throw new Error(`IBKR Error ${code}: ${msg}`);
+            }
+          }
+          statementPayload = rawResp;
+          break;
+        }
+
+        if (!statementPayload) {
+          throw new Error('Timed out waiting for IBKR to generate the Flex report. Try clicking Sync Flex again in 5 seconds.');
+        }
+
+        const imported = parseIBKRPayload(statementPayload);
+        if (!imported.length) {
+          throw new Error(
+            'Statement downloaded, but 0 Open Positions were found. Ensure your IBKR Flex Query includes the "Open Positions" section and Format is set to XML.'
+          );
+        }
+
+        imported.forEach((item) => {
+          const existingIdx = state.holdings.findIndex((h) => h.symbol === item.symbol);
+          if (existingIdx !== -1) {
+            state.holdings[existingIdx] = {
+              ...state.holdings[existingIdx],
+              ...item,
+              id: state.holdings[existingIdx].id
+            };
+          } else {
+            state.holdings.push(item);
+          }
+        });
+
+        state.ibkrQuoteSource = 'IBKR Flex Sync';
+        state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        persistState(true);
+        renderAll();
+
+        setIBKRFlexStatus(`Synced ${imported.length} position(s) from IBKR Flex!`, 'success');
+        closeModal('ibkr-sync-modal');
+        if (manual) showToast(`Synced ${imported.length} IBKR position(s) from Flex!`, 'success');
+      } catch (err) {
+        console.error('IBKR Flex sync error:', err);
+        const msg = err?.message || 'Failed to reach IBKR Flex Web Service.';
+        setIBKRFlexStatus(msg, 'error');
+        if (manual) showToast(msg, 'error');
+      } finally {
+        if (toolbarBtn) toolbarBtn.disabled = false;
+        if (modalBtn) {
+          modalBtn.disabled = false;
+          modalBtn.textContent = 'Save Credentials & Fetch Flex Positions';
+        }
+      }
+    }
+
+    function parseIBKRPayload(rawInput) {
+      const raw = (rawInput || '').trim();
+      if (!raw) return [];
+      const imported = [];
+
+      if (raw.startsWith('<')) {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(raw, 'text/xml');
+        let positions = Array.from(xml.querySelectorAll('OpenPosition'));
+
+        // Deduplicate if Flex query exported both SUMMARY and LOT rows
+        const summaryRows = positions.filter(
+          (n) => (n.getAttribute('levelOfDetail') || '').toUpperCase() === 'SUMMARY'
+        );
+        if (summaryRows.length > 0) {
+          positions = summaryRows;
+        }
+
+        positions.forEach((node) => {
+          const assetCat = (node.getAttribute('assetCategory') || '').toUpperCase();
+          if (assetCat === 'CASH') return;
+
+          let symbol = (node.getAttribute('symbol') || '').trim().toUpperCase();
+          const exchange = (node.getAttribute('listingExchange') || '').trim().toUpperCase();
+          if (symbol && !symbol.includes('.') && (exchange === 'LSE' || exchange === 'LSEETF')) {
+            symbol = `${symbol}.L`;
+          }
+
+          const shares = parseFloat(node.getAttribute('position') || node.getAttribute('quantity') || '0');
+          const avgCost = parseFloat(node.getAttribute('costBasisPrice') || node.getAttribute('openPrice') || '0');
+          const price = parseFloat(node.getAttribute('markPrice') || avgCost || '0');
+          const rawCurr = (node.getAttribute('currency') || 'USD').toUpperCase();
+          const currency = CURRENCIES[rawCurr] ? rawCurr : 'USD';
+          const name = node.getAttribute('description') || symbol;
+
+          if (symbol && !isNaN(shares) && shares !== 0) {
+            imported.push({
+              id: generateId('hold'),
+              symbol,
+              name,
+              currency,
+              shares,
+              avgCost: isNaN(avgCost) ? price : avgCost,
+              price: isNaN(price) ? avgCost : price,
+              prevClose: isNaN(price) ? avgCost : price
+            });
+          }
+        });
+      } else {
+        // CSV Parser (supports standard IBKR Flex CSV or simplified Symbol,Quantity,CostBasisPrice,MarkPrice,CurrencyPrimary)
+        const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        let colMap = { symbol: 0, shares: 1, cost: 2, price: 3, currency: 4 };
+
+        lines.forEach((line, idx) => {
+          const cols = line.split(',').map((c) => c.replace(/^"|"$/g, '').trim());
+          if (idx === 0 && cols.some((c) => /^(symbol|ticker)$/i.test(c))) {
+            const findCol = (patterns) => cols.findIndex((c) => patterns.some((rx) => rx.test(c)));
+            const sIdx = findCol([/^symbol$/i, /^ticker$/i]);
+            const qIdx = findCol([/^quantity$/i, /^position$/i, /^shares$/i]);
+            const cIdx = findCol([/^costbasisprice$/i, /^openprice$/i, /^avgcost$/i]);
+            const pIdx = findCol([/^markprice$/i, /^closeprice$/i, /^price$/i]);
+            const curIdx = findCol([/^currencyprimary$/i, /^currency$/i]);
+            if (sIdx !== -1 && qIdx !== -1) {
+              colMap = { symbol: sIdx, shares: qIdx, cost: cIdx, price: pIdx, currency: curIdx };
+            }
+            return;
+          }
+
+          const symbol = (cols[colMap.symbol] || '').toUpperCase();
+          const shares = parseFloat(cols[colMap.shares]);
+          const avgCost = colMap.cost !== -1 ? parseFloat(cols[colMap.cost]) : NaN;
+          const price = colMap.price !== -1 ? parseFloat(cols[colMap.price]) : NaN;
+          const rawCurr = colMap.currency !== -1 ? (cols[colMap.currency] || '').toUpperCase() : 'USD';
+          const currency = CURRENCIES[rawCurr] ? rawCurr : 'USD';
+
+          if (symbol && !isNaN(shares) && shares !== 0) {
+            const safePrice = !isNaN(price) ? price : (!isNaN(avgCost) ? avgCost : 0);
+            const safeCost = !isNaN(avgCost) ? avgCost : safePrice;
+            imported.push({
+              id: generateId('hold'),
+              symbol,
+              name: symbol,
+              currency,
+              shares,
+              avgCost: safeCost,
+              price: safePrice,
+              prevClose: safePrice
+            });
+          }
+        });
+      }
+
+      return imported;
     }
 
     function handleIBKRDragOver(e) {
@@ -2975,51 +3261,7 @@ const DEFAULT_FIREBASE_CONFIG = {
         return;
       }
 
-      const imported = [];
-
-      // Check for Flex XML <OpenPosition ... /> tags
-      if (raw.startsWith('<')) {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(raw, 'text/xml');
-        const positions = xml.querySelectorAll('OpenPosition');
-        positions.forEach((node) => {
-          const symbol = (node.getAttribute('symbol') || '').toUpperCase();
-          const shares = parseFloat(node.getAttribute('position') || node.getAttribute('quantity') || '0');
-          const avgCost = parseFloat(node.getAttribute('costBasisPrice') || '0');
-          const price = parseFloat(node.getAttribute('markPrice') || avgCost || '0');
-          const currency = node.getAttribute('currency') || 'USD';
-          const name = node.getAttribute('description') || symbol;
-          if (symbol && shares > 0) {
-            imported.push({ id: generateId('hold'), symbol, name, currency, shares, avgCost, price, prevClose: price });
-          }
-        });
-      } else {
-        // CSV Parser
-        const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-        lines.forEach((line, idx) => {
-          if (idx === 0 && /symbol/i.test(line)) return;
-          const cols = line.split(',').map((c) => c.replace(/^"|"$/g, '').trim());
-          if (cols.length >= 4) {
-            const symbol = cols[0].toUpperCase();
-            const shares = parseFloat(cols[1]);
-            const avgCost = parseFloat(cols[2]);
-            const price = parseFloat(cols[3]);
-            const currency = (cols[4] && CURRENCIES[cols[4].toUpperCase()]) ? cols[4].toUpperCase() : 'USD';
-            if (symbol && !isNaN(shares) && shares > 0) {
-              imported.push({
-                id: generateId('hold'),
-                symbol,
-                name: symbol,
-                currency,
-                shares,
-                avgCost: isNaN(avgCost) ? price : avgCost,
-                price: isNaN(price) ? avgCost : price,
-                prevClose: isNaN(price) ? avgCost : price
-              });
-            }
-          }
-        });
-      }
+      const imported = parseIBKRPayload(raw);
 
       if (!imported.length) {
         showToast('Could not detect valid IBKR positions. Check CSV/XML format.', 'error');
