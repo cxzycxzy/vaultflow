@@ -1158,7 +1158,7 @@
           <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/15 text-sky-300">2-Step XML/CSV Sync</span>
         </div>
         <p class="text-xs text-slate-400 leading-relaxed">
-          Requires an <strong class="text-slate-200">Activity Flex Query</strong> in IBKR Client Portal with <strong class="text-slate-200">Open Positions</strong> enabled (XML format recommended). Credentials stay inside your private vault.
+          In IBKR <strong class="text-slate-200">Activity Flex Query</strong>, select <strong class="text-slate-200">Open Positions (Summary)</strong> only and set Format to <strong class="text-slate-200">XML</strong> so reports generate in ~1s.
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -1167,7 +1167,7 @@
           </div>
           <div>
             <label class="block text-[11px] font-medium text-slate-300 mb-1">Flex Query ID</label>
-            <input id="ibkr-flex-query-id" type="text" placeholder="e.g., 891245" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
+            <input id="ibkr-flex-query-id" type="text" placeholder="e.g., 1708869" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
           </div>
         </div>
 
@@ -1176,16 +1176,39 @@
           <div>
             <label class="block text-[11px] font-medium text-slate-300 mb-1">Browser CORS Transport</label>
             <select id="ibkr-proxy-mode" onchange="handleIBKRProxyModeChange()" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-sky-500">
-              <option value="auto">Auto (Direct → CORS Relay)</option>
-              <option value="direct">Direct Only (CORS Extension)</option>
-              <option value="custom">Custom Worker / Proxy URL</option>
+              <option value="auto">Auto (Public CORS Relays)</option>
+              <option value="custom">Private Cloudflare Worker (Recommended)</option>
+              <option value="direct">Direct Only (Browser CORS Extension)</option>
             </select>
           </div>
           <div id="ibkr-custom-proxy-wrap" class="hidden">
-            <label class="block text-[11px] font-medium text-slate-300 mb-1">Proxy Prefix URL</label>
-            <input id="ibkr-custom-proxy-url" type="url" placeholder="https://your-worker.workers.dev/?url=" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Worker URL</label>
+            <input id="ibkr-custom-proxy-url" type="url" placeholder="https://ibkr-proxy.yourname.workers.dev" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
           </div>
         </div>
+
+        <!-- Collapsible 1-Click Cloudflare Worker Helper -->
+        <details class="rounded-lg bg-[#080c14]/90 border border-white/[0.08] p-2.5 text-xs">
+          <summary class="cursor-pointer font-medium text-slate-300 hover:text-white select-none flex items-center justify-between">
+            <span>Why does Firefox show NetworkError? (Free 60s Private Proxy Setup)</span>
+            <span class="text-[10px] font-mono text-sky-400">View Worker Code</span>
+          </summary>
+          <div class="mt-2.5 space-y-2 text-[11px] text-slate-400 leading-relaxed">
+            <p>IBKR blocks browser CORS and rejects relays missing a <code class="text-slate-200">User-Agent</code> header. Create a free Worker at <strong class="text-slate-200">workers.cloudflare.com</strong>, paste this code, and select <strong class="text-slate-200">Private Cloudflare Worker</strong> above:</p>
+            <div class="relative">
+              <button type="button" onclick="copyCloudflareWorkerSnippet()" class="absolute top-2 right-2 px-2 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-semibold">Copy Code</button>
+              <pre id="cf-worker-snippet" class="p-2.5 rounded bg-[#0f1623] border border-white/[0.06] font-mono text-[10px] text-slate-300 overflow-x-auto">export default {
+  async fetch(req) {
+    if (req.method === "OPTIONS") return new Response(null, { headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*" } });
+    const target = new URL(req.url).searchParams.get("url");
+    if (!target || !target.startsWith("https://ndcdyn.interactivebrokers.com/")) return new Response("Invalid URL", { status: 400 });
+    const r = await fetch(target, { headers: { "User-Agent": "VaultFlow-IBKR/1.0" } });
+    return new Response(await r.text(), { status: r.status, headers: { "Content-Type": "application/xml", "Access-Control-Allow-Origin": "*" } });
+  }
+};</pre>
+            </div>
+          </div>
+        </details>
 
         <!-- Live Flex Sync Diagnostic Status Box -->
         <div id="ibkr-flex-status" class="hidden p-3 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-slate-300 leading-relaxed"></div>
@@ -1198,6 +1221,31 @@
             Save Only
           </button>
         </div>
+      </div>
+
+      <!-- Method B: Direct XML / CSV File Drop or Paste (Zero-CORS Fallback) -->
+      <div class="p-4 rounded-xl bg-[#141d2e] border border-white/[0.08] space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Method B: Upload / Paste Flex XML or CSV</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Works Offline</span>
+        </div>
+        <div
+          id="ibkr-dropzone"
+          ondragover="handleIBKRDragOver(event)"
+          ondragleave="handleIBKRDragLeave(event)"
+          ondrop="handleIBKRDrop(event)"
+          class="border border-dashed border-white/20 rounded-xl p-3.5 text-center space-y-1.5 transition"
+        >
+          <p class="text-xs text-slate-300">Drag & drop an IBKR Flex <code class="text-emerald-300">.xml</code> or <code class="text-emerald-300">.csv</code> report here, or</p>
+          <label class="inline-block px-3 py-1.5 rounded-lg bg-[#080c14] hover:bg-white/[0.06] border border-white/[0.08] text-xs font-semibold text-emerald-400 cursor-pointer transition">
+            Browse Report File
+            <input type="file" accept=".xml,.csv,.txt" onchange="handleIBKRFileUpload(event)" class="hidden" />
+          </label>
+        </div>
+        <textarea id="ibkr-raw-import" rows="3" placeholder="Or paste raw IBKR Flex XML / CSV text here..." class="w-full p-2.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
+        <button type="button" onclick="parseAndImportIBKRText()" class="w-full py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
+          Parse & Import Positions
+        </button>
       </div>
     </div>
   </div>
@@ -2944,73 +2992,112 @@ service cloud.firestore {
       const box = document.getElementById('ibkr-flex-status');
       if (!box) return;
       const toneClasses = {
-        info: 'border-sky-500/30 text-sky-300 bg-sky-500/10',
-        success: 'border-emerald-500/30 text-emerald-300 bg-emerald-500/10',
-        error: 'border-rose-500/30 text-rose-300 bg-rose-500/10',
-        warning: 'border-amber-500/30 text-amber-300 bg-amber-500/10'
+        info: 'border-sky-500/30 bg-sky-500/10 text-sky-200',
+        success: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+        warning: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+        error: 'border-rose-500/30 bg-rose-500/10 text-rose-300'
       };
-      box.className = `p-3 rounded-lg border text-xs leading-relaxed ${toneClasses[tone] || toneClasses.info}`;
+      box.className = `p-3 rounded-lg border text-xs font-mono leading-relaxed ${toneClasses[tone] || toneClasses.info}`;
       box.textContent = message;
       box.classList.remove('hidden');
     }
 
-    function readIBKRCredentialInputs() {
-      return {
-        flexToken: (document.getElementById('ibkr-flex-token')?.value || '').trim(),
-        flexQueryId: (document.getElementById('ibkr-flex-query-id')?.value || '').trim(),
-        proxyMode: document.getElementById('ibkr-proxy-mode')?.value || 'auto',
-        customProxyUrl: (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim()
-      };
-    }
-
     function saveIBKRCredentialsOnly() {
-      const creds = readIBKRCredentialInputs();
-      if (!creds.flexToken || !creds.flexQueryId) {
-        showToast('Please enter both your IBKR Flex Token and Query ID.', 'warning');
-        return;
-      }
-      state.ibkrCredentials = creds;
+      const flexToken = (document.getElementById('ibkr-flex-token')?.value || '').trim();
+      const flexQueryId = (document.getElementById('ibkr-flex-query-id')?.value || '').trim();
+      const proxyMode = document.getElementById('ibkr-proxy-mode')?.value || 'auto';
+      const customProxyUrl = (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim();
+
+      state.ibkrCredentials = { flexToken, flexQueryId, proxyMode, customProxyUrl };
       persistState(true);
-      setIBKRFlexStatus('Credentials saved to your private vault.', 'success');
+      setIBKRFlexStatus('IBKR Flex credentials and transport settings saved to your vault.', 'success');
       showToast('IBKR Flex credentials saved.', 'success');
     }
 
     async function syncIBKRFlexWebService() {
-      const creds = readIBKRCredentialInputs();
-      if (!creds.flexToken || !creds.flexQueryId) {
-        showToast('Please enter both your IBKR Flex Token and Query ID.', 'warning');
+      const flexToken = (document.getElementById('ibkr-flex-token')?.value || '').trim();
+      const flexQueryId = (document.getElementById('ibkr-flex-query-id')?.value || '').trim();
+      const proxyMode = document.getElementById('ibkr-proxy-mode')?.value || 'auto';
+      const customProxyUrl = (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim();
+
+      if (!flexToken || !flexQueryId) {
+        setIBKRFlexStatus('Please enter both your IBKR Flex Token and Flex Query ID.', 'warning');
+        showToast('Enter both Flex Token and Query ID.', 'warning');
         return;
       }
-      state.ibkrCredentials = creds;
+
+      state.ibkrCredentials = { flexToken, flexQueryId, proxyMode, customProxyUrl };
       persistState(true);
       await fetchIBKRFlexPositions(true);
     }
 
+    function copyCloudflareWorkerSnippet() {
+      const text = document.getElementById('cf-worker-snippet')?.textContent || '';
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast('Cloudflare Worker code copied to clipboard.', 'success');
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 12000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { cache: 'no-store', signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
     async function fetchTextWithCORSFallback(targetUrl, proxyMode = 'auto', customProxyUrl = '') {
       const attempts = [];
-      if (proxyMode === 'custom' && customProxyUrl) {
-        const sep = customProxyUrl.includes('?') || customProxyUrl.endsWith('/') ? '' : '?url=';
-        attempts.push({ label: 'Custom Proxy', url: `${customProxyUrl}${sep}${encodeURIComponent(targetUrl)}` });
+      if (proxyMode === 'custom') {
+        if (!customProxyUrl) {
+          throw new Error('Enter your Cloudflare Worker URL or switch Browser CORS Transport to Auto.');
+        }
+        const cleaned = customProxyUrl.replace(/\/+$/, '');
+        const sep = cleaned.includes('?') ? '&url=' : '/?url=';
+        attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(targetUrl)}`, mode: 'text' });
       } else if (proxyMode === 'direct') {
-        attempts.push({ label: 'Direct', url: targetUrl });
+        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
       } else {
-        attempts.push({ label: 'Direct', url: targetUrl });
-        attempts.push({ label: 'CORS Relay 1', url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` });
-        attempts.push({ label: 'CORS Relay 2', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}` });
+        attempts.push({ label: 'CodeTabs Relay', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`, mode: 'text' });
+        attempts.push({ label: 'AllOrigins JSON', url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, mode: 'allorigins-json' });
+        attempts.push({ label: 'CorsProxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`, mode: 'text' });
+        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
       }
 
-      let lastErr = null;
+      const failures = [];
       for (const attempt of attempts) {
         try {
-          const res = await fetch(attempt.url, { cache: 'no-store' });
-          if (!res.ok) throw new Error(`HTTP ${res.status} via ${attempt.label}`);
+          const res = await fetchWithTimeout(attempt.url, 12000);
+          if (!res.ok) {
+            failures.push(`${attempt.label}: HTTP ${res.status}`);
+            continue;
+          }
+          if (attempt.mode === 'allorigins-json') {
+            const wrapper = await res.json();
+            if (wrapper && typeof wrapper.contents === 'string' && wrapper.contents.trim().length > 0) {
+              return wrapper.contents;
+            }
+            failures.push(`${attempt.label}: Empty payload`);
+            continue;
+          }
           const text = await res.text();
           if (text && text.trim().length > 0) return text;
+          failures.push(`${attempt.label}: Empty response`);
         } catch (err) {
-          lastErr = err;
+          const reason = err?.name === 'AbortError' ? 'Timed out' : 'Blocked by browser CORS / Tracking Protection';
+          failures.push(`${attempt.label}: ${reason}`);
         }
       }
-      throw lastErr || new Error('Network / CORS request blocked by browser.');
+
+      throw new Error(
+        `Could not reach IBKR from browser (${failures.join(' | ')}). Use Method B below to upload/paste your Flex XML/CSV, or deploy the 60-second Private Cloudflare Worker above.`
+      );
     }
 
     async function fetchIBKRFlexPositions(manual = true) {
@@ -3058,12 +3145,12 @@ service cloud.firestore {
           throw new Error('IBKR did not return a statement ReferenceCode.');
         }
 
-        // Step 2: Poll GetStatement (IBKR often needs 2-5 seconds to generate the report)
+        // Step 2: Poll GetStatement (up to 8 attempts for larger multi-section Flex queries)
         let statementPayload = '';
         const getUrl = `${baseStatementUrl}?q=${encodeURIComponent(refCode)}&t=${encodeURIComponent(token)}&v=3`;
 
-        for (let attempt = 1; attempt <= 5; attempt++) {
-          setIBKRFlexStatus(`Step 2/2: Downloading Flex statement (attempt ${attempt}/5)...`, 'info');
+        for (let attempt = 1; attempt <= 8; attempt++) {
+          setIBKRFlexStatus(`Step 2/2: Downloading Flex statement (attempt ${attempt}/8)...`, 'info');
           await new Promise((r) => setTimeout(r, attempt === 1 ? 1800 : 2500));
 
           const rawResp = await fetchTextWithCORSFallback(getUrl, proxyMode, customProxyUrl);
