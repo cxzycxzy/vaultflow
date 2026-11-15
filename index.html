@@ -1377,7 +1377,7 @@ service cloud.firestore {
     // =========================================================================
     // Replace the placeholder values below with your actual Firebase Web App
     // credentials before deploying to GitHub Pages:
-     const DEFAULT_FIREBASE_CONFIG = {
+    const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyDPEZeres-rG_ci4XFiJYY1uR_BzsDJj1M",
   authDomain: "vaultflow-fa8bb.firebaseapp.com",
   projectId: "vaultflow-fa8bb",
@@ -1871,12 +1871,22 @@ service cloud.firestore {
         if (cloudDot) cloudDot.className = 'w-2 h-2 rounded-full bg-emerald-400 shrink-0';
         if (cloudText) cloudText.textContent = `Connected: ${cfg.projectId}`;
 
-        fbAuth.onAuthStateChanged((user) => {
+        fbAuth.onAuthStateChanged(async (user) => {
           if (user) {
+            if (currentUser && currentUser.uid !== user.uid) {
+              await flushPendingCloudSave();
+              if (unsubscribeSnapshot) {
+                unsubscribeSnapshot();
+                unsubscribeSnapshot = null;
+              }
+              state = createEmptyState();
+            }
             currentUser = user;
             isSandboxMode = false;
             enterAuthenticatedWorkspace(user);
           } else if (!isSandboxMode) {
+            currentUser = null;
+            state = createEmptyState();
             showAuthScreen();
           }
         });
@@ -2011,6 +2021,12 @@ service cloud.firestore {
     }
 
     function enterAuthenticatedWorkspace(user) {
+      const uid = user.uid;
+
+      // Always reset in-memory state first so a previous user's data can never bleed into this session
+      state = createEmptyState();
+      renderAll();
+
       document.getElementById('auth-screen').classList.add('hidden');
       document.getElementById('app-shell').classList.remove('hidden');
       document.getElementById('app-shell').classList.add('flex');
@@ -2018,14 +2034,14 @@ service cloud.firestore {
       hasShownCloudErrorToast = false;
       const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
       const email = user.email || 'Authenticated User';
-      const docPath = `users/${user.uid}/vault/state`;
+      const docPath = `users/${uid}/vault/state`;
 
       updateSessionBadges(name, email, docPath, true);
 
       // Load UID-scoped local cache immediately while Firestore connects
       let cachedUserState = null;
       try {
-        const rawCache = localStorage.getItem(getUserCloudCacheKey(user.uid));
+        const rawCache = localStorage.getItem(getUserCloudCacheKey(uid));
         if (rawCache) {
           cachedUserState = normalizeVaultState(JSON.parse(rawCache));
           state = cachedUserState;
@@ -2034,26 +2050,26 @@ service cloud.firestore {
       } catch (e) {}
 
       if (unsubscribeSnapshot) unsubscribeSnapshot();
-      const docRef = fbDb.collection('users').doc(user.uid).collection('vault').doc('state');
+      const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
 
       unsubscribeSnapshot = docRef.onSnapshot((snap) => {
+        if (!currentUser || currentUser.uid !== uid) return;
+
         if (snap.exists) {
-          // Ignore local echo snapshots while a write is actively flushing
           if (snap.metadata && snap.metadata.hasPendingWrites) return;
           const remote = snap.data();
           state = normalizeVaultState(remote);
           try {
-            localStorage.setItem(getUserCloudCacheKey(user.uid), JSON.stringify(state));
+            localStorage.setItem(getUserCloudCacheKey(uid), JSON.stringify(state));
           } catch (e) {}
         } else if (cachedUserState) {
-          // Restore UID-scoped cache to Firestore if remote document wasn't created yet
           state = cachedUserState;
           docRef.set(JSON.parse(JSON.stringify(state))).catch(() => {});
         } else {
           // Brand-new account starts completely empty (no sample pots or sample holdings)
           state = createEmptyState();
           try {
-            localStorage.setItem(getUserCloudCacheKey(user.uid), JSON.stringify(state));
+            localStorage.setItem(getUserCloudCacheKey(uid), JSON.stringify(state));
           } catch (e) {}
           docRef.set(JSON.parse(JSON.stringify(state))).catch((err) => {
             console.error('Initial Firestore write error:', err);
@@ -2061,6 +2077,7 @@ service cloud.firestore {
         }
         renderAll();
       }, (err) => {
+        if (!currentUser || currentUser.uid !== uid) return;
         console.error('Firestore snapshot error:', err);
         if (!cachedUserState) {
           state = createEmptyState();
@@ -2114,6 +2131,7 @@ service cloud.firestore {
 
     async function handleSignOut() {
       await flushPendingCloudSave();
+      clearInterval(ibkrAutoRefreshTimer);
       if (unsubscribeSnapshot) {
         unsubscribeSnapshot();
         unsubscribeSnapshot = null;
@@ -2173,200 +2191,6 @@ service cloud.firestore {
           pendingCloudSaveFn = null;
           await saveFn();
         }, 350);
-      }
-    }
-
-    async function handleEmailAuth(e) {
-      e.preventDefault();
-      if (!fbAuth) {
-        showToast('Cloud sign-in is not active yet. Click "Try Local Sandbox" to continue.', 'warning');
-        return;
-      }
-
-      const mode = document.getElementById('auth-mode').value;
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const displayName = document.getElementById('auth-name').value.trim();
-      const seedDemo = document.getElementById('auth-seed-demo').checked;
-
-      const btn = document.getElementById('auth-submit-btn');
-      const origText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = mode === 'register' ? 'Creating Vault...' : 'Signing In...';
-
-      try {
-        if (mode === 'register') {
-          const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
-          if (displayName) {
-            await cred.user.updateProfile({ displayName });
-          }
-          if (!seedDemo) {
-            state = {
-              displayCurrency: 'USD',
-              fxRates: { ...DEFAULT_FX_RATES },
-              fxOverrides: {},
-              fxLastSync: 'Cached mid-market',
-              accounts: [],
-              holdings: [],
-              transactions: [],
-              ibkrCredentials: { flexToken: '', flexQueryId: '' },
-              ibkrQuoteSource: 'Cached',
-              ibkrLastUpdated: 'Never'
-            };
-            await persistState(true);
-          }
-          showToast('Account created and synced to cloud!', 'success');
-        } else {
-          await fbAuth.signInWithEmailAndPassword(email, password);
-          showToast('Signed in to your cloud vault.', 'success');
-        }
-      } catch (err) {
-        showToast(err.message || 'Authentication failed.', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = origText;
-      }
-    }
-
-    async function handleGoogleSignIn() {
-      if (!fbAuth) {
-        showToast('Cloud sign-in is not active yet. Click "Try Local Sandbox" to continue.', 'warning');
-        return;
-      }
-      try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        await fbAuth.signInWithPopup(provider);
-        showToast('Signed in with Google.', 'success');
-      } catch (err) {
-        showToast(err.message || 'Google sign-in failed.', 'error');
-      }
-    }
-
-    function enterLocalSandbox() {
-      isSandboxMode = true;
-      currentUser = null;
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
-
-      try {
-        const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
-        if (saved) {
-          state = { ...createSampleState(), ...JSON.parse(saved) };
-        } else {
-          state = createSampleState();
-          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
-        }
-      } catch (e) {
-        state = createSampleState();
-      }
-
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('hidden');
-      document.getElementById('app-shell').classList.add('flex');
-
-      updateSessionBadges('Local Sandbox', 'Device-only mode', 'localStorage', false);
-      renderAll();
-      refreshLiveFX(false);
-      showToast('Entered Local Sandbox mode.', 'info');
-    }
-
-    function enterAuthenticatedWorkspace(user) {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('hidden');
-      document.getElementById('app-shell').classList.add('flex');
-
-      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
-      const email = user.email || 'Authenticated User';
-      const docPath = `users/${user.uid}/vault/state`;
-
-      updateSessionBadges(name, email, docPath, true);
-
-      if (unsubscribeSnapshot) unsubscribeSnapshot();
-      const docRef = fbDb.collection('users').doc(user.uid).collection('vault').doc('state');
-
-      unsubscribeSnapshot = docRef.onSnapshot((snap) => {
-        if (snap.exists) {
-          const remote = snap.data();
-          state = { ...createSampleState(), ...remote };
-        } else {
-          state = createSampleState();
-          docRef.set(state).catch(() => {});
-        }
-        renderAll();
-      }, (err) => {
-        console.error('Firestore snapshot error:', err);
-        showToast('Cloud sync warning: check Firestore permissions.', 'warning');
-      });
-
-      refreshLiveFX(false);
-    }
-
-    function updateSessionBadges(name, email, path, isCloud) {
-      const initials = name.slice(0, 2).toUpperCase();
-      document.getElementById('sidebar-avatar').textContent = initials;
-      document.getElementById('sidebar-user-name').textContent = name;
-      document.getElementById('sidebar-user-email').textContent = email;
-
-      document.getElementById('settings-session-mode').textContent = isCloud ? 'Firebase Cloud Sync (Live)' : 'Local Sandbox';
-      document.getElementById('settings-user-email').textContent = email;
-      document.getElementById('settings-firestore-path').textContent = path;
-
-      const dotClass = isCloud ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-400';
-      const sDot = document.getElementById('sidebar-sync-dot');
-      const sText = document.getElementById('sidebar-sync-text');
-      const mDot = document.getElementById('mobile-sync-dot');
-      const mText = document.getElementById('mobile-sync-text');
-      if (sDot) sDot.className = dotClass;
-      if (sText) sText.textContent = isCloud ? 'Cloud Synced' : 'Offline / Local';
-      if (mDot) mDot.className = dotClass;
-      if (mText) mText.textContent = isCloud ? 'Synced' : 'Local';
-    }
-
-    function showAuthScreen() {
-      document.getElementById('app-shell').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('flex');
-      document.getElementById('auth-screen').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    async function handleSignOut() {
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
-      if (fbAuth && currentUser) {
-        await fbAuth.signOut();
-      }
-      currentUser = null;
-      isSandboxMode = false;
-      showAuthScreen();
-      showToast('Signed out of vault.', 'info');
-    }
-
-    async function persistState(immediate = false) {
-      if (isSandboxMode || !currentUser || !fbDb) {
-        try {
-          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {}
-        return;
-      }
-
-      const saveFn = async () => {
-        try {
-          const docRef = fbDb.collection('users').doc(currentUser.uid).collection('vault').doc('state');
-          await docRef.set(JSON.parse(JSON.stringify(state)), { merge: true });
-        } catch (err) {
-          console.error('Firestore write error:', err);
-        }
-      };
-
-      if (immediate) {
-        await saveFn();
-      } else {
-        clearTimeout(cloudSaveTimer);
-        cloudSaveTimer = setTimeout(saveFn, 400);
       }
     }
 
