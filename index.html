@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>VaultFlow — Multi-Currency Wealth & IBKR Portfolio Tracker</title>
+  <title>VaultFlow — Multi-Currency Wealth & Equity Portfolio Tracker</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -162,8 +162,8 @@
                 <i data-lucide="candlestick-chart" class="w-3.5 h-3.5"></i>
               </div>
               <div>
-                <span class="font-semibold text-white">IBKR Flex & Live Quotes</span>
-                <p class="text-slate-400 mt-0.5">Sync UCITS ETFs & equities with live market quotes and unrealized P&L.</p>
+                <span class="font-semibold text-white">Multi-Asset & UITF Live Quotes</span>
+                <p class="text-slate-400 mt-0.5">Track UCITS ETFs, global equities & PH UITF feeder funds with live quotes and P&L.</p>
               </div>
             </div>
             <div class="flex items-start gap-2.5 text-slate-300">
@@ -290,7 +290,7 @@
         </button>
         <button onclick="switchSection('ibkr')" data-nav="ibkr" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition">
           <i data-lucide="candlestick-chart" class="w-4 h-4"></i>
-          <span>IBKR Portfolio</span>
+          <span>Holdings</span>
           <span id="sidebar-ibkr-count" class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-400">0</span>
         </button>
         <button onclick="switchSection('transactions')" data-nav="transactions" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition">
@@ -420,10 +420,10 @@
               <div id="kpi-cash-sub" class="mt-1 sm:mt-1.5 text-[10px] sm:text-xs text-emerald-400 font-medium truncate">0 active pots</div>
             </div>
 
-            <!-- Invested Equity (IBKR) -->
+            <!-- Invested Holdings -->
             <div class="bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-5">
               <div class="flex items-center justify-between gap-1.5">
-                <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 leading-tight">Invested Equity (IBKR)</span>
+                <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 leading-tight">Invested Holdings</span>
                 <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
                   <i data-lucide="candlestick-chart" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                 </div>
@@ -537,13 +537,13 @@
         </div>
 
         <!-- =============================================================== -->
-        <!-- SECTION B: MONEY POTS                                           -->
+        <!-- SECTION B: MONEY POTS & ACCOUNTS                                -->
         <!-- =============================================================== -->
         <div id="section-pots" class="hidden space-y-3.5 sm:space-y-5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3.5 sm:p-5">
+          <div class="bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 class="text-sm sm:text-base font-bold text-white">Savings & Checking Money Pots</h2>
-              <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Configure APYs, withholding tax deductions, and crediting cycles.</p>
+              <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Configure independent APYs, withholding tax deductions, and crediting cycles.</p>
             </div>
             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <div class="flex items-center gap-1.5 bg-[#080c14] border border-white/[0.08] rounded-xl px-2.5 py-1.5">
@@ -558,26 +558,26 @@
                   <option value="currency" class="bg-[#0f1623]">Currency (A &rarr; Z)</option>
                 </select>
               </div>
-              <button onclick="creditAllDuePots()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 text-emerald-400 text-xs font-semibold transition">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Credit Due
+              <button onclick="creditAllDuePots()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 text-emerald-400 text-xs font-semibold transition">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Credit Due
               </button>
-              <button onclick="openAccountModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
-                <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Add Pot
+              <button onclick="openAccountModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Pot
               </button>
             </div>
           </div>
 
-          <div id="pots-grid" class="grid grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-4">
-            <!-- Full Money Pot cards rendered via JS -->
+          <div id="pots-grid" class="grid grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-5">
+            <!-- Populated via JS (2 per row on mobile, 3 per row on desktop) -->
           </div>
         </div>
 
         <!-- =============================================================== -->
-        <!-- SECTION C: IBKR PORTFOLIO & LIVE QUOTES                         -->
+        <!-- SECTION C: INVESTMENT HOLDINGS (EQUITIES, ETFS & UITFS)         -->
         <!-- =============================================================== -->
         <div id="section-ibkr" class="hidden space-y-3.5 sm:space-y-5">
           
-          <!-- IBKR Header & Action Bar -->
+          <!-- Holdings Header & Action Bar -->
           <div class="bg-[#0f1623] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3.5 sm:p-5 space-y-3.5 sm:space-y-5">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-white/[0.08]">
               <div class="flex items-start gap-2.5 sm:gap-3">
@@ -586,10 +586,10 @@
                 </div>
                 <div>
                   <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <h2 class="text-sm sm:text-base font-bold text-white">IBKR Portfolio</h2>
+                    <h2 class="text-sm sm:text-base font-bold text-white">Investment Holdings</h2>
                     <span id="ibkr-quote-status-badge" class="text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">Simulated / Cached</span>
                   </div>
-                  <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Multi-currency equity & UCITS ETF valuation with Flex & live quotes.</p>
+                  <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Multi-currency equities, UCITS ETFs & UITF feeder funds with live quotes.</p>
                 </div>
               </div>
 
@@ -605,7 +605,7 @@
                 </button>
 
                 <button id="ibkr-flex-sync-btn" onclick="fetchIBKRFlexPositions(true)" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-[11px] sm:text-xs font-semibold transition">
-                  <i data-lucide="cloud-download" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> Sync Flex
+                  <i data-lucide="cloud-download" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> IBKR Flex
                 </button>
 
                 <button onclick="openModal('ibkr-sync-modal')" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-[#141d2e] hover:bg-[#1a253a] border border-white/[0.08] text-white text-[11px] sm:text-xs font-semibold transition">
@@ -618,7 +618,7 @@
               </div>
             </div>
 
-            <!-- 4 IBKR Portfolio KPI Cards (2x2 on Mobile, 4-Col on Desktop) -->
+            <!-- 4 Portfolio KPI Cards (2x2 on Mobile, 4-Col on Desktop) -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
               <div class="p-3 sm:p-4 rounded-xl bg-[#141d2e] border border-white/[0.08]">
                 <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 block truncate">Invested Value</span>
@@ -652,7 +652,7 @@
               </div>
               <div class="flex items-center gap-1.5 bg-[#080c14] border border-white/[0.08] rounded-xl px-2.5 py-1.5">
                 <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
-                <select id="ibkr-sort-select" onchange="setIBKRSort(this.value)" aria-label="Sort IBKR Positions" class="bg-transparent text-[11px] sm:text-xs font-medium text-slate-200 focus:outline-none cursor-pointer">
+                <select id="ibkr-sort-select" onchange="setIBKRSort(this.value)" aria-label="Sort Holdings" class="bg-transparent text-[11px] sm:text-xs font-medium text-slate-200 focus:outline-none cursor-pointer">
                   <option value="custom" class="bg-[#0f1623]">Custom (Drag ⋮⋮)</option>
                   <option value="value-desc" class="bg-[#0f1623]">Value / Weight: High &rarr; Low</option>
                   <option value="value-asc" class="bg-[#0f1623]">Value / Weight: Low &rarr; High</option>
@@ -672,10 +672,10 @@
                 <thead>
                   <tr class="border-b border-white/[0.08] bg-[#141d2e]/60 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     <th class="py-3 pl-3 pr-1 w-8"></th>
-                    <th class="py-3 px-4">Ticker / Asset</th>
-                    <th class="py-3 px-4 text-right">Shares</th>
-                    <th class="py-3 px-4 text-right">Avg Cost</th>
-                    <th class="py-3 px-4 text-right">Live Price</th>
+                    <th class="py-3 px-4">Ticker / Fund</th>
+                    <th class="py-3 px-4 text-right">Units / Shares</th>
+                    <th class="py-3 px-4 text-right">Avg Cost / NAV</th>
+                    <th class="py-3 px-4 text-right">Live Price / NAV</th>
                     <th class="py-3 px-4 text-right">Market Value</th>
                     <th class="py-3 px-4 text-right">Unrealized P&L</th>
                     <th class="py-3 px-4">Weight</th>
@@ -844,7 +844,7 @@
               </div>
 
               <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
-                Download a complete portable backup of your money pots, custom FX overrides, IBKR holdings, and transaction ledger at any time.
+                Download a complete portable backup of your money pots, custom FX overrides, investment holdings, and transaction ledger at any time.
               </p>
 
               <div class="flex flex-wrap items-center gap-2 pt-0.5">
@@ -891,7 +891,7 @@
 
         <button onclick="switchSection('ibkr')" data-mobile-nav="ibkr" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium text-slate-400">
           <i data-lucide="candlestick-chart" class="w-4 h-4"></i>
-          <span>IBKR</span>
+          <span>Holdings</span>
         </button>
         <button onclick="switchSection('transactions')" data-mobile-nav="transactions" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium text-slate-400">
           <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
@@ -1248,10 +1248,10 @@
     const u = new URL(req.url);
     if (u.searchParams.get("ping") === "1") return new Response("OK", { status: 200, headers: cors });
     const target = u.searchParams.get("url");
-    if (!target || !/^https:\/\/[a-z0-9-]+\.interactivebrokers\.com\//i.test(target)) return new Response("Invalid URL", { status: 400, headers: cors });
+    if (!target || !/^https:\/\/([a-z0-9-]+\.)?(interactivebrokers\.com|finance\.yahoo\.com|uitf\.com\.ph)\//i.test(target)) return new Response("Invalid URL", { status: 400, headers: cors });
     try {
-      const r = await fetch(target, { headers: { "User-Agent": "VaultFlow-IBKR/1.0" } });
-      return new Response(await r.text(), { status: r.status, headers: { ...cors, "Content-Type": "application/xml" } });
+      const r = await fetch(target, { headers: { "User-Agent": "VaultFlow-Sync/1.0" } });
+      return new Response(await r.text(), { status: r.status, headers: { ...cors, "Content-Type": r.headers.get("Content-Type") || "text/plain" } });
     } catch (e) {
       return new Response("Upstream error: " + e.message, { status: 502, headers: cors });
     }
@@ -1278,68 +1278,91 @@
       <div class="p-4 rounded-xl bg-[#141d2e] border border-white/[0.08] space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Method B: Upload / Paste Flex XML or CSV</span>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Works Offline</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">Offline / Zero-CORS</span>
         </div>
-        <div
-          id="ibkr-dropzone"
-          ondragover="handleIBKRDragOver(event)"
-          ondragleave="handleIBKRDragLeave(event)"
-          ondrop="handleIBKRDrop(event)"
-          class="border border-dashed border-white/20 rounded-xl p-3.5 text-center space-y-1.5 transition"
+        <label
+          ondragover="event.preventDefault(); this.classList.add('border-sky-400', 'bg-sky-500/10');"
+          ondragleave="this.classList.remove('border-sky-400', 'bg-sky-500/10');"
+          ondrop="this.classList.remove('border-sky-400', 'bg-sky-500/10'); handleIBKRDrop(event);"
+          class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-white/20 hover:border-sky-400/60 bg-[#080c14]/70 cursor-pointer text-center transition"
         >
-          <p class="text-xs text-slate-300">Drag & drop an IBKR Flex <code class="text-emerald-300">.xml</code> or <code class="text-emerald-300">.csv</code> report here, or</p>
-          <label class="inline-block px-3 py-1.5 rounded-lg bg-[#080c14] hover:bg-white/[0.06] border border-white/[0.08] text-xs font-semibold text-emerald-400 cursor-pointer transition">
-            Browse Report File
-            <input type="file" accept=".xml,.csv,.txt" onchange="handleIBKRFileUpload(event)" class="hidden" />
-          </label>
-        </div>
-        <textarea id="ibkr-raw-import" rows="3" placeholder="Or paste raw IBKR Flex XML / CSV text here..." class="w-full p-2.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
-        <button type="button" onclick="parseAndImportIBKRText()" class="w-full py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
-          Parse & Import Positions
+          <i data-lucide="file-up" class="w-5 h-5 text-sky-400 mb-1"></i>
+          <span class="text-xs font-semibold text-white">Drop IBKR Flex XML / CSV file here or click to browse</span>
+          <span class="text-[11px] text-slate-400 mt-0.5">Supports OpenPositions XML & Activity CSV exports</span>
+          <input type="file" accept=".xml,.csv,.txt" onchange="handleIBKRFileUpload(event)" class="hidden" />
+        </label>
+        <textarea id="ibkr-paste-input" rows="3" placeholder="Or paste raw Flex XML (<FlexQueryResponse>...) or CSV rows here..." class="w-full p-2.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-sky-400"></textarea>
+        <button type="button" onclick="importIBKRPastedContent()" class="w-full py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
+          Import Pasted XML / CSV Positions
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ADD / EDIT IBKR HOLDING MODAL -->
+  <!-- ADD / EDIT INVESTMENT HOLDING MODAL -->
   <div id="holding-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4 modal-backdrop">
-    <div class="bg-[#0f1623] border border-white/[0.08] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 modal-panel">
+    <div class="bg-[#0f1623] border border-white/[0.08] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 modal-panel max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between">
-        <h3 id="holding-modal-title" class="text-base font-bold text-white">Add IBKR Holding</h3>
+        <h3 id="holding-modal-title" class="text-base font-bold text-white">Add Holding</h3>
         <button onclick="closeModal('holding-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06]"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
+
+      <!-- PH UITF / GCash GFunds Feeder Fund Quick-Fill -->
+      <div class="p-3 rounded-xl bg-sky-500/[0.07] border border-sky-500/20 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400">PH UITF / GCash GFunds Preset (Daily NAVPU)</span>
+          <span class="text-[10px] font-mono text-slate-400">uitf.com.ph</span>
+        </div>
+        <select id="hold-uitf-preset" onchange="applyUITFPreset(this.value)" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-sky-400">
+          <option value="">— Custom Stock / ETF or Select PH UITF —</option>
+          <option value="atram-tech">ATRAM Global Technology Feeder Fund (PHP)</option>
+          <option value="atram-cons">ATRAM Global Consumer Trends Feeder Fund (PHP)</option>
+          <option value="atram-pheq">ATRAM Philippine Equity Opportunity Fund (PHP)</option>
+          <option value="atram-bond">ATRAM Total Return Peso Bond Fund (PHP)</option>
+          <option value="bpi-useq">BPI US Equity Index Feeder Fund (PHP)</option>
+          <option value="bpi-gleq">BPI Global Equity Fund-of-Funds (PHP)</option>
+        </select>
+      </div>
+
       <form onsubmit="submitHolding(event)" class="space-y-3.5">
         <input type="hidden" id="hold-id" />
+        <input type="hidden" id="hold-uitf-bank-id" />
+        <input type="hidden" id="hold-uitf-fund-id" />
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-xs font-medium text-slate-300 mb-1">Ticker Symbol</label>
-            <input id="hold-symbol" type="text" required placeholder="e.g., VWRA.L, VOO, NVDA" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono uppercase text-white" />
+            <label class="block text-xs font-medium text-slate-300 mb-1">Ticker / Fund Code</label>
+            <input id="hold-symbol" type="text" required placeholder="e.g., VWRA.L, VOO, ATRAM-TECH" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono uppercase text-white" />
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-300 mb-1">Currency</label>
             <select id="hold-currency" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-semibold text-white">
               <option value="USD">USD ($)</option>
+              <option value="PHP">PHP (₱)</option>
               <option value="EUR">EUR (€)</option>
               <option value="GBP">GBP (£)</option>
+              <option value="SGD">SGD (S$)</option>
+              <option value="JPY">JPY (¥)</option>
+              <option value="AUD">AUD (A$)</option>
+              <option value="CAD">CAD (C$)</option>
             </select>
           </div>
         </div>
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Asset / ETF Name</label>
-          <input id="hold-name" type="text" placeholder="e.g., Vanguard FTSE All-World UCITS ETF" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs text-white" />
+          <label class="block text-xs font-medium text-slate-300 mb-1">Asset / Fund Name</label>
+          <input id="hold-name" type="text" placeholder="e.g., ATRAM Global Technology Feeder Fund" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs text-white" />
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Shares</label>
-            <input id="hold-shares" type="number" step="any" min="0.0001" required placeholder="50" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono tabular-nums text-white" />
+            <label class="block text-xs font-medium text-slate-300 mb-1">Units / Shares</label>
+            <input id="hold-shares" type="number" step="any" min="0.000001" required placeholder="42.1856" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono tabular-nums text-white" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Avg Cost</label>
-            <input id="hold-cost" type="number" step="any" min="0" required placeholder="122.40" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono tabular-nums text-white" />
+            <label class="block text-xs font-medium text-slate-300 mb-1">Avg Cost / NAV</label>
+            <input id="hold-cost" type="number" step="any" min="0" required placeholder="215.40" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono tabular-nums text-white" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Current Price</label>
-            <input id="hold-price" type="number" step="any" min="0" required placeholder="143.80" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono tabular-nums text-white" />
+            <label class="block text-xs font-medium text-slate-300 mb-1">Live Price / NAV</label>
+            <input id="hold-price" type="number" step="any" min="0" required placeholder="238.97" class="w-full px-3 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-xs font-mono tabular-nums text-white" />
           </div>
         </div>
         <div class="pt-2 flex justify-end gap-2">
@@ -1402,7 +1425,7 @@ service cloud.firestore {
     <div class="bg-[#0f1623] border border-white/[0.08] rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 modal-panel">
       <h3 class="text-base font-bold text-white">Load Sample Portfolio Data?</h3>
       <p class="text-xs text-slate-400 leading-relaxed">
-        This will replace your current money pots, IBKR holdings, and transactions with the default multi-currency sample dataset. Export a JSON backup first if you want to keep your records.
+        This will replace your current money pots, investment holdings, and transactions with the default multi-currency sample dataset. Export a JSON backup first if you want to keep your records.
       </p>
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeModal('reset-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
@@ -1416,8 +1439,59 @@ service cloud.firestore {
   <!-- ===================================================================== -->
   <script>
     // =========================================================================
-    // HTML ESCAPING UTILITY
+    // HTML ESCAPING UTILITY & PH UITF FEEDER FUND CATALOG
     // =========================================================================
+    const PH_UITF_PRESETS = {
+      'atram-tech': {
+        symbol: 'ATRAM-TECH',
+        name: 'ATRAM Global Technology Feeder Fund',
+        currency: 'PHP',
+        bankId: '31',
+        fundId: '327',
+        matchTerms: ['Global Technology Feeder']
+      },
+      'atram-cons': {
+        symbol: 'ATRAM-CONS',
+        name: 'ATRAM Global Consumer Trends Feeder Fund',
+        currency: 'PHP',
+        bankId: '31',
+        fundId: '385',
+        matchTerms: ['Global Consumer Trends Feeder']
+      },
+      'atram-pheq': {
+        symbol: 'ATRAM-PHEQ',
+        name: 'ATRAM Philippine Equity Opportunity Fund',
+        currency: 'PHP',
+        bankId: '31',
+        fundId: '130',
+        matchTerms: ['Philippine Equity Opportunity']
+      },
+      'atram-bond': {
+        symbol: 'ATRAM-BOND',
+        name: 'ATRAM Total Return Peso Bond Fund',
+        currency: 'PHP',
+        bankId: '31',
+        fundId: '132',
+        matchTerms: ['Total Return Peso Bond']
+      },
+      'bpi-useq': {
+        symbol: 'BPI-USEQ',
+        name: 'BPI US Equity Index Feeder Fund',
+        currency: 'PHP',
+        bankId: '10',
+        fundId: '253',
+        matchTerms: ['US Equity Index Feeder']
+      },
+      'bpi-gleq': {
+        symbol: 'BPI-GLEQ',
+        name: 'BPI Global Equity Fund-of-Funds',
+        currency: 'PHP',
+        bankId: '10',
+        fundId: '255',
+        matchTerms: ['Global Equity Fund-of-Funds']
+      }
+    };
+
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str)
@@ -2168,9 +2242,9 @@ service cloud.firestore {
       const mobileList = document.getElementById('ibkr-positions-mobile');
 
       if (!state.holdings.length) {
-        const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-slate-400">No IBKR positions yet. Click <strong>+ Add Holding</strong> or <strong>Import / Sync IBKR</strong>.</td></tr>`;
+        const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-slate-400">No holdings yet. Click <strong>+ Add</strong> to add equities/UITFs or <strong>IBKR Flex</strong> to sync.</td></tr>`;
         tbody.innerHTML = emptyRow;
-        mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No IBKR positions yet.</div>`;
+        mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No holdings yet.</div>`;
         return;
       }
 
@@ -2343,7 +2417,7 @@ service cloud.firestore {
       const titles = {
         overview: ['Portfolio Overview', 'Real-time multi-currency net worth & yield command center'],
         pots: ['Money Pots & Accounts', 'Multi-currency savings, checking, e-wallets & credit cards'],
-        ibkr: ['IBKR Equity Portfolio', 'Interactive Brokers open positions, Flex sync & live quotes'],
+        ibkr: ['Investment Holdings', 'Equities, UCITS ETFs & UITF feeder funds with live quotes'],
         transactions: ['Unified Ledger', 'Expenses, income, interest credits & cross-currency FX transfers'],
         analytics: ['Yield & Passive Income', '12-month after-tax interest compounding forecast'],
         settings: ['Settings & Cloud Sync', 'Per-user cloud vault synchronization & JSON backups']
@@ -2356,967 +2430,25 @@ service cloud.firestore {
     }
 
     // =========================================================================
-    // MULTI-CURRENCY FX ENGINE & SLIDE-OVER DRAWER
+    // HOLDINGS (EQUITIES, ETFS & PH UITFS), LIVE QUOTES & IBKR FLEX SYNC
     // =========================================================================
-    function getEffectiveFXRate(currency) {
-      if (!currency || currency === 'USD') return 1.0;
-      const override = state.fxOverrides && Number(state.fxOverrides[currency]);
-      if (override && override > 0) return override;
-      const live = state.fxRates && Number(state.fxRates[currency]);
-      if (live && live > 0) return live;
-      return DEFAULT_FX_RATES[currency] || 1.0;
-    }
-
-    function convertCurrency(amount, fromCurr, toCurr) {
-      const val = Number(amount) || 0;
-      if (!fromCurr || !toCurr || fromCurr === toCurr) return val;
-      const fromRate = getEffectiveFXRate(fromCurr); // units of fromCurr per 1 USD
-      const toRate = getEffectiveFXRate(toCurr);     // units of toCurr per 1 USD
-      const usdAmount = val / fromRate;
-      return usdAmount * toRate;
-    }
-
-    function formatMoney(amount, currency = 'USD', showPlus = false) {
-      const num = Number(amount) || 0;
-      const meta = CURRENCY_META[currency] || { symbol: `${currency} `, decimals: 2 };
-      const absFormatted = Math.abs(num).toLocaleString('en-US', {
-        minimumFractionDigits: meta.decimals,
-        maximumFractionDigits: meta.decimals
-      });
-      const sign = num < 0 ? '-' : (showPlus && num > 0 ? '+' : '');
-      return `${sign}${meta.symbol}${absFormatted}`;
-    }
-
-    function changeDisplayCurrency(newCurrency) {
-      if (!CURRENCY_META[newCurrency]) return;
-      state.displayCurrency = newCurrency;
-      persistState();
-      renderAll();
-    }
-
-    function updateTopbarFXPreview() {
-      const disp = state.displayCurrency;
-      const previewEl = document.getElementById('topbar-fx-preview');
-      const badgeEl = document.getElementById('fx-override-badge');
-      const hasOverrides = state.fxOverrides && Object.keys(state.fxOverrides).length > 0;
-
-      if (previewEl) {
-        if (disp === 'USD') {
-          const phpRate = getEffectiveFXRate('PHP');
-          previewEl.textContent = `1 USD = ${phpRate.toFixed(2)} PHP`;
-        } else {
-          const dispRate = getEffectiveFXRate(disp);
-          previewEl.textContent = `1 USD = ${dispRate.toFixed(disp === 'JPY' ? 2 : 4)} ${disp}`;
-        }
-      }
-      if (badgeEl) {
-        badgeEl.classList.toggle('hidden', !hasOverrides);
-      }
-    }
-
-    function openFXDrawer() {
-      const listEl = document.getElementById('fx-drawer-list');
-      const syncLabel = document.getElementById('fx-last-sync-label');
-      if (syncLabel) syncLabel.textContent = `Base: 1 USD • ${state.fxLastSync || 'Cached mid-market'}`;
-
-      const currencies = Object.keys(CURRENCY_META).filter((c) => c !== 'USD');
-      listEl.innerHTML = currencies
-        .map((curr) => {
-          const marketRate = Number(state.fxRates[curr] || DEFAULT_FX_RATES[curr]);
-          const customRate = state.fxOverrides && state.fxOverrides[curr] ? Number(state.fxOverrides[curr]) : '';
-          return `
-            <div class="p-3 rounded-xl bg-[#141d2e] border border-white/[0.08] flex items-center justify-between gap-3">
-              <div>
-                <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                  <span>1 USD &rarr; ${curr}</span>
-                  ${customRate ? '<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">Override</span>' : ''}
-                </div>
-                <div class="text-[11px] font-mono text-slate-400 mt-0.5">Market: ${marketRate.toFixed(curr === 'JPY' ? 2 : 4)} ${curr}</div>
-              </div>
-              <div class="w-32">
-                <input
-                  type="number"
-                  step="any"
-                  min="0.0001"
-                  data-fx-curr="${curr}"
-                  value="${customRate}"
-                  placeholder="${marketRate.toFixed(curr === 'JPY' ? 2 : 4)}"
-                  class="fx-override-input w-full px-2.5 py-1.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-right text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      openModal('fx-drawer');
-    }
-
-    function saveFXOverrides() {
-      const nextOverrides = {};
-      document.querySelectorAll('.fx-override-input').forEach((inp) => {
-        const curr = inp.getAttribute('data-fx-curr');
-        const val = parseFloat(inp.value);
-        if (curr && !isNaN(val) && val > 0) {
-          nextOverrides[curr] = val;
-        }
-      });
-      state.fxOverrides = nextOverrides;
-      persistState();
-      closeModal('fx-drawer');
-      renderAll();
-      showToast('FX rates & overrides applied.', 'success');
-    }
-
-    function clearAllFXOverrides() {
-      state.fxOverrides = {};
-      persistState();
-      openFXDrawer();
-      renderAll();
-      showToast('Custom FX overrides cleared.', 'info');
-    }
-
-    async function refreshLiveFX(manual = false) {
-      try {
-        const res = await fetch('https://open.er-api.com/v6/latest/USD');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data && data.rates) {
-          Object.keys(DEFAULT_FX_RATES).forEach((curr) => {
-            if (data.rates[curr]) {
-              state.fxRates[curr] = Number(data.rates[curr]);
-            }
-          });
-          state.fxLastSync = `Live FX (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
-          persistState();
-          renderAll();
-          if (!document.getElementById('fx-drawer').classList.contains('hidden')) {
-            openFXDrawer();
-          }
-          if (manual) showToast('Live mid-market FX rates updated.', 'success');
-        }
-      } catch (err) {
-        if (manual) showToast('Could not fetch live FX API; using cached rates.', 'warning');
-      }
-    }
-
-    // =========================================================================
-    // FIREBASE CLOUD AUTH, PER-UID ISOLATION & LOCAL SANDBOX
-    // =========================================================================
-    function getSavedFirebaseConfig() {
-      try {
-        const raw = localStorage.getItem(FB_CONFIG_STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
-      } catch (e) {}
-      return DEFAULT_FIREBASE_CONFIG;
-    }
-
-    function updateAuthCloudIndicator(connected, label) {
-      const dot = document.getElementById('auth-cloud-dot');
-      const txt = document.getElementById('auth-cloud-status-text');
-      const sideDot = document.getElementById('sidebar-sync-dot');
-      const sideTxt = document.getElementById('sidebar-sync-text');
-      const mobDot = document.getElementById('mobile-sync-dot');
-      const mobTxt = document.getElementById('mobile-sync-text');
-
-      if (dot) dot.className = `w-2 h-2 rounded-full shrink-0 ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`;
-      if (txt) txt.textContent = label;
-      if (sideDot) sideDot.className = `w-2 h-2 rounded-full ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`;
-      if (sideTxt) sideTxt.textContent = label;
-      if (mobDot) mobDot.className = `w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`;
-      if (mobTxt) mobTxt.textContent = connected ? 'Synced' : 'Local';
-    }
-
-    function setAuthMode(mode) {
-      document.getElementById('auth-mode').value = mode;
-      const isReg = mode === 'register';
-      document.getElementById('auth-heading').textContent = isReg ? 'Create your cloud vault' : 'Sign in to your vault';
-      document.getElementById('auth-submit-btn').textContent = isReg ? 'Create Account & Start Empty Vault' : 'Sign In to Portfolio';
-      document.getElementById('auth-name-wrap').classList.toggle('hidden', !isReg);
-
-      document.getElementById('auth-tab-login').className = !isReg
-        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition'
-        : 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
-      document.getElementById('auth-tab-register').className = isReg
-        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition'
-        : 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
-    }
-
-    function initFirebase() {
-      const cfg = getSavedFirebaseConfig();
-      if (!cfg || !cfg.apiKey || !window.firebase) {
-        updateAuthCloudIndicator(false, 'Local Sandbox Ready');
+    function applyUITFPreset(presetKey) {
+      const preset = PH_UITF_PRESETS[presetKey];
+      if (!preset) {
+        document.getElementById('hold-uitf-bank-id').value = '';
+        document.getElementById('hold-uitf-fund-id').value = '';
         return;
       }
-
-      try {
-        fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
-        fbAuth = firebase.auth();
-        fbDb = firebase.firestore();
-        updateAuthCloudIndicator(true, 'Cloud Connected');
-
-        fbAuth.onAuthStateChanged((user) => {
-          if (user) {
-            enterAuthenticatedWorkspace(user);
-          } else if (!isSandboxMode) {
-            showAuthScreen();
-          }
-        });
-      } catch (err) {
-        console.error('Firebase init error:', err);
-        updateAuthCloudIndicator(false, 'Firebase Config Error');
-      }
+      document.getElementById('hold-symbol').value = preset.symbol;
+      document.getElementById('hold-name').value = preset.name;
+      document.getElementById('hold-currency').value = preset.currency;
+      document.getElementById('hold-uitf-bank-id').value = preset.bankId;
+      document.getElementById('hold-uitf-fund-id').value = preset.fundId;
     }
 
-    function showAuthScreen() {
-      document.getElementById('auth-screen').classList.remove('hidden');
-      document.getElementById('app-shell').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('flex');
-    }
-
-    function showAppShell() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('hidden');
-      document.getElementById('app-shell').classList.add('flex');
-    }
-
-    async function handleEmailAuth(e) {
-      e.preventDefault();
-      if (!fbAuth) {
-        openModal('firebase-setup-modal');
-        showToast('Configure Firebase Cloud first or use Local Sandbox.', 'warning');
-        return;
-      }
-      const mode = document.getElementById('auth-mode').value;
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const displayName = document.getElementById('auth-name').value.trim();
-
-      try {
-        if (mode === 'register') {
-          const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
-          if (displayName && cred.user) {
-            await cred.user.updateProfile({ displayName });
-          }
-        } else {
-          await fbAuth.signInWithEmailAndPassword(email, password);
-        }
-      } catch (err) {
-        showToast(err.message || 'Authentication failed.', 'error');
-      }
-    }
-
-    async function handleGoogleSignIn() {
-      if (!fbAuth) {
-        openModal('firebase-setup-modal');
-        showToast('Configure Firebase Cloud first or use Local Sandbox.', 'warning');
-        return;
-      }
-      try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        await fbAuth.signInWithPopup(provider);
-      } catch (err) {
-        showToast(err.message || 'Google sign-in failed.', 'error');
-      }
-    }
-
-    function enterLocalSandbox() {
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
-      currentUser = null;
-      isSandboxMode = true;
-
-      try {
-        const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
-        state = saved ? normalizeVaultState(JSON.parse(saved)) : createSampleState();
-      } catch (e) {
-        state = createSampleState();
-      }
-
-      document.getElementById('sidebar-avatar').textContent = 'SB';
-      document.getElementById('sidebar-user-name').textContent = 'Local Sandbox';
-      document.getElementById('sidebar-user-email').textContent = 'Device-only sample vault';
-      document.getElementById('settings-session-mode').textContent = 'Local Sandbox (Sample Data)';
-      document.getElementById('settings-user-email').textContent = 'Device-only mode';
-      document.getElementById('settings-firestore-path').textContent = `localStorage/${SANDBOX_STORAGE_KEY}`;
-      updateAuthCloudIndicator(false, 'Local Sandbox');
-
-      showAppShell();
-      renderAll();
-      refreshLiveFX(false);
-    }
-
-    function enterAuthenticatedWorkspace(user) {
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
-      isSandboxMode = false;
-      currentUser = user;
-      hasShownCloudErrorToast = false;
-
-      // Immediately isolate in-memory state to empty default before loading this UID's data
-      state = createEmptyState();
-
-      const uid = user.uid;
-      const cacheKey = `vaultflow_cloud_cache_${uid}`;
-      try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          state = normalizeVaultState(JSON.parse(cached));
-        }
-      } catch (e) {}
-
-      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
-      const initials = name.slice(0, 2).toUpperCase();
-      document.getElementById('sidebar-avatar').textContent = initials;
-      document.getElementById('sidebar-user-name').textContent = name;
-      document.getElementById('sidebar-user-email').textContent = user.email || uid;
-      document.getElementById('settings-session-mode').textContent = 'Authenticated Cloud Vault';
-      document.getElementById('settings-user-email').textContent = user.email || 'Google / Email User';
-      document.getElementById('settings-firestore-path').textContent = `users/${uid}/vault/state`;
-      updateAuthCloudIndicator(true, 'Cloud Synced');
-
-      showAppShell();
-      renderAll();
-
-      if (fbDb) {
-        const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
-        unsubscribeSnapshot = docRef.onSnapshot(
-          (snap) => {
-            if (!currentUser || currentUser.uid !== uid) return;
-            if (pendingCloudSaveFn) return;
-            if (snap.exists) {
-              state = normalizeVaultState(snap.data());
-              try {
-                localStorage.setItem(cacheKey, JSON.stringify(state));
-              } catch (e) {}
-              renderAll();
-            } else {
-              // Brand-new account: seed empty state (no pre-filled sample data)
-              state = createEmptyState();
-              persistState(true);
-              renderAll();
-            }
-          },
-          (err) => {
-            console.error('Firestore listener error:', err);
-            if (!hasShownCloudErrorToast) {
-              hasShownCloudErrorToast = true;
-              showToast(`Cloud sync warning: ${err.message}`, 'warning');
-            }
-          }
-        );
-      }
-      refreshLiveFX(false);
-    }
-
-    async function flushPendingCloudSave() {
-      if (cloudSaveTimer) {
-        clearTimeout(cloudSaveTimer);
-        cloudSaveTimer = null;
-      }
-      if (pendingCloudSaveFn) {
-        const fn = pendingCloudSaveFn;
-        pendingCloudSaveFn = null;
-        await fn();
-      }
-    }
-
-    async function handleSignOut() {
-      await flushPendingCloudSave();
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
-      if (ibkrAutoRefreshTimer) {
-        clearInterval(ibkrAutoRefreshTimer);
-        ibkrAutoRefreshTimer = null;
-      }
-      state = createEmptyState();
-      currentUser = null;
-      isSandboxMode = false;
-
-      if (fbAuth && fbAuth.currentUser) {
-        try {
-          await fbAuth.signOut();
-        } catch (e) {}
-      }
-      showAuthScreen();
-      showToast('Signed out safely.', 'info');
-    }
-
-    function persistState(immediate = false) {
-      if (isSandboxMode || !currentUser || !fbDb) {
-        try {
-          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {}
-        return;
-      }
-
-      const uid = currentUser.uid;
-      const cacheKey = `vaultflow_cloud_cache_${uid}`;
-      const snapshotPayload = JSON.parse(JSON.stringify(state));
-
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify(snapshotPayload));
-      } catch (e) {}
-
-      const writeToFirestore = async () => {
-        if (!currentUser || currentUser.uid !== uid || !fbDb) return;
-        try {
-          await fbDb.collection('users').doc(uid).collection('vault').doc('state').set(snapshotPayload);
-          updateAuthCloudIndicator(true, 'Cloud Synced');
-        } catch (err) {
-          console.error('Firestore write failed:', err);
-          updateAuthCloudIndicator(false, 'Sync Error');
-          if (!hasShownCloudErrorToast) {
-            hasShownCloudErrorToast = true;
-            showToast(`Cloud save failed: ${err.message}`, 'error');
-          }
-        }
-      };
-
-      if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
-      if (immediate) {
-        pendingCloudSaveFn = null;
-        writeToFirestore();
-      } else {
-        pendingCloudSaveFn = writeToFirestore;
-        cloudSaveTimer = setTimeout(() => {
-          pendingCloudSaveFn = null;
-          writeToFirestore();
-        }, 450);
-      }
-    }
-
-    function saveFirebaseConfigFromModal() {
-      const raw = document.getElementById('firebase-config-input').value.trim();
-      try {
-        const parsed = JSON.parse(raw);
-        if (!parsed.apiKey || !parsed.projectId) throw new Error('Missing apiKey or projectId');
-        localStorage.setItem(FB_CONFIG_STORAGE_KEY, JSON.stringify(parsed));
-        closeModal('firebase-setup-modal');
-        showToast('Firebase configuration saved. Reloading connection...', 'success');
-        initFirebase();
-      } catch (err) {
-        showToast(`Invalid Firebase JSON: ${err.message}`, 'error');
-      }
-    }
-
-    function clearSavedFirebaseConfig() {
-      localStorage.removeItem(FB_CONFIG_STORAGE_KEY);
-      document.getElementById('firebase-config-input').value = '';
-      updateAuthCloudIndicator(false, 'Local Sandbox Ready');
-      showToast('Saved Firebase configuration cleared.', 'info');
-    }
-
-    function copyFirestoreRules() {
-      const text = document.getElementById('firestore-rules-code').textContent;
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      showToast('Firestore security rules copied to clipboard.', 'success');
-    }
-
-    // =========================================================================
-    // MONEY POTS LOGIC, INSTITUTION PICKER & INTEREST CREDITING
-    // =========================================================================
-    function calculatePotYieldMetrics(acc) {
-      if (!acc || acc.type === 'Credit Card' || acc.freq === 'none') {
-        return { netApy: 0, annualNet: 0, monthlyNet: 0, cyclePayout: 0 };
-      }
-      const grossApy = Math.max(0, Number(acc.apy) || 0);
-      const taxPct = Math.min(100, Math.max(0, Number(acc.tax) || 0));
-      const netApy = grossApy * (1 - taxPct / 100);
-      const bal = Math.max(0, Number(acc.balance) || 0);
-      const annualNet = bal * (netApy / 100);
-      const monthlyNet = annualNet / 12;
-
-      const divisors = { daily: 365, monthly: 12, quarterly: 4, annually: 1 };
-      const div = divisors[acc.freq] || 12;
-      const cyclePayout = annualNet / div;
-
-      return { netApy, annualNet, monthlyNet, cyclePayout };
-    }
-
-    function setInstitutionCategory(cat) {
-      selectedInstCategory = cat;
-      document.querySelectorAll('.inst-cat-btn').forEach((btn) => {
-        const active = btn.getAttribute('data-inst-cat') === cat;
-        btn.className = active
-          ? 'inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white shrink-0'
-          : 'inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[#080c14] text-slate-400 hover:text-white shrink-0';
-      });
-      renderInstitutionPickerGrid();
-    }
-
-    function renderInstitutionPickerGrid() {
-      const grid = document.getElementById('inst-picker-grid');
-      if (!grid) return;
-      const query = (document.getElementById('inst-search-input')?.value || '').trim().toLowerCase();
-      const selectedId = document.getElementById('acc-institution')?.value || 'wise';
-
-      const filtered = INSTITUTION_CATALOG.filter((item) => {
-        const matchCat = selectedInstCategory === 'ALL' || item.category === selectedInstCategory;
-        const matchSearch = !query || item.name.toLowerCase().includes(query) || item.mono.toLowerCase().includes(query) || item.id.includes(query);
-        return matchCat && matchSearch;
-      });
-
-      if (!filtered.length) {
-        grid.innerHTML = `<div class="col-span-full py-4 text-center text-xs text-slate-500">No matching institution found. Try "Custom Vault".</div>`;
-        return;
-      }
-
-      grid.innerHTML = filtered
-        .map((item) => {
-          const isSelected = item.id === selectedId;
-          const svg = renderInstitutionBadgeSVG(item.id);
-          return `
-            <button
-              type="button"
-              onclick="selectInstitution('${item.id}')"
-              class="p-2 rounded-xl border text-center flex flex-col items-center gap-1.5 transition ${
-                isSelected
-                  ? 'bg-indigo-600/20 border-indigo-400 ring-1 ring-indigo-400/50'
-                  : 'bg-[#080c14] border-white/[0.06] hover:border-white/20'
-              }"
-            >
-              <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0">${svg}</div>
-              <span class="text-[10px] font-medium text-slate-200 truncate w-full">${escapeHTML(item.name)}</span>
-            </button>
-          `;
-        })
-        .join('');
-    }
-
-    function selectInstitution(instId) {
-      const normalized = instId === 'seabank' ? 'maribank' : instId;
-      document.getElementById('acc-institution').value = normalized;
-      const meta = getInstitutionMeta(
-        normalized,
-        document.getElementById('acc-custom-color')?.value,
-        document.getElementById('acc-custom-mono')?.value
-      );
-      document.getElementById('acc-selected-icon-preview').innerHTML = renderInstitutionBadgeSVG(
-        normalized,
-        document.getElementById('acc-custom-color')?.value,
-        document.getElementById('acc-custom-mono')?.value
-      );
-      document.getElementById('acc-selected-inst-label').textContent = meta.name;
-      document.getElementById('custom-inst-controls').classList.toggle('hidden', normalized !== 'custom');
-
-      if (meta.category === 'credit-cards') {
-        document.getElementById('acc-type').value = 'Credit Card';
-        handleAccountTypeChange();
-      }
-      renderInstitutionPickerGrid();
-    }
-
-    function updateCustomInstitutionPreview() {
-      const color = document.getElementById('acc-custom-color').value;
-      const mono = document.getElementById('acc-custom-mono').value || 'VAULT';
-      document.getElementById('acc-custom-hex').textContent = color.toUpperCase();
-      document.getElementById('acc-selected-icon-preview').innerHTML = renderInstitutionBadgeSVG('custom', color, mono);
-    }
-
-    function handleAccountTypeChange() {
-      const isCC = document.getElementById('acc-type').value === 'Credit Card';
-      document.getElementById('acc-cc-settings-box').classList.toggle('hidden', !isCC);
-      document.getElementById('acc-yield-settings-box').classList.toggle('hidden', isCC);
-      document.getElementById('acc-balance-label').textContent = isCC ? 'Current Statement / Owed Balance' : 'Current Balance';
-      updateAccountModalPreview();
-    }
-
-    function updateAccountModalPreview() {
-      const curr = document.getElementById('acc-currency').value || 'PHP';
-      const bal = parseFloat(document.getElementById('acc-balance').value) || 0;
-      const apy = parseFloat(document.getElementById('acc-interest').value) || 0;
-      const tax = parseFloat(document.getElementById('acc-tax').value) || 0;
-      const freq = document.getElementById('acc-freq').value || 'monthly';
-
-      const metrics = calculatePotYieldMetrics({ type: 'Savings', balance: bal, apy, tax, freq });
-      const prevEl = document.getElementById('acc-yield-preview');
-      if (prevEl) {
-        prevEl.innerHTML = `
-          <span>Net APY: <strong class="text-emerald-400">${metrics.netApy.toFixed(2)}%</strong></span>
-          <span>Cycle Payout: <strong class="text-white">${formatMoney(metrics.cyclePayout, curr)}</strong></span>
-        `;
-      }
-    }
-
-    function openAccountModal(accId = null) {
-      const acc = accId ? state.accounts.find((a) => a.id === accId) : null;
-      document.getElementById('account-modal-title').textContent = acc ? 'Edit Money Pot' : 'Create Money Pot';
-      document.getElementById('acc-id').value = acc ? acc.id : '';
-      document.getElementById('acc-name').value = acc ? acc.name : '';
-      document.getElementById('acc-type').value = acc ? acc.type : 'Savings';
-      document.getElementById('acc-currency').value = acc ? acc.currency : 'PHP';
-      document.getElementById('acc-balance').value = acc ? acc.balance : '';
-      document.getElementById('acc-tag').value = acc ? (acc.tag || '') : '';
-      document.getElementById('acc-interest').value = acc ? (acc.apy ?? 0) : 0;
-      document.getElementById('acc-tax').value = acc ? (acc.tax ?? 20) : 20;
-      document.getElementById('acc-freq').value = acc ? (acc.freq || 'monthly') : 'monthly';
-      document.getElementById('acc-credit-limit').value = acc && acc.creditLimit ? acc.creditLimit : '';
-      document.getElementById('acc-due-date').value = acc && acc.dueDate ? acc.dueDate : '';
-      document.getElementById('acc-custom-color').value = acc?.customColor || '#6366f1';
-      document.getElementById('acc-custom-mono').value = acc?.customMono || 'VAULT';
-      document.getElementById('inst-search-input').value = '';
-
-      selectedInstCategory = 'ALL';
-      setInstitutionCategory('ALL');
-      selectInstitution(acc ? acc.institution : 'wise');
-      handleAccountTypeChange();
-      openModal('account-modal');
-    }
-
-    function submitAccount(e) {
-      e.preventDefault();
-      const id = document.getElementById('acc-id').value;
-      const isCC = document.getElementById('acc-type').value === 'Credit Card';
-      const payload = {
-        id: id || `acc-${Date.now()}`,
-        name: document.getElementById('acc-name').value.trim(),
-        institution: document.getElementById('acc-institution').value || 'wise',
-        customColor: document.getElementById('acc-custom-color').value,
-        customMono: document.getElementById('acc-custom-mono').value.trim().toUpperCase(),
-        type: document.getElementById('acc-type').value,
-        currency: document.getElementById('acc-currency').value,
-        balance: parseFloat(document.getElementById('acc-balance').value) || 0,
-        tag: document.getElementById('acc-tag').value.trim(),
-        apy: isCC ? 0 : (parseFloat(document.getElementById('acc-interest').value) || 0),
-        tax: isCC ? 0 : (parseFloat(document.getElementById('acc-tax').value) || 0),
-        freq: isCC ? 'none' : document.getElementById('acc-freq').value,
-        creditLimit: isCC ? (parseFloat(document.getElementById('acc-credit-limit').value) || 0) : 0,
-        dueDate: isCC ? document.getElementById('acc-due-date').value : ''
-      };
-
-      if (id) {
-        const idx = state.accounts.findIndex((a) => a.id === id);
-        if (idx !== -1) state.accounts[idx] = payload;
-      } else {
-        state.accounts.push(payload);
-      }
-
-      persistState();
-      closeModal('account-modal');
-      renderAll();
-      showToast(id ? 'Money pot updated.' : 'New money pot added.', 'success');
-    }
-
-    function deleteAccount(accId) {
-      state.accounts = state.accounts.filter((a) => a.id !== accId);
-      persistState();
-      renderAll();
-      showToast('Money pot removed.', 'info');
-    }
-
-    function creditPotInterest(accId) {
-      const acc = state.accounts.find((a) => a.id === accId);
-      if (!acc) return;
-      const metrics = calculatePotYieldMetrics(acc);
-      if (metrics.cyclePayout <= 0) {
-        showToast('This pot has 0% net yield configured.', 'warning');
-        return;
-      }
-      const payout = Number(metrics.cyclePayout.toFixed(2));
-      acc.balance = Number((acc.balance + payout).toFixed(2));
-      state.transactions.unshift({
-        id: `tx-${Date.now()}`,
-        type: 'interest',
-        accountId: acc.id,
-        amount: payout,
-        category: 'Interest Credit',
-        date: new Date().toISOString().split('T')[0],
-        note: `${acc.name} net ${acc.freq} interest (${metrics.netApy.toFixed(2)}% net APY)`
-      });
-      persistState();
-      renderAll();
-      showToast(`Credited ${formatMoney(payout, acc.currency)} to ${acc.name}.`, 'success');
-    }
-
-    function creditAllDuePots() {
-      let count = 0;
-      const today = new Date().toISOString().split('T')[0];
-      state.accounts.forEach((acc) => {
-        const metrics = calculatePotYieldMetrics(acc);
-        if (acc.type !== 'Credit Card' && metrics.cyclePayout > 0) {
-          const payout = Number(metrics.cyclePayout.toFixed(2));
-          acc.balance = Number((acc.balance + payout).toFixed(2));
-          state.transactions.unshift({
-            id: `tx-${Date.now()}-${count}`,
-            type: 'interest',
-            accountId: acc.id,
-            amount: payout,
-            category: 'Interest Credit',
-            date: today,
-            note: `${acc.name} net ${acc.freq} interest`
-          });
-          count++;
-        }
-      });
-      if (!count) {
-        showToast('No yield-bearing money pots to credit.', 'warning');
-        return;
-      }
-      persistState();
-      renderAll();
-      showToast(`Credited net cycle interest across ${count} money pot(s).`, 'success');
-    }
-
-    // =========================================================================
-    // UNIFIED LEDGER & CROSS-CURRENCY TRANSFERS
-    // =========================================================================
-    function openTransactionModal(mode = 'expense') {
-      if (!state.accounts.length) {
-        showToast('Create at least one Money Pot before logging entries.', 'warning');
-        openAccountModal();
-        return;
-      }
-
-      const srcSel = document.getElementById('tx-account-id');
-      const dstSel = document.getElementById('tx-to-account-id');
-      const optsHTML = state.accounts
-        .map((a) => `<option value="${a.id}">${escapeHTML(a.name)} (${a.currency} • ${formatMoney(a.balance, a.currency)})</option>`)
-        .join('');
-      srcSel.innerHTML = optsHTML;
-      dstSel.innerHTML = optsHTML;
-      if (state.accounts.length > 1) dstSel.selectedIndex = 1;
-
-      document.getElementById('tx-amount').value = '';
-      document.getElementById('tx-target-amount').value = '';
-      document.getElementById('tx-note').value = '';
-      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
-
-      setTxMode(mode);
-      openModal('tx-modal');
-    }
-
-    function setTxMode(mode) {
-      document.getElementById('tx-type').value = mode;
-      const isTransfer = mode === 'transfer';
-
-      ['expense', 'income', 'transfer'].forEach((m) => {
-        const btn = document.getElementById(`tx-mode-${m}`);
-        const active = m === mode;
-        const activeColors = {
-          expense: 'bg-rose-600 text-white',
-          income: 'bg-emerald-600 text-white',
-          transfer: 'bg-sky-600 text-white'
-        };
-        btn.className = active
-          ? `py-2 rounded-lg text-xs font-semibold transition ${activeColors[m]}`
-          : 'py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
-      });
-
-      document.getElementById('tx-account-label').textContent = isTransfer ? 'Source Money Pot' : 'Money Pot';
-      document.getElementById('tx-to-account-wrap').classList.toggle('hidden', !isTransfer);
-
-      const catSel = document.getElementById('tx-category');
-      const cats = TX_CATEGORIES[mode] || TX_CATEGORIES.expense;
-      catSel.innerHTML = cats.map((c) => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
-
-      handleTransferSourceOrAmountChange();
-    }
-
-    function handleTransferSourceOrAmountChange() {
-      const isTransfer = document.getElementById('tx-type').value === 'transfer';
-      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id').value);
-      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id').value);
-      const isCrossCurr = isTransfer && src && dst && src.currency !== dst.currency;
-
-      document.getElementById('tx-amount-label').textContent = src ? `Amount (${src.currency})` : 'Amount';
-      document.getElementById('tx-target-amount-wrap').classList.toggle('hidden', !isCrossCurr);
-      document.getElementById('tx-fx-box').classList.toggle('hidden', !isCrossCurr);
-      document.getElementById('tx-amount-col').className = isCrossCurr ? 'sm:col-span-1' : 'sm:col-span-2';
-
-      if (isCrossCurr) {
-        const marketPairRate = convertCurrency(1, src.currency, dst.currency);
-        const rateInput = document.getElementById('tx-applied-rate');
-        if (!rateInput.dataset.pair || rateInput.dataset.pair !== `${src.currency}->${dst.currency}`) {
-          rateInput.value = marketPairRate.toFixed(4);
-          rateInput.dataset.pair = `${src.currency}->${dst.currency}`;
-        }
-        document.getElementById('tx-applied-rate-label').textContent = `Applied Rate (1 ${src.currency} → ${dst.currency})`;
-        document.getElementById('tx-target-amount-label').textContent = `Destination (${dst.currency})`;
-
-        const srcAmt = parseFloat(document.getElementById('tx-amount').value) || 0;
-        const appliedRate = parseFloat(rateInput.value) || marketPairRate;
-        document.getElementById('tx-target-amount').value = srcAmt > 0 ? (srcAmt * appliedRate).toFixed(2) : '';
-        updateTransferSpreadLabel(appliedRate, marketPairRate);
-      }
-    }
-
-    function handleTransferTargetAmountEdit() {
-      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id').value);
-      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id').value);
-      if (!src || !dst || src.currency === dst.currency) return;
-      const srcAmt = parseFloat(document.getElementById('tx-amount').value) || 0;
-      const dstAmt = parseFloat(document.getElementById('tx-target-amount').value) || 0;
-      if (srcAmt > 0 && dstAmt > 0) {
-        const impliedRate = dstAmt / srcAmt;
-        document.getElementById('tx-applied-rate').value = impliedRate.toFixed(6);
-        updateTransferSpreadLabel(impliedRate, convertCurrency(1, src.currency, dst.currency));
-      }
-    }
-
-    function handleTransferRateEdit() {
-      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id').value);
-      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id').value);
-      if (!src || !dst || src.currency === dst.currency) return;
-      const srcAmt = parseFloat(document.getElementById('tx-amount').value) || 0;
-      const rate = parseFloat(document.getElementById('tx-applied-rate').value) || 0;
-      if (srcAmt > 0 && rate > 0) {
-        document.getElementById('tx-target-amount').value = (srcAmt * rate).toFixed(2);
-      }
-      updateTransferSpreadLabel(rate, convertCurrency(1, src.currency, dst.currency));
-    }
-
-    function updateTransferSpreadLabel(applied, market) {
-      const el = document.getElementById('tx-spread-indicator');
-      if (!el || !market) return;
-      const diffPct = ((applied - market) / market) * 100;
-      el.textContent = Math.abs(diffPct) < 0.01 ? 'At mid-market' : `${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(2)}% vs mid-market`;
-    }
-
-    function submitTransaction(e) {
-      e.preventDefault();
-      const type = document.getElementById('tx-type').value;
-      const accountId = document.getElementById('tx-account-id').value;
-      const toAccountId = document.getElementById('tx-to-account-id').value;
-      const amount = parseFloat(document.getElementById('tx-amount').value) || 0;
-      const category = document.getElementById('tx-category').value;
-      const date = document.getElementById('tx-date').value;
-      const note = document.getElementById('tx-note').value.trim();
-
-      const src = state.accounts.find((a) => a.id === accountId);
-      if (!src || amount <= 0) return;
-
-      if (type === 'transfer') {
-        const dst = state.accounts.find((a) => a.id === toAccountId);
-        if (!dst || dst.id === src.id) {
-          showToast('Choose a different destination money pot for transfers.', 'warning');
-          return;
-        }
-        const isCross = src.currency !== dst.currency;
-        const targetAmount = isCross
-          ? (parseFloat(document.getElementById('tx-target-amount').value) || convertCurrency(amount, src.currency, dst.currency))
-          : amount;
-        const appliedRate = isCross ? (targetAmount / amount) : 1;
-
-        src.balance = Number((src.balance - amount).toFixed(2));
-        // If destination is a Credit Card, paying it reduces the owed liability balance
-        if (dst.type === 'Credit Card') {
-          dst.balance = Number(Math.max(0, dst.balance - targetAmount).toFixed(2));
-        } else {
-          dst.balance = Number((dst.balance + targetAmount).toFixed(2));
-        }
-
-        state.transactions.unshift({
-          id: `tx-${Date.now()}`,
-          type: 'transfer',
-          accountId: src.id,
-          toAccountId: dst.id,
-          amount,
-          targetAmount: Number(targetAmount.toFixed(2)),
-          appliedRate,
-          category,
-          date,
-          note
-        });
-      } else if (type === 'expense') {
-        // Spending on a Credit Card increases the owed balance; spending from cash reduces balance
-        if (src.type === 'Credit Card') {
-          src.balance = Number((src.balance + amount).toFixed(2));
-        } else {
-          src.balance = Number((src.balance - amount).toFixed(2));
-        }
-        state.transactions.unshift({
-          id: `tx-${Date.now()}`,
-          type: 'expense',
-          accountId: src.id,
-          amount,
-          category,
-          date,
-          note
-        });
-      } else {
-        // Income or interest
-        if (src.type === 'Credit Card') {
-          src.balance = Number(Math.max(0, src.balance - amount).toFixed(2));
-        } else {
-          src.balance = Number((src.balance + amount).toFixed(2));
-        }
-        state.transactions.unshift({
-          id: `tx-${Date.now()}`,
-          type,
-          accountId: src.id,
-          amount,
-          category,
-          date,
-          note
-        });
-      }
-
-      persistState();
-      closeModal('tx-modal');
-      renderAll();
-      showToast('Ledger entry recorded.', 'success');
-    }
-
-    function undoTransaction(txId) {
-      const idx = state.transactions.findIndex((t) => t.id === txId);
-      if (idx === -1) return;
-      const tx = state.transactions[idx];
-      const src = state.accounts.find((a) => a.id === tx.accountId);
-      const dst = tx.toAccountId ? state.accounts.find((a) => a.id === tx.toAccountId) : null;
-
-      if (tx.type === 'transfer') {
-        if (src) src.balance = Number((src.balance + tx.amount).toFixed(2));
-        if (dst) {
-          const tAmt = tx.targetAmount || tx.amount;
-          if (dst.type === 'Credit Card') {
-            dst.balance = Number((dst.balance + tAmt).toFixed(2));
-          } else {
-            dst.balance = Number((dst.balance - tAmt).toFixed(2));
-          }
-        }
-      } else if (tx.type === 'expense') {
-        if (src) {
-          if (src.type === 'Credit Card') {
-            src.balance = Number(Math.max(0, src.balance - tx.amount).toFixed(2));
-          } else {
-            src.balance = Number((src.balance + tx.amount).toFixed(2));
-          }
-        }
-      } else {
-        if (src) {
-          if (src.type === 'Credit Card') {
-            src.balance = Number((src.balance + tx.amount).toFixed(2));
-          } else {
-            src.balance = Number((src.balance - tx.amount).toFixed(2));
-          }
-        }
-      }
-
-      state.transactions.splice(idx, 1);
-      persistState();
-      renderAll();
-      showToast('Transaction undone and balances reverted.', 'info');
-    }
-
-    // =========================================================================
-    // IBKR PORTFOLIO, LIVE QUOTES & FLEX WEB SERVICE (2-STEP SYNC)
-    // =========================================================================
     function openHoldingModal(holdId = null) {
       const h = holdId ? state.holdings.find((item) => item.id === holdId) : null;
-      document.getElementById('holding-modal-title').textContent = h ? 'Edit IBKR Holding' : 'Add IBKR Holding';
+      document.getElementById('holding-modal-title').textContent = h ? 'Edit Holding' : 'Add Holding';
       document.getElementById('hold-id').value = h ? h.id : '';
       document.getElementById('hold-symbol').value = h ? h.symbol : '';
       document.getElementById('hold-currency').value = h ? h.currency : 'USD';
@@ -3324,6 +2456,16 @@ service cloud.firestore {
       document.getElementById('hold-shares').value = h ? h.shares : '';
       document.getElementById('hold-cost').value = h ? h.avgCost : '';
       document.getElementById('hold-price').value = h ? h.price : '';
+      document.getElementById('hold-uitf-bank-id').value = h?.uitfBankId || '';
+      document.getElementById('hold-uitf-fund-id').value = h?.uitfFundId || '';
+
+      const presetSel = document.getElementById('hold-uitf-preset');
+      if (presetSel) {
+        const matchedEntry = h
+          ? Object.entries(PH_UITF_PRESETS).find(([, p]) => p.symbol === h.symbol || (p.bankId === h.uitfBankId && p.fundId === h.uitfFundId))
+          : null;
+        presetSel.value = matchedEntry ? matchedEntry[0] : '';
+      }
       openModal('holding-modal');
     }
 
@@ -3332,6 +2474,11 @@ service cloud.firestore {
       const id = document.getElementById('hold-id').value;
       const symbol = document.getElementById('hold-symbol').value.trim().toUpperCase();
       const price = parseFloat(document.getElementById('hold-price').value) || 0;
+      const presetKey = document.getElementById('hold-uitf-preset')?.value || '';
+      const preset = PH_UITF_PRESETS[presetKey] || Object.values(PH_UITF_PRESETS).find((p) => p.symbol === symbol);
+      const uitfBankId = (document.getElementById('hold-uitf-bank-id')?.value || preset?.bankId || '').trim();
+      const uitfFundId = (document.getElementById('hold-uitf-fund-id')?.value || preset?.fundId || '').trim();
+
       const payload = {
         id: id || `hold-${Date.now()}`,
         symbol,
@@ -3340,7 +2487,8 @@ service cloud.firestore {
         shares: parseFloat(document.getElementById('hold-shares').value) || 0,
         avgCost: parseFloat(document.getElementById('hold-cost').value) || 0,
         price,
-        prevClose: price
+        prevClose: price,
+        ...(uitfBankId && uitfFundId ? { uitfBankId, uitfFundId } : {})
       };
 
       if (id) {
@@ -3356,14 +2504,14 @@ service cloud.firestore {
       persistState();
       closeModal('holding-modal');
       renderAll();
-      showToast(id ? 'Holding updated.' : 'IBKR position added.', 'success');
+      showToast(id ? 'Holding updated.' : 'Holding added.', 'success');
     }
 
     function deleteHolding(holdId) {
       state.holdings = state.holdings.filter((h) => h.id !== holdId);
       persistState();
       renderAll();
-      showToast('Position removed.', 'info');
+      showToast('Holding removed.', 'info');
     }
 
     function normalizeWorkerUrl(rawUrl) {
@@ -3419,6 +2567,7 @@ service cloud.firestore {
       const creds = state.ibkrCredentials || {};
       const proxyMode = creds.proxyMode || 'auto';
       const workerUrl = normalizeWorkerUrl(creds.customProxyUrl);
+      const isIBKRHost = /^https:\/\/[a-z0-9-]+\.interactivebrokers\.com\//i.test(targetUrl);
 
       if (proxyMode === 'custom') {
         if (!workerUrl) throw new Error('Private Worker URL is empty.');
@@ -3427,6 +2576,9 @@ service cloud.firestore {
         try {
           res = await fetchWithTimeout(proxied, 15000);
         } catch (netErr) {
+          if (!isIBKRHost) {
+            return await fetchViaPublicRelays(targetUrl);
+          }
           throw new Error('Private Worker: Blocked by browser CORS / Tracking Protection.');
         }
         const text = await res.text();
@@ -3434,6 +2586,10 @@ service cloud.firestore {
           throw new Error('Private Worker: HTTP 404 (Check Worker URL starts with https://)');
         }
         if (!res.ok) {
+          // If user's existing Worker only whitelists interactivebrokers.com, fall back to public relays for public quote feeds
+          if (!isIBKRHost && res.status === 400) {
+            return await fetchViaPublicRelays(targetUrl);
+          }
           const snippet = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 90);
           throw new Error(`Private Worker: HTTP ${res.status}${snippet ? ` (${snippet})` : ''}`);
         }
@@ -3446,13 +2602,11 @@ service cloud.firestore {
         return await res.text();
       }
 
-      // Auto mode: try public CORS relays
+      return await fetchViaPublicRelays(targetUrl);
+    }
+
+    async function fetchViaPublicRelays(targetUrl) {
       const relays = [
-        {
-          name: 'CodeTabs',
-          url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-          parse: async (r) => await r.text()
-        },
         {
           name: 'AllOrigins',
           url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
@@ -3460,6 +2614,11 @@ service cloud.firestore {
             const j = await r.json();
             return j.contents || '';
           }
+        },
+        {
+          name: 'CodeTabs',
+          url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+          parse: async (r) => await r.text()
         },
         {
           name: 'CorsProxy',
@@ -3688,11 +2847,11 @@ service cloud.firestore {
 
         const avgCost = costIdx !== -1 ? (parseFloat(cols[costIdx] || '0') || 0) : 0;
         const price = priceIdx !== -1 ? (parseFloat(cols[priceIdx] || '0') || avgCost) : avgCost;
-        const currency = currIdx !== -1 ? (cols[currIdx] || 'USD').toUpperCase() : 'USD';
+        const currency = currIdx !== -1 && cols[currIdx] ? cols[currIdx].toUpperCase() : 'USD';
         const name = descIdx !== -1 && cols[descIdx] ? cols[descIdx] : symbol;
 
         results.push({
-          id: `hold-csv-${Date.now()}-${i}`,
+          id: `hold-flex-${Date.now()}-${i}`,
           symbol,
           name,
           currency: CURRENCY_META[currency] ? currency : 'USD',
@@ -3705,26 +2864,40 @@ service cloud.firestore {
       return results;
     }
 
-    function handleIBKRDragOver(e) {
-      e.preventDefault();
-      document.getElementById('ibkr-dropzone')?.classList.add('border-emerald-400', 'bg-emerald-500/10');
+    function preserveHoldingsCustomOrder(newList) {
+      if (!Array.isArray(state.holdings) || !state.holdings.length) return newList;
+      const orderMap = new Map();
+      state.holdings.forEach((h, idx) => {
+        if (h && h.symbol) orderMap.set(h.symbol.toUpperCase(), idx);
+      });
+      return [...newList].sort((a, b) => {
+        const ia = orderMap.has(a.symbol.toUpperCase()) ? orderMap.get(a.symbol.toUpperCase()) : 99999;
+        const ib = orderMap.has(b.symbol.toUpperCase()) ? orderMap.get(b.symbol.toUpperCase()) : 99999;
+        return ia - ib;
+      });
     }
 
-    function handleIBKRDragLeave(e) {
-      e.preventDefault();
-      document.getElementById('ibkr-dropzone')?.classList.remove('border-emerald-400', 'bg-emerald-500/10');
+    function applyImportedIBKRText(rawText) {
+      const parsed = parseIBKRFlexContent(rawText);
+      if (!parsed.length) {
+        showToast('No valid Open Positions found in XML/CSV content.', 'error');
+        return;
+      }
+      state.holdings = preserveHoldingsCustomOrder(parsed);
+      state.ibkrQuoteSource = 'IBKR Flex Imported';
+      state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      persistState(true);
+      closeModal('ibkr-sync-modal');
+      renderAll();
+      showToast(`Imported ${parsed.length} position(s) successfully.`, 'success');
     }
 
     function handleIBKRDrop(e) {
       e.preventDefault();
-      handleIBKRDragLeave(e);
       const file = e.dataTransfer?.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        document.getElementById('ibkr-raw-import').value = reader.result || '';
-        parseAndImportIBKRText();
-      };
+      reader.onload = () => applyImportedIBKRText(String(reader.result || ''));
       reader.readAsText(file);
     }
 
@@ -3732,40 +2905,73 @@ service cloud.firestore {
       const file = e.target?.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        document.getElementById('ibkr-raw-import').value = reader.result || '';
-        parseAndImportIBKRText();
-      };
+      reader.onload = () => applyImportedIBKRText(String(reader.result || ''));
       reader.readAsText(file);
     }
 
-    function preserveHoldingsCustomOrder(incomingList) {
-      if (!Array.isArray(state.holdings) || !state.holdings.length) return incomingList;
-      const orderMap = new Map();
-      state.holdings.forEach((h, idx) => {
-        if (h && h.symbol) orderMap.set(h.symbol.toUpperCase(), idx);
-      });
-      return [...incomingList].sort((a, b) => {
-        const idxA = orderMap.has(a.symbol) ? orderMap.get(a.symbol) : Number.MAX_SAFE_INTEGER;
-        const idxB = orderMap.has(b.symbol) ? orderMap.get(b.symbol) : Number.MAX_SAFE_INTEGER;
-        return idxA - idxB;
-      });
-    }
-
-    function parseAndImportIBKRText() {
-      const raw = document.getElementById('ibkr-raw-import')?.value || '';
-      const parsed = parseIBKRFlexContent(raw);
-      if (!parsed.length) {
-        showToast('Could not detect any Open Positions in the pasted XML/CSV.', 'error');
+    function importIBKRPastedContent() {
+      const raw = document.getElementById('ibkr-paste-input')?.value || '';
+      if (!raw.trim()) {
+        showToast('Paste Flex XML or CSV text first.', 'warning');
         return;
       }
-      state.holdings = preserveHoldingsCustomOrder(parsed);
-      state.ibkrQuoteSource = 'IBKR Flex Report';
-      state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      persistState(true);
-      closeModal('ibkr-sync-modal');
-      renderAll();
-      showToast(`Imported ${parsed.length} IBKR position(s).`, 'success');
+      applyImportedIBKRText(raw);
+    }
+
+    function getHoldingUITFSpec(h) {
+      if (!h) return null;
+      if (h.uitfBankId && h.uitfFundId) {
+        const preset = Object.values(PH_UITF_PRESETS).find((p) => p.bankId === String(h.uitfBankId) && p.fundId === String(h.uitfFundId));
+        return {
+          bankId: String(h.uitfBankId),
+          fundId: String(h.uitfFundId),
+          matchTerms: preset ? preset.matchTerms : [h.name]
+        };
+      }
+      const sym = (h.symbol || '').toUpperCase();
+      const preset = Object.values(PH_UITF_PRESETS).find((p) => p.symbol === sym);
+      if (preset) {
+        return { bankId: preset.bankId, fundId: preset.fundId, matchTerms: preset.matchTerms };
+      }
+      const customMatch = sym.match(/^UITF[:\-](\d+)[:\-](\d+)$/);
+      if (customMatch) {
+        return { bankId: customMatch[1], fundId: customMatch[2], matchTerms: [h.name] };
+      }
+      return null;
+    }
+
+    function extractUITFNavpuFromHTML(html, spec) {
+      if (!html) return null;
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const rows = Array.from(doc.querySelectorAll('tr'));
+
+      for (const row of rows) {
+        const rowHtml = row.innerHTML || '';
+        const rowText = (row.textContent || '').replace(/\s+/g, ' ').trim();
+        const matchesFundId = spec.fundId && (rowHtml.includes(`fund_id=${spec.fundId}`) || rowHtml.includes(`fund_id=${spec.fundId}&`) || rowHtml.includes(`fund_id=${spec.fundId}"`));
+        const matchesName = Array.isArray(spec.matchTerms) && spec.matchTerms.some((t) => t && rowText.toLowerCase().includes(t.toLowerCase()));
+
+        if (matchesFundId || matchesName) {
+          const cells = Array.from(row.querySelectorAll('td')).map((td) => td.textContent.replace(/,/g, '').trim());
+          for (const cell of cells) {
+            // NAVPU values on uitf.com.ph are formatted with 4 decimal places (e.g., 238.9712 or 1.4521)
+            const m = cell.match(/^(\d+\.\d{3,6})$/);
+            if (m) {
+              const val = parseFloat(m[1]);
+              if (val > 0) return val;
+            }
+          }
+        }
+      }
+
+      // Fallback for fund-details.php single-fund page
+      const bodyText = (doc.body?.textContent || '').replace(/,/g, ' ');
+      const navMatch = bodyText.match(/Latest\s*NAVPU[^0-9]{0,30}(\d+\.\d{3,6})/i) || bodyText.match(/NAVPU[^0-9]{0,25}(\d+\.\d{3,6})/i);
+      if (navMatch) {
+        const val = parseFloat(navMatch[1]);
+        if (val > 0) return val;
+      }
+      return null;
     }
 
     async function refreshIBKRQuotes(manual = false) {
@@ -3773,7 +2979,7 @@ service cloud.firestore {
         if (state.ibkrCredentials?.flexToken && state.ibkrCredentials?.flexQueryId) {
           await fetchIBKRFlexPositions(manual);
         } else if (manual) {
-          showToast('No IBKR holdings yet. Add a position or sync via Flex.', 'info');
+          showToast('No holdings yet. Add an equity/UITF or sync via IBKR Flex.', 'info');
         }
         return;
       }
@@ -3783,30 +2989,55 @@ service cloud.firestore {
 
       try {
         let updatedCount = 0;
+        const uitfBankCache = new Map();
+
         for (const h of state.holdings) {
           try {
-            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(h.symbol)}?interval=1d&range=2d`;
-            const text = await fetchTextWithCORSFallback(yahooUrl);
-            const data = JSON.parse(text);
-            const meta = data?.chart?.result?.[0]?.meta;
-            if (meta && meta.regularMarketPrice) {
-              h.prevClose = Number(meta.chartPreviousClose || meta.previousClose || h.price);
-              h.price = Number(meta.regularMarketPrice);
-              updatedCount++;
+            const uitfSpec = getHoldingUITFSpec(h);
+            if (uitfSpec) {
+              let bankHtml = uitfBankCache.get(uitfSpec.bankId);
+              if (bankHtml === undefined) {
+                try {
+                  bankHtml = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/daily-navpu.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}`);
+                } catch (e) {
+                  bankHtml = '';
+                }
+                uitfBankCache.set(uitfSpec.bankId, bankHtml);
+              }
+              let navpu = extractUITFNavpuFromHTML(bankHtml, uitfSpec);
+              if (!navpu) {
+                const detailHtml = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/fund-details.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}&fund_id=${encodeURIComponent(uitfSpec.fundId)}`);
+                navpu = extractUITFNavpuFromHTML(detailHtml, uitfSpec);
+              }
+              if (navpu && navpu > 0) {
+                h.prevClose = h.price;
+                h.price = navpu;
+                updatedCount++;
+              }
+            } else {
+              const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(h.symbol)}?interval=1d&range=2d`;
+              const text = await fetchTextWithCORSFallback(yahooUrl);
+              const data = JSON.parse(text);
+              const meta = data?.chart?.result?.[0]?.meta;
+              if (meta && meta.regularMarketPrice) {
+                h.prevClose = Number(meta.chartPreviousClose || meta.previousClose || h.price);
+                h.price = Number(meta.regularMarketPrice);
+                updatedCount++;
+              }
             }
           } catch (singleErr) {
-            // Keep existing cached price if a single symbol quote fails
+            // Keep existing cached price/NAVPU if a single holding quote fails
           }
         }
 
         if (updatedCount > 0) {
-          state.ibkrQuoteSource = 'Live Market Quotes';
+          state.ibkrQuoteSource = 'Live Quotes & NAVPU';
           state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           persistState();
           renderAll();
-          if (manual) showToast(`Refreshed live quotes for ${updatedCount} symbol(s).`, 'success');
+          if (manual) showToast(`Refreshed live quotes/NAVPUs for ${updatedCount} holding(s).`, 'success');
         } else if (manual) {
-          showToast('Could not reach live quote feed; keeping cached prices.', 'warning');
+          showToast('Could not reach live quote/NAVPU feed; keeping cached values.', 'warning');
         }
       } finally {
         if (btn) btn.disabled = false;
@@ -3821,9 +3052,9 @@ service cloud.firestore {
       if (enabled) {
         refreshIBKRQuotes(false);
         ibkrAutoRefreshTimer = setInterval(() => refreshIBKRQuotes(false), 60000);
-        showToast('IBKR 60-second auto-refresh enabled.', 'info');
+        showToast('Holdings 60-second auto-refresh enabled.', 'info');
       } else {
-        showToast('IBKR auto-refresh paused.', 'info');
+        showToast('Holdings auto-refresh paused.', 'info');
       }
     }
 
@@ -3844,7 +3075,7 @@ service cloud.firestore {
       const total = positiveCash + positiveIbkr;
 
       if (total <= 0) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">Add a Money Pot or IBKR position to visualize asset allocation.</div>`;
+        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">Add a Money Pot or Holding to visualize asset allocation.</div>`;
         return;
       }
 
@@ -3870,7 +3101,7 @@ service cloud.firestore {
               stroke-dasharray="${ibkrDash} ${circumference}"
               stroke-dashoffset="${-cashDash}"
               class="cursor-pointer transition-opacity hover:opacity-85"
-              onmouseenter="hoverDonutSegment('IBKR Equity', '${escapeHTML(formatMoney(positiveIbkr, disp))}', '${ibkrPct.toFixed(1)}%')"
+              onmouseenter="hoverDonutSegment('Invested Holdings', '${escapeHTML(formatMoney(positiveIbkr, disp))}', '${ibkrPct.toFixed(1)}%')"
             />
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
@@ -3884,7 +3115,7 @@ service cloud.firestore {
             <span class="font-mono font-semibold text-white tabular-nums">${cashPct.toFixed(1)}%</span>
           </div>
           <div class="flex items-center justify-between gap-3 sm:gap-4">
-            <span class="flex items-center gap-1.5 sm:gap-2 text-slate-300"><span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-sky-400 shrink-0"></span>IBKR Equity</span>
+            <span class="flex items-center gap-1.5 sm:gap-2 text-slate-300"><span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-sky-400 shrink-0"></span>Invested Holdings</span>
             <span class="font-mono font-semibold text-white tabular-nums">${ibkrPct.toFixed(1)}%</span>
           </div>
         </div>
@@ -3999,7 +3230,7 @@ service cloud.firestore {
       const ibkrShare = totalPositiveAssets > 0 ? 100 - cashShare : 0;
 
       document.getElementById('kpi-net-worth').textContent = formatMoney(netWorthDisp, disp);
-      document.getElementById('kpi-net-worth-sub').textContent = `${cashShare}% Cash • ${ibkrShare}% IBKR`;
+      document.getElementById('kpi-net-worth-sub').textContent = `${cashShare}% Cash • ${ibkrShare}% Holdings`;
       document.getElementById('kpi-cash-total').textContent = formatMoney(netCashDisp, disp);
       document.getElementById('kpi-cash-sub').textContent = `${state.accounts.length} active account(s)${liabilitiesDisp > 0 ? ` • -${formatMoney(liabilitiesDisp, disp)} CC` : ''}`;
       document.getElementById('kpi-ibkr-total').textContent = formatMoney(ibkrValueDisp, disp);
@@ -4083,6 +3314,915 @@ service cloud.firestore {
       closeModal('reset-modal');
       renderAll();
       showToast('Sample multi-currency portfolio loaded.', 'success');
+    }
+
+    // =========================================================================
+    // FX ENGINE, CURRENCY FORMATTING & FX DRAWER
+    // =========================================================================
+    function getEffectiveFXRate(curr) {
+      if (!curr || curr === 'USD') return 1.0;
+      if (state.fxOverrides && state.fxOverrides[curr] > 0) return Number(state.fxOverrides[curr]);
+      if (state.fxRates && state.fxRates[curr] > 0) return Number(state.fxRates[curr]);
+      return DEFAULT_FX_RATES[curr] || 1.0;
+    }
+
+    function convertCurrency(amount, fromCurr, toCurr) {
+      const val = Number(amount) || 0;
+      if (!fromCurr || !toCurr || fromCurr === toCurr) return val;
+      const fromRate = getEffectiveFXRate(fromCurr);
+      const toRate = getEffectiveFXRate(toCurr);
+      const inUSD = fromCurr === 'USD' ? val : val / fromRate;
+      return toCurr === 'USD' ? inUSD : inUSD * toRate;
+    }
+
+    function formatMoney(amount, currency = 'USD', showPlus = false) {
+      const meta = CURRENCY_META[currency] || CURRENCY_META.USD;
+      const num = Number(amount) || 0;
+      const isNeg = num < 0;
+      const absFormatted = Math.abs(num).toLocaleString('en-US', {
+        minimumFractionDigits: meta.decimals,
+        maximumFractionDigits: meta.decimals
+      });
+      const sign = isNeg ? '-' : showPlus && num > 0 ? '+' : '';
+      return `${sign}${meta.symbol}${absFormatted}`;
+    }
+
+    function changeDisplayCurrency(curr) {
+      if (!CURRENCY_META[curr]) return;
+      state.displayCurrency = curr;
+      persistState(true);
+      renderAll();
+    }
+
+    function updateTopbarFXPreview() {
+      const disp = state.displayCurrency || 'USD';
+      const previewEl = document.getElementById('topbar-fx-preview');
+      const badgeEl = document.getElementById('fx-override-badge');
+      const pairCurr = disp === 'USD' ? 'PHP' : disp;
+      const rate = getEffectiveFXRate(pairCurr);
+      if (previewEl) {
+        previewEl.textContent = `1 USD = ${rate.toFixed(pairCurr === 'JPY' ? 2 : 4)} ${pairCurr}`;
+      }
+      if (badgeEl) {
+        const hasOverrides = state.fxOverrides && Object.keys(state.fxOverrides).length > 0;
+        badgeEl.classList.toggle('hidden', !hasOverrides);
+      }
+    }
+
+    function openFXDrawer() {
+      const listEl = document.getElementById('fx-drawer-list');
+      const syncLabel = document.getElementById('fx-last-sync-label');
+      if (syncLabel) syncLabel.textContent = `Base: 1 USD • ${state.fxLastSync || 'Cached mid-market'}`;
+
+      if (listEl) {
+        listEl.innerHTML = Object.keys(CURRENCY_META)
+          .filter((c) => c !== 'USD')
+          .map((curr) => {
+            const meta = CURRENCY_META[curr];
+            const marketRate = Number(state.fxRates?.[curr] || DEFAULT_FX_RATES[curr] || 1);
+            const overrideVal = state.fxOverrides?.[curr] || '';
+            return `
+              <div class="p-3 rounded-xl bg-[#141d2e] border border-white/[0.08] flex items-center justify-between gap-3">
+                <div>
+                  <div class="text-xs font-bold text-white">${curr} <span class="text-slate-400 font-normal">(${meta.name})</span></div>
+                  <div class="text-[11px] font-mono text-slate-400 mt-0.5">Market: 1 USD = ${marketRate.toFixed(4)} ${curr}</div>
+                </div>
+                <div class="w-32">
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.0001"
+                    data-fx-curr="${curr}"
+                    value="${overrideVal}"
+                    placeholder="${marketRate.toFixed(4)}"
+                    class="w-full px-2.5 py-1.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-right text-amber-300 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+      openModal('fx-drawer');
+    }
+
+    function saveFXOverrides() {
+      const nextOverrides = {};
+      document.querySelectorAll('#fx-drawer-list input[data-fx-curr]').forEach((inp) => {
+        const curr = inp.getAttribute('data-fx-curr');
+        const val = parseFloat(inp.value);
+        if (curr && val > 0) nextOverrides[curr] = val;
+      });
+      state.fxOverrides = nextOverrides;
+      persistState(true);
+      closeModal('fx-drawer');
+      renderAll();
+      showToast('FX rates updated across portfolio.', 'success');
+    }
+
+    function clearAllFXOverrides() {
+      state.fxOverrides = {};
+      persistState(true);
+      openFXDrawer();
+      renderAll();
+      showToast('Custom FX overrides cleared.', 'info');
+    }
+
+    async function refreshLiveFX(manual = false) {
+      try {
+        const res = await fetchWithTimeout('https://open.er-api.com/v6/latest/USD', 8000);
+        if (!res.ok) throw new Error('FX API unavailable');
+        const data = await res.json();
+        if (data && data.rates) {
+          Object.keys(CURRENCY_META).forEach((curr) => {
+            if (data.rates[curr]) state.fxRates[curr] = Number(data.rates[curr]);
+          });
+          state.fxLastSync = `Live FX (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
+          persistState();
+          if (manual) {
+            openFXDrawer();
+            showToast('Live mid-market FX rates updated.', 'success');
+          }
+          renderAll();
+        }
+      } catch (err) {
+        if (manual) showToast('Could not reach live FX API; using cached rates.', 'warning');
+      }
+    }
+
+    // =========================================================================
+    // MONEY POTS CRUD, YIELD ENGINE & INSTITUTION PICKER
+    // =========================================================================
+    function calculatePotYieldMetrics(acc) {
+      if (!acc || acc.type === 'Credit Card' || acc.freq === 'none') {
+        return { netApy: 0, annualNet: 0, monthlyNet: 0, cyclePayout: 0 };
+      }
+      const bal = Math.max(0, Number(acc.balance) || 0);
+      const apy = Math.max(0, Number(acc.apy) || 0);
+      const tax = Math.min(100, Math.max(0, Number(acc.tax) || 0));
+      const netApy = apy * (1 - tax / 100);
+      const annualNet = bal * (netApy / 100);
+      const monthlyNet = annualNet / 12;
+
+      const divisors = { daily: 365, monthly: 12, quarterly: 4, annually: 1 };
+      const div = divisors[acc.freq || 'monthly'] || 12;
+      const cyclePayout = annualNet / div;
+
+      return { netApy, annualNet, monthlyNet, cyclePayout };
+    }
+
+    function setInstitutionCategory(cat) {
+      selectedInstCategory = cat || 'ALL';
+      document.querySelectorAll('.inst-cat-btn').forEach((btn) => {
+        const isActive = btn.getAttribute('data-inst-cat') === selectedInstCategory;
+        btn.className = isActive
+          ? 'inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white shrink-0'
+          : 'inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[#080c14] text-slate-400 hover:text-white shrink-0';
+      });
+      renderInstitutionPickerGrid();
+    }
+
+    function renderInstitutionPickerGrid() {
+      const grid = document.getElementById('inst-picker-grid');
+      if (!grid) return;
+      const query = (document.getElementById('inst-search-input')?.value || '').trim().toLowerCase();
+      const selectedId = document.getElementById('acc-institution')?.value || 'wise';
+      const customColor = document.getElementById('acc-custom-color')?.value || '#6366f1';
+      const customMono = document.getElementById('acc-custom-mono')?.value || 'VAULT';
+
+      const filtered = INSTITUTION_CATALOG.filter((item) => {
+        const matchCat = selectedInstCategory === 'ALL' || item.category === selectedInstCategory;
+        const matchQuery = !query || item.name.toLowerCase().includes(query) || item.mono.toLowerCase().includes(query);
+        return matchCat && matchQuery;
+      });
+
+      grid.innerHTML = filtered
+        .map((item) => {
+          const isSelected = item.id === selectedId;
+          const badge = renderInstitutionBadgeSVG(item.id, customColor, customMono);
+          return `
+            <button
+              type="button"
+              onclick="selectInstitution('${item.id}')"
+              class="p-2 rounded-xl border text-center flex flex-col items-center gap-1.5 transition ${
+                isSelected
+                  ? 'bg-indigo-600/20 border-indigo-400 text-white shadow-sm'
+                  : 'bg-[#080c14] border-white/[0.06] text-slate-300 hover:border-white/20'
+              }"
+            >
+              <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0">${badge}</div>
+              <span class="text-[10px] font-medium leading-tight truncate w-full">${escapeHTML(item.name)}</span>
+            </button>
+          `;
+        })
+        .join('');
+    }
+
+    function selectInstitution(instId) {
+      const normalized = instId === 'seabank' ? 'maribank' : instId;
+      document.getElementById('acc-institution').value = normalized;
+      const meta = getInstitutionMeta(
+        normalized,
+        document.getElementById('acc-custom-color')?.value,
+        document.getElementById('acc-custom-mono')?.value
+      );
+
+      document.getElementById('acc-selected-inst-label').textContent = `${meta.name} selected`;
+      document.getElementById('custom-inst-controls').classList.toggle('hidden', normalized !== 'custom');
+
+      if (meta.category === 'credit-cards') {
+        document.getElementById('acc-type').value = 'Credit Card';
+        handleAccountTypeChange();
+      }
+      updateAccountModalPreview();
+      renderInstitutionPickerGrid();
+    }
+
+    function updateCustomInstitutionPreview() {
+      const color = document.getElementById('acc-custom-color')?.value || '#6366f1';
+      const hexLabel = document.getElementById('acc-custom-hex');
+      if (hexLabel) hexLabel.textContent = color.toUpperCase();
+      updateAccountModalPreview();
+      renderInstitutionPickerGrid();
+    }
+
+    function handleAccountTypeChange() {
+      const isCC = document.getElementById('acc-type')?.value === 'Credit Card';
+      document.getElementById('acc-cc-settings-box')?.classList.toggle('hidden', !isCC);
+      document.getElementById('acc-yield-settings-box')?.classList.toggle('hidden', isCC);
+      const balLabel = document.getElementById('acc-balance-label');
+      if (balLabel) balLabel.textContent = isCC ? 'Current Statement / Unbilled Balance Owed' : 'Current Balance';
+      updateAccountModalPreview();
+    }
+
+    function updateAccountModalPreview() {
+      const instId = document.getElementById('acc-institution')?.value || 'wise';
+      const customColor = document.getElementById('acc-custom-color')?.value || '#6366f1';
+      const customMono = document.getElementById('acc-custom-mono')?.value || 'VAULT';
+      const iconBox = document.getElementById('acc-selected-icon-preview');
+      if (iconBox) iconBox.innerHTML = renderInstitutionBadgeSVG(instId, customColor, customMono);
+
+      const mockAcc = {
+        type: document.getElementById('acc-type')?.value || 'Savings',
+        currency: document.getElementById('acc-currency')?.value || 'PHP',
+        balance: parseFloat(document.getElementById('acc-balance')?.value) || 0,
+        apy: parseFloat(document.getElementById('acc-interest')?.value) || 0,
+        tax: parseFloat(document.getElementById('acc-tax')?.value) || 0,
+        freq: document.getElementById('acc-freq')?.value || 'monthly'
+      };
+      const metrics = calculatePotYieldMetrics(mockAcc);
+      const previewEl = document.getElementById('acc-yield-preview');
+      if (previewEl) {
+        previewEl.innerHTML = `
+          <span>Net APY: <strong class="text-emerald-400">${metrics.netApy.toFixed(2)}%</strong></span>
+          <span>Cycle Payout: <strong class="text-white">${formatMoney(metrics.cyclePayout, mockAcc.currency)}</strong></span>
+        `;
+      }
+    }
+
+    function openAccountModal(accId = null) {
+      const acc = accId ? state.accounts.find((a) => a.id === accId) : null;
+      document.getElementById('account-modal-title').textContent = acc ? 'Edit Money Pot' : 'Create Money Pot';
+      document.getElementById('acc-id').value = acc ? acc.id : '';
+      document.getElementById('acc-name').value = acc ? acc.name : '';
+      document.getElementById('acc-type').value = acc ? acc.type : 'Savings';
+      document.getElementById('acc-currency').value = acc ? acc.currency : 'PHP';
+      document.getElementById('acc-balance').value = acc ? acc.balance : '';
+      document.getElementById('acc-tag').value = acc ? (acc.tag || '') : '';
+      document.getElementById('acc-interest').value = acc ? (acc.apy ?? 0) : 0;
+      document.getElementById('acc-tax').value = acc ? (acc.tax ?? 20) : 20;
+      document.getElementById('acc-freq').value = acc ? (acc.freq || 'monthly') : 'monthly';
+      document.getElementById('acc-credit-limit').value = acc?.creditLimit || '';
+      document.getElementById('acc-due-date').value = acc?.dueDate || '';
+      document.getElementById('acc-custom-color').value = acc?.customColor || '#6366f1';
+      document.getElementById('acc-custom-mono').value = acc?.customMono || 'VAULT';
+      document.getElementById('inst-search-input').value = '';
+
+      selectedInstCategory = 'ALL';
+      setInstitutionCategory('ALL');
+      selectInstitution(acc ? acc.institution : 'wise');
+      handleAccountTypeChange();
+      openModal('account-modal');
+    }
+
+    function submitAccount(e) {
+      e.preventDefault();
+      const id = document.getElementById('acc-id').value;
+      const type = document.getElementById('acc-type').value;
+      const payload = {
+        id: id || `acc-${Date.now()}`,
+        name: document.getElementById('acc-name').value.trim(),
+        institution: document.getElementById('acc-institution').value || 'wise',
+        type,
+        currency: document.getElementById('acc-currency').value,
+        balance: parseFloat(document.getElementById('acc-balance').value) || 0,
+        tag: document.getElementById('acc-tag').value.trim(),
+        apy: type === 'Credit Card' ? 0 : (parseFloat(document.getElementById('acc-interest').value) || 0),
+        tax: type === 'Credit Card' ? 0 : (parseFloat(document.getElementById('acc-tax').value) || 0),
+        freq: type === 'Credit Card' ? 'none' : (document.getElementById('acc-freq').value || 'monthly'),
+        creditLimit: type === 'Credit Card' ? (parseFloat(document.getElementById('acc-credit-limit').value) || 0) : 0,
+        dueDate: type === 'Credit Card' ? (document.getElementById('acc-due-date').value || '') : '',
+        customColor: document.getElementById('acc-custom-color').value || '#6366f1',
+        customMono: document.getElementById('acc-custom-mono').value.trim().toUpperCase() || 'VAULT'
+      };
+
+      if (id) {
+        const idx = state.accounts.findIndex((a) => a.id === id);
+        if (idx !== -1) state.accounts[idx] = payload;
+      } else {
+        state.accounts.push(payload);
+      }
+
+      persistState(true);
+      closeModal('account-modal');
+      renderAll();
+      showToast(id ? 'Money pot updated.' : 'Money pot created.', 'success');
+    }
+
+    function deleteAccount(accId) {
+      state.accounts = state.accounts.filter((a) => a.id !== accId);
+      persistState(true);
+      renderAll();
+      showToast('Money pot removed.', 'info');
+    }
+
+    function creditPotInterest(accId) {
+      const acc = state.accounts.find((a) => a.id === accId);
+      if (!acc || acc.type === 'Credit Card') return;
+      const metrics = calculatePotYieldMetrics(acc);
+      if (metrics.cyclePayout <= 0) {
+        showToast('Configure a positive APY on this pot first.', 'warning');
+        return;
+      }
+      const payout = Number(metrics.cyclePayout.toFixed(2));
+      acc.balance = Number((acc.balance + payout).toFixed(2));
+      state.transactions.unshift({
+        id: `tx-int-${Date.now()}`,
+        type: 'interest',
+        accountId: acc.id,
+        amount: payout,
+        category: 'Interest Credit',
+        date: new Date().toISOString().split('T')[0],
+        note: `${acc.freq} net interest credit (${metrics.netApy.toFixed(2)}% net APY)`
+      });
+      persistState(true);
+      renderAll();
+      showToast(`Credited ${formatMoney(payout, acc.currency)} interest to ${acc.name}.`, 'success');
+    }
+
+    function creditAllDuePots() {
+      let count = 0;
+      const today = new Date().toISOString().split('T')[0];
+      state.accounts.forEach((acc) => {
+        if (acc.type === 'Credit Card') return;
+        const metrics = calculatePotYieldMetrics(acc);
+        if (metrics.cyclePayout > 0) {
+          const payout = Number(metrics.cyclePayout.toFixed(2));
+          acc.balance = Number((acc.balance + payout).toFixed(2));
+          state.transactions.unshift({
+            id: `tx-int-${Date.now()}-${count}`,
+            type: 'interest',
+            accountId: acc.id,
+            amount: payout,
+            category: 'Interest Credit',
+            date: today,
+            note: `${acc.freq} net interest credit`
+          });
+          count++;
+        }
+      });
+      if (!count) {
+        showToast('No active yield-bearing money pots to credit.', 'info');
+        return;
+      }
+      persistState(true);
+      renderAll();
+      showToast(`Credited cycle interest across ${count} money pot(s).`, 'success');
+    }
+
+    // =========================================================================
+    // TRANSACTIONS & CROSS-CURRENCY TRANSFERS
+    // =========================================================================
+    function openTransactionModal(mode = 'expense') {
+      if (!state.accounts.length) {
+        showToast('Create at least one Money Pot before recording an entry.', 'warning');
+        openAccountModal();
+        return;
+      }
+
+      const srcSel = document.getElementById('tx-account-id');
+      const dstSel = document.getElementById('tx-to-account-id');
+      const optionsHTML = state.accounts
+        .map((a) => `<option value="${a.id}">${escapeHTML(a.name)} (${a.currency} • ${formatMoney(a.balance, a.currency)})</option>`)
+        .join('');
+      srcSel.innerHTML = optionsHTML;
+      dstSel.innerHTML = optionsHTML;
+      if (state.accounts.length > 1) dstSel.selectedIndex = 1;
+
+      document.getElementById('tx-amount').value = '';
+      document.getElementById('tx-target-amount').value = '';
+      document.getElementById('tx-note').value = '';
+      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+
+      setTxMode(mode);
+      openModal('tx-modal');
+    }
+
+    function setTxMode(mode) {
+      document.getElementById('tx-type').value = mode;
+      ['expense', 'income', 'transfer'].forEach((m) => {
+        const btn = document.getElementById(`tx-mode-${m}`);
+        if (!btn) return;
+        const activeStyles = {
+          expense: 'py-2 rounded-lg text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 transition',
+          income: 'py-2 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition',
+          transfer: 'py-2 rounded-lg text-xs font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30 transition'
+        };
+        btn.className = m === mode
+          ? activeStyles[m]
+          : 'py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
+      });
+
+      const isTransfer = mode === 'transfer';
+      document.getElementById('tx-to-account-wrap').classList.toggle('hidden', !isTransfer);
+      document.getElementById('tx-account-label').textContent = isTransfer ? 'Source Money Pot' : 'Money Pot';
+
+      const catSel = document.getElementById('tx-category');
+      const cats = TX_CATEGORIES[mode] || TX_CATEGORIES.expense;
+      catSel.innerHTML = cats.map((c) => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+
+      handleTransferSourceOrAmountChange();
+    }
+
+    function handleTransferSourceOrAmountChange() {
+      const mode = document.getElementById('tx-type')?.value;
+      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id')?.value);
+      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id')?.value);
+      const amt = parseFloat(document.getElementById('tx-amount')?.value) || 0;
+
+      const isCrossFX = mode === 'transfer' && src && dst && src.currency !== dst.currency;
+      document.getElementById('tx-target-amount-wrap').classList.toggle('hidden', !isCrossFX);
+      document.getElementById('tx-fx-box').classList.toggle('hidden', !isCrossFX);
+      document.getElementById('tx-amount-col').className = isCrossFX ? '' : 'sm:col-span-2';
+
+      if (isCrossFX) {
+        const midRate = convertCurrency(1, src.currency, dst.currency);
+        const rateInput = document.getElementById('tx-applied-rate');
+        if (!rateInput.dataset.manualEdited) {
+          rateInput.value = midRate.toFixed(6);
+        }
+        const applied = parseFloat(rateInput.value) || midRate;
+        document.getElementById('tx-applied-rate-label').textContent = `Applied Rate (1 ${src.currency} → ${dst.currency})`;
+        document.getElementById('tx-target-amount-label').textContent = `Destination (${dst.currency})`;
+        if (amt > 0) {
+          document.getElementById('tx-target-amount').value = (amt * applied).toFixed(2);
+        }
+        const diffPct = midRate > 0 ? ((applied - midRate) / midRate) * 100 : 0;
+        document.getElementById('tx-spread-indicator').textContent =
+          Math.abs(diffPct) < 0.01 ? 'Mid-market' : `${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(2)}% vs mid`;
+      } else {
+        const rateInput = document.getElementById('tx-applied-rate');
+        if (rateInput) delete rateInput.dataset.manualEdited;
+      }
+    }
+
+    function handleTransferRateEdit() {
+      const rateInput = document.getElementById('tx-applied-rate');
+      if (rateInput) rateInput.dataset.manualEdited = '1';
+      handleTransferSourceOrAmountChange();
+    }
+
+    function handleTransferTargetAmountEdit() {
+      const amt = parseFloat(document.getElementById('tx-amount')?.value) || 0;
+      const targetAmt = parseFloat(document.getElementById('tx-target-amount')?.value) || 0;
+      const rateInput = document.getElementById('tx-applied-rate');
+      if (amt > 0 && targetAmt > 0 && rateInput) {
+        rateInput.dataset.manualEdited = '1';
+        rateInput.value = (targetAmt / amt).toFixed(6);
+      }
+    }
+
+    function submitTransaction(e) {
+      e.preventDefault();
+      const type = document.getElementById('tx-type').value;
+      const accountId = document.getElementById('tx-account-id').value;
+      const toAccountId = type === 'transfer' ? document.getElementById('tx-to-account-id').value : null;
+      const amount = parseFloat(document.getElementById('tx-amount').value) || 0;
+      if (amount <= 0) return;
+
+      const src = state.accounts.find((a) => a.id === accountId);
+      if (!src) return;
+
+      if (type === 'transfer') {
+        const dst = state.accounts.find((a) => a.id === toAccountId);
+        if (!dst || dst.id === src.id) {
+          showToast('Select a different destination Money Pot for transfers.', 'warning');
+          return;
+        }
+        const isCrossFX = src.currency !== dst.currency;
+        const targetAmount = isCrossFX ? (parseFloat(document.getElementById('tx-target-amount').value) || amount) : amount;
+        const appliedRate = isCrossFX ? (parseFloat(document.getElementById('tx-applied-rate').value) || 1) : 1;
+
+        src.balance = Number((src.balance - amount).toFixed(2));
+        dst.balance = Number((dst.balance + targetAmount).toFixed(2));
+
+        state.transactions.unshift({
+          id: `tx-${Date.now()}`,
+          type: 'transfer',
+          accountId: src.id,
+          toAccountId: dst.id,
+          amount,
+          targetAmount,
+          appliedRate,
+          category: document.getElementById('tx-category').value || 'FX Transfer',
+          date: document.getElementById('tx-date').value,
+          note: document.getElementById('tx-note').value.trim()
+        });
+      } else if (type === 'income') {
+        if (src.type === 'Credit Card') {
+          src.balance = Number(Math.max(0, src.balance - amount).toFixed(2));
+        } else {
+          src.balance = Number((src.balance + amount).toFixed(2));
+        }
+        state.transactions.unshift({
+          id: `tx-${Date.now()}`,
+          type: 'income',
+          accountId: src.id,
+          amount,
+          category: document.getElementById('tx-category').value || 'Income',
+          date: document.getElementById('tx-date').value,
+          note: document.getElementById('tx-note').value.trim()
+        });
+      } else {
+        if (src.type === 'Credit Card') {
+          src.balance = Number((src.balance + amount).toFixed(2));
+        } else {
+          src.balance = Number((src.balance - amount).toFixed(2));
+        }
+        state.transactions.unshift({
+          id: `tx-${Date.now()}`,
+          type: 'expense',
+          accountId: src.id,
+          amount,
+          category: document.getElementById('tx-category').value || 'Expense',
+          date: document.getElementById('tx-date').value,
+          note: document.getElementById('tx-note').value.trim()
+        });
+      }
+
+      persistState(true);
+      closeModal('tx-modal');
+      renderAll();
+      showToast('Ledger entry recorded.', 'success');
+    }
+
+    function undoTransaction(txId) {
+      const idx = state.transactions.findIndex((t) => t.id === txId);
+      if (idx === -1) return;
+      const tx = state.transactions[idx];
+      const src = state.accounts.find((a) => a.id === tx.accountId);
+      const dst = tx.toAccountId ? state.accounts.find((a) => a.id === tx.toAccountId) : null;
+
+      if (tx.type === 'transfer') {
+        if (src) src.balance = Number((src.balance + tx.amount).toFixed(2));
+        if (dst) dst.balance = Number((dst.balance - (tx.targetAmount || tx.amount)).toFixed(2));
+      } else if (tx.type === 'income' || tx.type === 'interest') {
+        if (src) {
+          src.balance = src.type === 'Credit Card'
+            ? Number((src.balance + tx.amount).toFixed(2))
+            : Number((src.balance - tx.amount).toFixed(2));
+        }
+      } else if (tx.type === 'expense') {
+        if (src) {
+          src.balance = src.type === 'Credit Card'
+            ? Number(Math.max(0, src.balance - tx.amount).toFixed(2))
+            : Number((src.balance + tx.amount).toFixed(2));
+        }
+      }
+
+      state.transactions.splice(idx, 1);
+      persistState(true);
+      renderAll();
+      showToast('Transaction undone & balance reverted.', 'info');
+    }
+
+    // =========================================================================
+    // FIREBASE MULTI-USER AUTH & PER-UID REAL-TIME FIRESTORE SYNC
+    // =========================================================================
+    function getStoredFirebaseConfig() {
+      try {
+        const raw = localStorage.getItem(FB_CONFIG_STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return DEFAULT_FIREBASE_CONFIG;
+    }
+
+    function updateSyncIndicators(mode, label, pathText = 'localStorage') {
+      const dotColors = {
+        online: 'bg-emerald-400',
+        syncing: 'bg-sky-400 animate-pulse',
+        offline: 'bg-amber-400'
+      };
+      const dotCls = dotColors[mode] || dotColors.offline;
+
+      ['auth-cloud-dot', 'sidebar-sync-dot', 'mobile-sync-dot'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.className = `w-2 h-2 rounded-full shrink-0 ${dotCls}`;
+      });
+
+      const authTxt = document.getElementById('auth-cloud-status-text');
+      const sideTxt = document.getElementById('sidebar-sync-text');
+      const mobTxt = document.getElementById('mobile-sync-text');
+      const setMode = document.getElementById('settings-session-mode');
+      const setPath = document.getElementById('settings-firestore-path');
+
+      if (authTxt) authTxt.textContent = label;
+      if (sideTxt) sideTxt.textContent = label;
+      if (mobTxt) mobTxt.textContent = label;
+      if (setMode) setMode.textContent = label;
+      if (setPath) setPath.textContent = pathText;
+    }
+
+    function showAuthGateway() {
+      document.getElementById('auth-screen')?.classList.remove('hidden');
+      document.getElementById('app-shell')?.classList.add('hidden');
+      document.getElementById('app-shell')?.classList.remove('flex');
+    }
+
+    function showAppShell() {
+      document.getElementById('auth-screen')?.classList.add('hidden');
+      document.getElementById('app-shell')?.classList.remove('hidden');
+      document.getElementById('app-shell')?.classList.add('flex');
+    }
+
+    function setAuthMode(mode) {
+      document.getElementById('auth-mode').value = mode;
+      const isReg = mode === 'register';
+      document.getElementById('auth-heading').textContent = isReg ? 'Create your cloud vault' : 'Sign in to your vault';
+      document.getElementById('auth-submit-btn').textContent = isReg ? 'Create Cloud Account' : 'Sign In to Portfolio';
+      document.getElementById('auth-name-wrap').classList.toggle('hidden', !isReg);
+      document.getElementById('auth-tab-login').className = !isReg
+        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition'
+        : 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
+      document.getElementById('auth-tab-register').className = isReg
+        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition'
+        : 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
+    }
+
+    function initFirebase() {
+      const cfg = getStoredFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !window.firebase) {
+        updateSyncIndicators('offline', 'Local Sandbox Ready', 'localStorage');
+        return;
+      }
+
+      try {
+        fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
+        fbAuth = firebase.auth();
+        fbDb = firebase.firestore();
+        updateSyncIndicators('online', 'Firebase Cloud Connected', 'users/{uid}/vault/state');
+
+        fbAuth.onAuthStateChanged((user) => {
+          if (user) {
+            enterAuthenticatedWorkspace(user);
+          } else if (!isSandboxMode) {
+            state = createEmptyState();
+            showAuthGateway();
+          }
+        });
+      } catch (err) {
+        updateSyncIndicators('offline', 'Firebase Config Error', 'localStorage');
+      }
+    }
+
+    function saveFirebaseConfigFromModal() {
+      const raw = document.getElementById('firebase-config-input')?.value || '';
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed.apiKey || !parsed.projectId) throw new Error('Missing apiKey or projectId');
+        localStorage.setItem(FB_CONFIG_STORAGE_KEY, JSON.stringify(parsed));
+        closeModal('firebase-setup-modal');
+        showToast('Firebase configuration saved. Reloading connection...', 'success');
+        setTimeout(() => window.location.reload(), 600);
+      } catch (err) {
+        showToast('Invalid Firebase JSON config.', 'error');
+      }
+    }
+
+    function clearSavedFirebaseConfig() {
+      localStorage.removeItem(FB_CONFIG_STORAGE_KEY);
+      closeModal('firebase-setup-modal');
+      showToast('Firebase config cleared.', 'info');
+    }
+
+    function copyFirestoreRules() {
+      const code = document.getElementById('firestore-rules-code')?.textContent || '';
+      const ta = document.createElement('textarea');
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast('Firestore security rules copied.', 'success');
+    }
+
+    async function handleEmailAuth(e) {
+      e.preventDefault();
+      if (!fbAuth) {
+        openModal('firebase-setup-modal');
+        showToast('Configure Firebase Cloud first or click Try Local Sandbox.', 'warning');
+        return;
+      }
+      const mode = document.getElementById('auth-mode').value;
+      const email = document.getElementById('auth-email').value.trim();
+      const pass = document.getElementById('auth-password').value;
+      const name = document.getElementById('auth-name').value.trim();
+
+      try {
+        if (mode === 'register') {
+          const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+          if (name && cred.user) await cred.user.updateProfile({ displayName: name });
+        } else {
+          await fbAuth.signInWithEmailAndPassword(email, pass);
+        }
+      } catch (err) {
+        showToast(err.message || 'Authentication failed.', 'error');
+      }
+    }
+
+    async function handleGoogleSignIn() {
+      if (!fbAuth) {
+        openModal('firebase-setup-modal');
+        showToast('Configure Firebase Cloud first or click Try Local Sandbox.', 'warning');
+        return;
+      }
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await fbAuth.signInWithPopup(provider);
+      } catch (err) {
+        showToast(err.message || 'Google Sign-In failed.', 'error');
+      }
+    }
+
+    function enterLocalSandbox() {
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+      currentUser = null;
+      isSandboxMode = true;
+
+      try {
+        const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
+        state = saved ? normalizeVaultState(JSON.parse(saved)) : createSampleState();
+      } catch (e) {
+        state = createSampleState();
+      }
+
+      document.getElementById('sidebar-user-name').textContent = 'Local Sandbox';
+      document.getElementById('sidebar-user-email').textContent = 'Device-only mode';
+      document.getElementById('sidebar-avatar').textContent = 'SB';
+      document.getElementById('settings-user-email').textContent = 'Device-only sandbox';
+      updateSyncIndicators('offline', 'Local Sandbox', 'localStorage');
+
+      showAppShell();
+      renderAll();
+      refreshLiveFX(false);
+    }
+
+    function enterAuthenticatedWorkspace(user) {
+      if (!user) return;
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
+      isSandboxMode = false;
+      currentUser = user;
+      hasShownCloudErrorToast = false;
+      state = createEmptyState();
+
+      const uid = user.uid;
+      const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
+      const initials = displayName.slice(0, 2).toUpperCase();
+
+      document.getElementById('sidebar-user-name').textContent = displayName;
+      document.getElementById('sidebar-user-email').textContent = user.email || uid;
+      document.getElementById('sidebar-avatar').textContent = initials;
+      document.getElementById('settings-user-email').textContent = user.email || uid;
+      updateSyncIndicators('syncing', 'Syncing Cloud...', `users/${uid}/vault/state`);
+
+      const uidCacheKey = `vaultflow_cloud_cache_${uid}`;
+      try {
+        const cached = localStorage.getItem(uidCacheKey);
+        if (cached) state = normalizeVaultState(JSON.parse(cached));
+      } catch (e) {}
+
+      showAppShell();
+      renderAll();
+
+      const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
+      unsubscribeSnapshot = docRef.onSnapshot(
+        (snap) => {
+          if (!currentUser || currentUser.uid !== uid) return;
+          if (snap.exists) {
+            state = normalizeVaultState(snap.data());
+            try {
+              localStorage.setItem(uidCacheKey, JSON.stringify(state));
+            } catch (e) {}
+          } else {
+            state = createEmptyState();
+            docRef.set(JSON.parse(JSON.stringify(state))).catch(() => {});
+          }
+          updateSyncIndicators('online', 'Cloud Synced', `users/${uid}/vault/state`);
+          renderAll();
+        },
+        (err) => {
+          updateSyncIndicators('offline', 'Cloud Read Error', `users/${uid}/vault/state`);
+          if (!hasShownCloudErrorToast) {
+            hasShownCloudErrorToast = true;
+            showToast(`Firestore sync error: ${err.message}`, 'error');
+          }
+        }
+      );
+
+      refreshLiveFX(false);
+    }
+
+    async function handleSignOut() {
+      flushOnBackground();
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+      currentUser = null;
+      isSandboxMode = false;
+      state = createEmptyState();
+
+      if (fbAuth && fbAuth.currentUser) {
+        try {
+          await fbAuth.signOut();
+        } catch (e) {}
+      }
+      showAuthGateway();
+      showToast('Signed out.', 'info');
+    }
+
+    function persistState(immediate = false) {
+      if (isSandboxMode || !currentUser || !fbDb) {
+        try {
+          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+        return;
+      }
+
+      const uid = currentUser.uid;
+      const uidCacheKey = `vaultflow_cloud_cache_${uid}`;
+      const snapshotPayload = JSON.parse(JSON.stringify(state));
+
+      try {
+        localStorage.setItem(uidCacheKey, JSON.stringify(snapshotPayload));
+      } catch (e) {}
+
+      const writeToFirestore = () => {
+        if (!currentUser || currentUser.uid !== uid || !fbDb) return;
+        updateSyncIndicators('syncing', 'Saving...', `users/${uid}/vault/state`);
+        fbDb
+          .collection('users')
+          .doc(uid)
+          .collection('vault')
+          .doc('state')
+          .set(snapshotPayload)
+          .then(() => {
+            if (currentUser && currentUser.uid === uid) {
+              updateSyncIndicators('online', 'Cloud Synced', `users/${uid}/vault/state`);
+            }
+          })
+          .catch((err) => {
+            updateSyncIndicators('offline', 'Sync Error', `users/${uid}/vault/state`);
+            if (!hasShownCloudErrorToast) {
+              hasShownCloudErrorToast = true;
+              showToast(`Cloud save failed: ${err.message}`, 'error');
+            }
+          });
+      };
+
+      if (cloudSaveTimer) {
+        clearTimeout(cloudSaveTimer);
+        cloudSaveTimer = null;
+      }
+
+      if (immediate) {
+        pendingCloudSaveFn = null;
+        writeToFirestore();
+      } else {
+        pendingCloudSaveFn = writeToFirestore;
+        cloudSaveTimer = setTimeout(() => {
+          pendingCloudSaveFn = null;
+          writeToFirestore();
+        }, 450);
+      }
     }
 
     // =========================================================================
