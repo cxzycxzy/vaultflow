@@ -2993,32 +2993,29 @@ function extractUITFNavpuFromHTML(html, keywords, targetCurrency = 'PHP') {
     const cells = Array.from(tr.querySelectorAll('td')).map((td) =>
       td.textContent.replace(/\s+/g, ' ').trim()
     );
-    if (cells.length < 4) continue;
+    if (cells.length < 3) continue;
 
     const rowText = cells.join(' ').toLowerCase();
-    const matchesFund = keywords.every((kw) => rowText.includes(kw.toLowerCase()));
-    if (!matchesFund) continue;
+    if (!keywords.every((kw) => rowText.includes(kw.toLowerCase()))) continue;
 
-    // Older uitf.com.ph layout includes a Currency column immediately before NAVPU.
-    const currIdx = cells.findIndex((c) => c.toUpperCase() === targetCurrency.toUpperCase());
-    if (currIdx !== -1 && cells[currIdx + 1]) {
-      const navCell = cells[currIdx + 1].replace(/,/g, '').trim();
-      if (/^\d+(?:\.\d+)?$/.test(navCell)) {
-        const nav = Number(navCell);
-        if (Number.isFinite(nav) && nav > 0) return nav;
-      }
+    // Current UITF.com.ph layout: Fund Name | Classification | NAVPU | ROI-YOY | ROI-YTD.
+    // The NAVPU cell may also contain a date annotation, e.g. "522.205073 * as of Nov 11, 2026".
+    // Extract only the leading NAVPU number from that specific column; never fall through to ROI.
+    const navpuCell = cells[2] || '';
+    const leadingNavpu = navpuCell.replace(/,/g, '').match(/^\s*(\d+(?:\.\d+)?)/);
+    if (leadingNavpu) {
+      const nav = Number(leadingNavpu[1]);
+      if (Number.isFinite(nav) && nav > 0) return nav;
     }
 
-    // Current layout groups funds by currency and omits the Currency column.
-    // NAVPU is the FIRST numeric cell in the matching fund row. ROI-YOY/YTD
-    // values follow it (often four decimals), so never select a later number.
-    const navCell = cells.find((cell) => {
-      const normalized = cell.replace(/,/g, '').trim();
-      return /^\d+(?:\.\d+)?$/.test(normalized) && Number(normalized) > 0;
-    });
-    if (navCell) {
-      const nav = Number(navCell.replace(/,/g, '').trim());
-      if (Number.isFinite(nav) && nav > 0) return nav;
+    // Legacy layout: Bank | Fund Name | Classification | Currency | NAVPU | Date ...
+    const currIdx = cells.findIndex((c) => c.toUpperCase() === targetCurrency.toUpperCase());
+    if (currIdx !== -1 && cells[currIdx + 1]) {
+      const legacyNavpu = cells[currIdx + 1].replace(/,/g, '').match(/^\s*(\d+(?:\.\d+)?)/);
+      if (legacyNavpu) {
+        const nav = Number(legacyNavpu[1]);
+        if (Number.isFinite(nav) && nav > 0) return nav;
+      }
     }
   }
   return null;
