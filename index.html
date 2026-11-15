@@ -1183,27 +1183,37 @@
           </div>
           <div id="ibkr-custom-proxy-wrap" class="hidden">
             <label class="block text-[11px] font-medium text-slate-300 mb-1">Worker URL</label>
-            <input id="ibkr-custom-proxy-url" type="url" placeholder="https://ibkr-proxy.yourname.workers.dev" class="w-full px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
+            <div class="flex items-center gap-1.5">
+              <input id="ibkr-custom-proxy-url" type="url" placeholder="https://vaultflow-ibkr-proxy.yourname.workers.dev" class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-white" />
+              <button type="button" onclick="testIBKRWorkerConnection()" class="px-2.5 py-2 rounded-lg bg-[#080c14] hover:bg-white/[0.08] border border-white/[0.08] text-[11px] font-semibold text-sky-400 shrink-0 transition">Test</button>
+            </div>
           </div>
         </div>
 
         <!-- Collapsible 1-Click Cloudflare Worker Helper -->
         <details class="rounded-lg bg-[#080c14]/90 border border-white/[0.08] p-2.5 text-xs">
           <summary class="cursor-pointer font-medium text-slate-300 hover:text-white select-none flex items-center justify-between">
-            <span>Why does Firefox show NetworkError? (Free 60s Private Proxy Setup)</span>
+            <span>Cloudflare Worker Proxy Setup & Troubleshooting</span>
             <span class="text-[10px] font-mono text-sky-400">View Worker Code</span>
           </summary>
           <div class="mt-2.5 space-y-2 text-[11px] text-slate-400 leading-relaxed">
-            <p>IBKR blocks browser CORS and rejects relays missing a <code class="text-slate-200">User-Agent</code> header. Create a free Worker at <strong class="text-slate-200">workers.cloudflare.com</strong>, paste this code, and select <strong class="text-slate-200">Private Cloudflare Worker</strong> above:</p>
+            <p>If Firefox blocks <code class="text-slate-200">*.workers.dev</code>, click the <strong class="text-slate-200">Shield icon</strong> in Firefox's address bar and toggle off Enhanced Tracking Protection for this site. Optional hardened Worker code:</p>
             <div class="relative">
               <button type="button" onclick="copyCloudflareWorkerSnippet()" class="absolute top-2 right-2 px-2 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-semibold">Copy Code</button>
               <pre id="cf-worker-snippet" class="p-2.5 rounded bg-[#0f1623] border border-white/[0.06] font-mono text-[10px] text-slate-300 overflow-x-auto">export default {
   async fetch(req) {
-    if (req.method === "OPTIONS") return new Response(null, { headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*" } });
-    const target = new URL(req.url).searchParams.get("url");
-    if (!target || !target.startsWith("https://ndcdyn.interactivebrokers.com/")) return new Response("Invalid URL", { status: 400 });
-    const r = await fetch(target, { headers: { "User-Agent": "VaultFlow-IBKR/1.0" } });
-    return new Response(await r.text(), { status: r.status, headers: { "Content-Type": "application/xml", "Access-Control-Allow-Origin": "*" } });
+    const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "*" };
+    if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+    const u = new URL(req.url);
+    if (u.searchParams.get("ping") === "1") return new Response("OK", { status: 200, headers: cors });
+    const target = u.searchParams.get("url");
+    if (!target || !/^https:\/\/[a-z0-9-]+\.interactivebrokers\.com\//i.test(target)) return new Response("Invalid URL", { status: 400, headers: cors });
+    try {
+      const r = await fetch(target, { headers: { "User-Agent": "VaultFlow-IBKR/1.0" } });
+      return new Response(await r.text(), { status: r.status, headers: { ...cors, "Content-Type": "application/xml" } });
+    } catch (e) {
+      return new Response("Upstream error: " + e.message, { status: 502, headers: cors });
+    }
   }
 };</pre>
             </div>
@@ -3042,17 +3052,41 @@ service cloud.firestore {
       showToast('Cloudflare Worker code copied to clipboard.', 'success');
     }
 
+    async function testIBKRWorkerConnection() {
+      const rawUrl = (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim();
+      if (!rawUrl) {
+        setIBKRFlexStatus('Enter your Cloudflare Worker URL first.', 'warning');
+        return;
+      }
+      const cleaned = rawUrl.replace(/\/+$/, '');
+      const testUrl = `${cleaned}${cleaned.includes('?') ? '&' : '/?'}url=${encodeURIComponent('https://ndcdyn.interactivebrokers.com/')}&_t=${Date.now()}`;
+      setIBKRFlexStatus('Testing connection to Cloudflare Worker...', 'info');
+      try {
+        const res = await fetchWithTimeout(testUrl, 8000);
+        setIBKRFlexStatus(`Worker reachable! (HTTP ${res.status}). Click "Save Credentials & Fetch Flex Positions" to sync.`, 'success');
+      } catch (err) {
+        const detail = err?.message || 'NetworkError';
+        setIBKRFlexStatus(
+          `Worker test failed (${detail}). If using Firefox, click the Shield icon in the address bar and disable Enhanced Tracking Protection for this page, then retry.`,
+          'error'
+        );
+      }
+    }
+
     async function fetchWithTimeout(url, timeoutMs = 12000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        return await fetch(url, { cache: 'no-store', signal: controller.signal });
+        // Simple CORS GET (no custom headers or cache directives) to avoid browser OPTIONS preflight blocks
+        return await fetch(url, { signal: controller.signal });
       } finally {
         clearTimeout(timer);
       }
     }
 
     async function fetchTextWithCORSFallback(targetUrl, proxyMode = 'auto', customProxyUrl = '') {
+      const bustSep = targetUrl.includes('?') ? '&' : '?';
+      const freshTargetUrl = `${targetUrl}${bustSep}_cb=${Date.now()}`;
       const attempts = [];
       if (proxyMode === 'custom') {
         if (!customProxyUrl) {
@@ -3060,14 +3094,14 @@ service cloud.firestore {
         }
         const cleaned = customProxyUrl.replace(/\/+$/, '');
         const sep = cleaned.includes('?') ? '&url=' : '/?url=';
-        attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(targetUrl)}`, mode: 'text' });
+        attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(freshTargetUrl)}`, mode: 'text' });
       } else if (proxyMode === 'direct') {
-        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
+        attempts.push({ label: 'Direct', url: freshTargetUrl, mode: 'text' });
       } else {
-        attempts.push({ label: 'CodeTabs Relay', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`, mode: 'text' });
-        attempts.push({ label: 'AllOrigins JSON', url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`, mode: 'allorigins-json' });
-        attempts.push({ label: 'CorsProxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`, mode: 'text' });
-        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
+        attempts.push({ label: 'CodeTabs Relay', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(freshTargetUrl)}`, mode: 'text' });
+        attempts.push({ label: 'AllOrigins JSON', url: `https://api.allorigins.win/get?url=${encodeURIComponent(freshTargetUrl)}`, mode: 'allorigins-json' });
+        attempts.push({ label: 'CorsProxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(freshTargetUrl)}`, mode: 'text' });
+        attempts.push({ label: 'Direct', url: freshTargetUrl, mode: 'text' });
       }
 
       const failures = [];
@@ -3090,13 +3124,15 @@ service cloud.firestore {
           if (text && text.trim().length > 0) return text;
           failures.push(`${attempt.label}: Empty response`);
         } catch (err) {
-          const reason = err?.name === 'AbortError' ? 'Timed out' : 'Blocked by browser CORS / Tracking Protection';
+          const reason = err?.name === 'AbortError'
+            ? 'Timed out'
+            : `${err?.message || 'NetworkError'} (check Firefox Shield / Tracking Protection)`;
           failures.push(`${attempt.label}: ${reason}`);
         }
       }
 
       throw new Error(
-        `Could not reach IBKR from browser (${failures.join(' | ')}). Use Method B below to upload/paste your Flex XML/CSV, or deploy the 60-second Private Cloudflare Worker above.`
+        `Could not reach IBKR from browser (${failures.join(' | ')}). Use Method B below to upload/paste your Flex XML/CSV, or click "Test" next to your Worker URL.`
       );
     }
 
