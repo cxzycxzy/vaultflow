@@ -600,8 +600,8 @@
                   <span>Auto (60s)</span>
                 </label>
 
-                <button id="ibkr-refresh-btn" onclick="refreshIBKRQuotes(true)" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-semibold transition">
-                  <i data-lucide="refresh-cw" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> Quotes
+                <button id="ibkr-refresh-btn" onclick="refreshIBKRQuotes(true)" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-[11px] sm:text-xs font-semibold transition">
+                  <i id="ibkr-refresh-icon" data-lucide="refresh-cw" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> <span id="ibkr-refresh-label">Quotes</span>
                 </button>
 
                 <button id="ibkr-flex-sync-btn" onclick="fetchIBKRFlexPositions(true)" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-[11px] sm:text-xs font-semibold transition">
@@ -2478,6 +2478,7 @@ service cloud.firestore {
       const preset = PH_UITF_PRESETS[presetKey] || Object.values(PH_UITF_PRESETS).find((p) => p.symbol === symbol);
       const uitfBankId = (document.getElementById('hold-uitf-bank-id')?.value || preset?.bankId || '').trim();
       const uitfFundId = (document.getElementById('hold-uitf-fund-id')?.value || preset?.fundId || '').trim();
+      const existing = id ? state.holdings.find((h) => h.id === id) : null;
 
       const payload = {
         id: id || `hold-${Date.now()}`,
@@ -2487,21 +2488,21 @@ service cloud.firestore {
         shares: parseFloat(document.getElementById('hold-shares').value) || 0,
         avgCost: parseFloat(document.getElementById('hold-cost').value) || 0,
         price,
-        prevClose: price,
+        prevClose: existing ? (existing.prevClose || price) : price,
+        source: existing?.source || 'manual',
         ...(uitfBankId && uitfFundId ? { uitfBankId, uitfFundId } : {})
       };
 
       if (id) {
         const idx = state.holdings.findIndex((h) => h.id === id);
         if (idx !== -1) {
-          payload.prevClose = state.holdings[idx].prevClose || price;
           state.holdings[idx] = payload;
         }
       } else {
         state.holdings.push(payload);
       }
 
-      persistState();
+      persistState(true);
       closeModal('holding-modal');
       renderAll();
       showToast(id ? 'Holding updated.' : 'Holding added.', 'success');
@@ -2612,6 +2613,7 @@ service cloud.firestore {
           url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
           parse: async (r) => {
             const j = await r.json();
+            if (j?.status?.http_code && Number(j.status.http_code) >= 400) return '';
             return j.contents || '';
           }
         },
@@ -2630,7 +2632,7 @@ service cloud.firestore {
       let lastErr = 'All CORS relays blocked';
       for (const relay of relays) {
         try {
-          const res = await fetchWithTimeout(relay.url, 10000);
+          const res = await fetchWithTimeout(relay.url, 7500);
           if (!res.ok) {
             lastErr = `${relay.name}: HTTP ${res.status}`;
             continue;
@@ -2750,7 +2752,7 @@ service cloud.firestore {
           return;
         }
 
-        state.holdings = preserveHoldingsCustomOrder(parsed);
+        state.holdings = mergeIBKRHoldingsWithManual(parsed);
         state.ibkrQuoteSource = 'IBKR Flex Live';
         state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         persistState(true);
@@ -2799,7 +2801,8 @@ service cloud.firestore {
             shares,
             avgCost,
             price,
-            prevClose: price
+            prevClose: price,
+            source: 'ibkr'
           });
         });
         return results;
@@ -2858,19 +2861,50 @@ service cloud.firestore {
           shares,
           avgCost,
           price,
-          prevClose: price
+          prevClose: price,
+          source: 'ibkr'
         });
       }
       return results;
     }
 
-    function preserveHoldingsCustomOrder(newList) {
-      if (!Array.isArray(state.holdings) || !state.holdings.length) return newList;
+    function isNonIBKRHolding(h) {
+      if (!h) return false;
+      if (h.source === 'manual') return true;
+      if (getHoldingUITFSpec(h) !== null) return true;
+      return false;
+    }
+
+    function mergeIBKRHoldingsWithManual(parsedIBKRList) {
+      const existing = Array.isArray(state.holdings) ? state.holdings : [];
       const orderMap = new Map();
-      state.holdings.forEach((h, idx) => {
-        if (h && h.symbol) orderMap.set(h.symbol.toUpperCase(), idx);
+      const existingBySymbol = new Map();
+
+      existing.forEach((h, idx) => {
+        if (h && h.symbol) {
+          const key = h.symbol.toUpperCase();
+          orderMap.set(key, idx);
+          existingBySymbol.set(key, h);
+        }
       });
-      return [...newList].sort((a, b) => {
+
+      // Keep all manually added holdings & PH UITFs (e.g., ATRAM feeder funds)
+      const preservedManual = existing.filter((h) => isNonIBKRHolding(h));
+
+      // Tag synced IBKR holdings and reuse their existing IDs if present
+      const syncedIBKR = parsedIBKRList.map((item) => {
+        const prev = existingBySymbol.get(item.symbol.toUpperCase());
+        return {
+          ...item,
+          id: prev && !isNonIBKRHolding(prev) ? prev.id : item.id,
+          source: 'ibkr'
+        };
+      });
+
+      const combined = [...preservedManual, ...syncedIBKR];
+      if (!orderMap.size) return combined;
+
+      return combined.sort((a, b) => {
         const ia = orderMap.has(a.symbol.toUpperCase()) ? orderMap.get(a.symbol.toUpperCase()) : 99999;
         const ib = orderMap.has(b.symbol.toUpperCase()) ? orderMap.get(b.symbol.toUpperCase()) : 99999;
         return ia - ib;
@@ -2883,13 +2917,13 @@ service cloud.firestore {
         showToast('No valid Open Positions found in XML/CSV content.', 'error');
         return;
       }
-      state.holdings = preserveHoldingsCustomOrder(parsed);
+      state.holdings = mergeIBKRHoldingsWithManual(parsed);
       state.ibkrQuoteSource = 'IBKR Flex Imported';
       state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       persistState(true);
       closeModal('ibkr-sync-modal');
       renderAll();
-      showToast(`Imported ${parsed.length} position(s) successfully.`, 'success');
+      showToast(`Imported ${parsed.length} IBKR position(s) (manual holdings preserved).`, 'success');
     }
 
     function handleIBKRDrop(e) {
@@ -2944,18 +2978,20 @@ service cloud.firestore {
       if (!html) return null;
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const rows = Array.from(doc.querySelectorAll('tr'));
+      const fundIdRegex = spec.fundId ? new RegExp(`fund_id=${spec.fundId}(?:[^0-9]|$)`) : null;
 
       for (const row of rows) {
         const rowHtml = row.innerHTML || '';
         const rowText = (row.textContent || '').replace(/\s+/g, ' ').trim();
-        const matchesFundId = spec.fundId && (rowHtml.includes(`fund_id=${spec.fundId}`) || rowHtml.includes(`fund_id=${spec.fundId}&`) || rowHtml.includes(`fund_id=${spec.fundId}"`));
+        const matchesFundId = fundIdRegex ? fundIdRegex.test(rowHtml) : false;
         const matchesName = Array.isArray(spec.matchTerms) && spec.matchTerms.some((t) => t && rowText.toLowerCase().includes(t.toLowerCase()));
 
         if (matchesFundId || matchesName) {
-          const cells = Array.from(row.querySelectorAll('td')).map((td) => td.textContent.replace(/,/g, '').trim());
+          const cells = Array.from(row.querySelectorAll('td')).map((td) => td.textContent.replace(/\s+/g, ' ').trim());
           for (const cell of cells) {
-            // NAVPU values on uitf.com.ph are formatted with 4 decimal places (e.g., 238.9712 or 1.4521)
-            const m = cell.match(/^(\d+\.\d{3,6})$/);
+            if (!cell || cell.includes('%') || cell.includes('/') || cell.includes('-')) continue;
+            const cleaned = cell.replace(/,/g, '');
+            const m = cleaned.match(/^(\d+\.\d{2,6})$/);
             if (m) {
               const val = parseFloat(m[1]);
               if (val > 0) return val;
@@ -2966,10 +3002,29 @@ service cloud.firestore {
 
       // Fallback for fund-details.php single-fund page
       const bodyText = (doc.body?.textContent || '').replace(/,/g, ' ');
-      const navMatch = bodyText.match(/Latest\s*NAVPU[^0-9]{0,30}(\d+\.\d{3,6})/i) || bodyText.match(/NAVPU[^0-9]{0,25}(\d+\.\d{3,6})/i);
+      const navMatch = bodyText.match(/Latest\s*NAVPU[^0-9]{0,30}(\d+\.\d{2,6})/i) || bodyText.match(/NAVPU[^0-9]{0,25}(\d+\.\d{2,6})/i);
       if (navMatch) {
         const val = parseFloat(navMatch[1]);
         if (val > 0) return val;
+      }
+      return null;
+    }
+
+    async function fetchSingleYahooQuote(symbol) {
+      const hosts = ['query1.finance.yahoo.com', 'query2.finance.yahoo.com'];
+      for (const host of hosts) {
+        try {
+          const url = `https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`;
+          const text = await fetchTextWithCORSFallback(url);
+          const data = JSON.parse(text);
+          const meta = data?.chart?.result?.[0]?.meta;
+          if (meta && meta.regularMarketPrice) {
+            return {
+              price: Number(meta.regularMarketPrice),
+              prevClose: Number(meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice)
+            };
+          }
+        } catch (e) {}
       }
       return null;
     }
@@ -2985,62 +3040,88 @@ service cloud.firestore {
       }
 
       const btn = document.getElementById('ibkr-refresh-btn');
+      const icon = document.getElementById('ibkr-refresh-icon');
+      const label = document.getElementById('ibkr-refresh-label');
+      const updatedEl = document.getElementById('ibkr-last-updated');
+
       if (btn) btn.disabled = true;
+      if (icon) icon.classList.add('animate-spin');
+      if (label) label.textContent = 'Refreshing...';
+      if (updatedEl && manual) updatedEl.textContent = 'Fetching live quotes & NAVPUs...';
 
       try {
         let updatedCount = 0;
-        const uitfBankCache = new Map();
+        let uitfUpdated = 0;
+        let equityUpdated = 0;
 
-        for (const h of state.holdings) {
-          try {
-            const uitfSpec = getHoldingUITFSpec(h);
+        // 1. Pre-fetch unique UITF bank pages concurrently
+        const uitfSpecs = state.holdings.map((h) => getHoldingUITFSpec(h));
+        const uniqueBankIds = [...new Set(uitfSpecs.filter(Boolean).map((s) => s.bankId))];
+        const uitfBankHtmlMap = new Map();
+
+        await Promise.allSettled(
+          uniqueBankIds.map(async (bankId) => {
+            try {
+              const html = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/daily-navpu.php?bank_id=${encodeURIComponent(bankId)}`);
+              uitfBankHtmlMap.set(bankId, html);
+            } catch (e) {
+              uitfBankHtmlMap.set(bankId, '');
+            }
+          })
+        );
+
+        // 2. Refresh all holdings concurrently
+        await Promise.allSettled(
+          state.holdings.map(async (h, idx) => {
+            const uitfSpec = uitfSpecs[idx];
             if (uitfSpec) {
-              let bankHtml = uitfBankCache.get(uitfSpec.bankId);
-              if (bankHtml === undefined) {
-                try {
-                  bankHtml = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/daily-navpu.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}`);
-                } catch (e) {
-                  bankHtml = '';
-                }
-                uitfBankCache.set(uitfSpec.bankId, bankHtml);
-              }
+              const bankHtml = uitfBankHtmlMap.get(uitfSpec.bankId) || '';
               let navpu = extractUITFNavpuFromHTML(bankHtml, uitfSpec);
               if (!navpu) {
-                const detailHtml = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/fund-details.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}&fund_id=${encodeURIComponent(uitfSpec.fundId)}`);
-                navpu = extractUITFNavpuFromHTML(detailHtml, uitfSpec);
+                try {
+                  const detailHtml = await fetchTextWithCORSFallback(`https://www.uitf.com.ph/fund-details.php?bank_id=${encodeURIComponent(uitfSpec.bankId)}&fund_id=${encodeURIComponent(uitfSpec.fundId)}`);
+                  navpu = extractUITFNavpuFromHTML(detailHtml, uitfSpec);
+                } catch (e) {}
               }
               if (navpu && navpu > 0) {
                 h.prevClose = h.price;
                 h.price = navpu;
                 updatedCount++;
+                uitfUpdated++;
               }
             } else {
-              const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(h.symbol)}?interval=1d&range=2d`;
-              const text = await fetchTextWithCORSFallback(yahooUrl);
-              const data = JSON.parse(text);
-              const meta = data?.chart?.result?.[0]?.meta;
-              if (meta && meta.regularMarketPrice) {
-                h.prevClose = Number(meta.chartPreviousClose || meta.previousClose || h.price);
-                h.price = Number(meta.regularMarketPrice);
+              const quote = await fetchSingleYahooQuote(h.symbol);
+              if (quote && quote.price > 0) {
+                h.prevClose = quote.prevClose;
+                h.price = quote.price;
                 updatedCount++;
+                equityUpdated++;
               }
             }
-          } catch (singleErr) {
-            // Keep existing cached price/NAVPU if a single holding quote fails
-          }
-        }
+          })
+        );
 
         if (updatedCount > 0) {
           state.ibkrQuoteSource = 'Live Quotes & NAVPU';
           state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          persistState();
+          persistState(true);
           renderAll();
-          if (manual) showToast(`Refreshed live quotes/NAVPUs for ${updatedCount} holding(s).`, 'success');
-        } else if (manual) {
-          showToast('Could not reach live quote/NAVPU feed; keeping cached values.', 'warning');
+          if (manual) {
+            const details = [];
+            if (equityUpdated > 0) details.push(`${equityUpdated} equity/ETF`);
+            if (uitfUpdated > 0) details.push(`${uitfUpdated} UITF NAVPU`);
+            showToast(`Updated ${updatedCount} holding(s) (${details.join(', ')}).`, 'success');
+          }
+        } else {
+          if (updatedEl) updatedEl.textContent = `Updated ${state.ibkrLastUpdated || 'just now'}`;
+          if (manual) {
+            showToast('Live quote/NAVPU feeds blocked by CORS relays. Update your Cloudflare Worker code in Setup for instant quotes.', 'warning');
+          }
         }
       } finally {
         if (btn) btn.disabled = false;
+        if (icon) icon.classList.remove('animate-spin');
+        if (label) label.textContent = 'Quotes';
       }
     }
 
