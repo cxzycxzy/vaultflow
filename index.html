@@ -212,11 +212,6 @@
             <input id="auth-password" type="password" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-[#080c14] border border-white/[0.08] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition" />
           </div>
 
-          <div id="auth-starter-wrap" class="hidden flex items-center gap-2 pt-0.5">
-            <input id="auth-seed-demo" type="checkbox" checked class="w-4 h-4 rounded bg-[#080c14] border-white/20 text-indigo-500 focus:ring-indigo-500" />
-            <label for="auth-seed-demo" class="text-xs text-slate-400">Pre-populate with sample multi-currency pots & IBKR ETFs</label>
-          </div>
-
           <button id="auth-submit-btn" type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 transition">
             Sign In to Portfolio
           </button>
@@ -817,6 +812,9 @@
                   <i data-lucide="upload" class="w-3.5 h-3.5 text-sky-400"></i> Import JSON
                   <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden" />
                 </label>
+                <button onclick="importFromLocalSandbox()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#141d2e] hover:bg-[#1a253a] border border-white/[0.08] text-indigo-300 text-xs font-semibold transition">
+                  <i data-lucide="hard-drive-download" class="w-3.5 h-3.5 text-indigo-400"></i> Import Sandbox Data
+                </button>
                 <button onclick="openModal('reset-modal')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs font-semibold transition">
                   <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Load Sample Data
                 </button>
@@ -1379,7 +1377,7 @@ service cloud.firestore {
     // =========================================================================
     // Replace the placeholder values below with your actual Firebase Web App
     // credentials before deploying to GitHub Pages:
-    const DEFAULT_FIREBASE_CONFIG = {
+     const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyDPEZeres-rG_ci4XFiJYY1uR_BzsDJj1M",
   authDomain: "vaultflow-fa8bb.firebaseapp.com",
   projectId: "vaultflow-fa8bb",
@@ -1515,26 +1513,50 @@ service cloud.firestore {
     let isSandboxMode = false;
     let unsubscribeSnapshot = null;
     let cloudSaveTimer = null;
+    let pendingCloudSaveFn = null;
+    let hasShownCloudErrorToast = false;
     let ibkrAutoRefreshTimer = null;
 
     let activeSection = 'overview';
     let selectedInstCategory = 'ALL';
 
-    let state = {
-      displayCurrency: 'USD',
-      fxRates: { ...DEFAULT_FX_RATES },
-      fxOverrides: {},
-      fxLastSync: 'Cached mid-market',
-      accounts: [],
-      holdings: [],
-      transactions: [],
-      ibkrCredentials: { flexToken: '', flexQueryId: '', proxyMode: 'auto', customProxyUrl: '' },
-      ibkrQuoteSource: 'Simulated / Cached',
-      ibkrLastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
+    function createEmptyState() {
+      return {
+        displayCurrency: 'USD',
+        fxRates: { ...DEFAULT_FX_RATES },
+        fxOverrides: {},
+        fxLastSync: 'Cached mid-market',
+        accounts: [],
+        holdings: [],
+        transactions: [],
+        ibkrCredentials: { flexToken: '', flexQueryId: '', proxyMode: 'auto', customProxyUrl: '' },
+        ibkrQuoteSource: 'Cached',
+        ibkrLastUpdated: 'Never'
+      };
+    }
+
+    function normalizeVaultState(raw) {
+      const base = createEmptyState();
+      if (!raw || typeof raw !== 'object') return base;
+      return {
+        ...base,
+        ...raw,
+        fxRates: { ...DEFAULT_FX_RATES, ...(raw.fxRates || {}) },
+        fxOverrides: raw.fxOverrides && typeof raw.fxOverrides === 'object' ? { ...raw.fxOverrides } : {},
+        accounts: Array.isArray(raw.accounts) ? raw.accounts : [],
+        holdings: Array.isArray(raw.holdings) ? raw.holdings : [],
+        transactions: Array.isArray(raw.transactions) ? raw.transactions : [],
+        ibkrCredentials: {
+          ...base.ibkrCredentials,
+          ...(raw.ibkrCredentials || {})
+        }
+      };
+    }
+
+    let state = createEmptyState();
 
     // =========================================================================
-    // SAMPLE DATA GENERATOR
+    // SAMPLE DATA GENERATOR (LOCAL SANDBOX ONLY)
     // =========================================================================
     function createSampleState() {
       const today = new Date().toISOString().split('T')[0];
@@ -1873,15 +1895,13 @@ service cloud.firestore {
       const tabLogin = document.getElementById('auth-tab-login');
       const tabReg = document.getElementById('auth-tab-register');
       const nameWrap = document.getElementById('auth-name-wrap');
-      const starterWrap = document.getElementById('auth-starter-wrap');
 
       if (modeInput) modeInput.value = mode;
 
       if (mode === 'register') {
         if (heading) heading.textContent = 'Create your private vault';
-        if (submitBtn) submitBtn.textContent = 'Create Account & Sync';
+        if (submitBtn) submitBtn.textContent = 'Create Empty Vault & Sync';
         if (nameWrap) nameWrap.classList.remove('hidden');
-        if (starterWrap) starterWrap.classList.remove('hidden');
         if (tabReg) {
           tabReg.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition';
         }
@@ -1892,13 +1912,267 @@ service cloud.firestore {
         if (heading) heading.textContent = 'Sign in to your vault';
         if (submitBtn) submitBtn.textContent = 'Sign In to Portfolio';
         if (nameWrap) nameWrap.classList.add('hidden');
-        if (starterWrap) starterWrap.classList.add('hidden');
         if (tabLogin) {
           tabLogin.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition';
         }
         if (tabReg) {
           tabReg.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
         }
+      }
+    }
+
+    async function handleEmailAuth(e) {
+      e.preventDefault();
+      if (!fbAuth) {
+        showToast('Cloud sign-in is not active yet. Click "Try Local Sandbox" to continue.', 'warning');
+        return;
+      }
+
+      const mode = document.getElementById('auth-mode').value;
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const displayName = document.getElementById('auth-name').value.trim();
+
+      const btn = document.getElementById('auth-submit-btn');
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = mode === 'register' ? 'Creating Vault...' : 'Signing In...';
+
+      try {
+        if (mode === 'register') {
+          const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
+          if (displayName) {
+            await cred.user.updateProfile({ displayName });
+          }
+          state = createEmptyState();
+          currentUser = cred.user;
+          isSandboxMode = false;
+          await persistState(true);
+          showToast('Empty vault created and synced to cloud!', 'success');
+        } else {
+          await fbAuth.signInWithEmailAndPassword(email, password);
+          showToast('Signed in to your cloud vault.', 'success');
+        }
+      } catch (err) {
+        showToast(err.message || 'Authentication failed.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+
+    async function handleGoogleSignIn() {
+      if (!fbAuth) {
+        showToast('Cloud sign-in is not active yet. Click "Try Local Sandbox" to continue.', 'warning');
+        return;
+      }
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await fbAuth.signInWithPopup(provider);
+        showToast('Signed in with Google.', 'success');
+      } catch (err) {
+        showToast(err.message || 'Google sign-in failed.', 'error');
+      }
+    }
+
+    function enterLocalSandbox() {
+      isSandboxMode = true;
+      currentUser = null;
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
+      try {
+        const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
+        if (saved) {
+          state = normalizeVaultState(JSON.parse(saved));
+        } else {
+          state = createSampleState();
+          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
+        }
+      } catch (e) {
+        state = createSampleState();
+      }
+
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      document.getElementById('app-shell').classList.add('flex');
+
+      updateSessionBadges('Local Sandbox', 'Device-only mode', 'localStorage', false);
+      renderAll();
+      refreshLiveFX(false);
+      showToast('Entered Local Sandbox mode.', 'info');
+    }
+
+    function getUserCloudCacheKey(uid) {
+      return `vaultflow_cloud_cache_${uid}`;
+    }
+
+    function enterAuthenticatedWorkspace(user) {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      document.getElementById('app-shell').classList.add('flex');
+
+      hasShownCloudErrorToast = false;
+      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
+      const email = user.email || 'Authenticated User';
+      const docPath = `users/${user.uid}/vault/state`;
+
+      updateSessionBadges(name, email, docPath, true);
+
+      // Load UID-scoped local cache immediately while Firestore connects
+      let cachedUserState = null;
+      try {
+        const rawCache = localStorage.getItem(getUserCloudCacheKey(user.uid));
+        if (rawCache) {
+          cachedUserState = normalizeVaultState(JSON.parse(rawCache));
+          state = cachedUserState;
+          renderAll();
+        }
+      } catch (e) {}
+
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      const docRef = fbDb.collection('users').doc(user.uid).collection('vault').doc('state');
+
+      unsubscribeSnapshot = docRef.onSnapshot((snap) => {
+        if (snap.exists) {
+          // Ignore local echo snapshots while a write is actively flushing
+          if (snap.metadata && snap.metadata.hasPendingWrites) return;
+          const remote = snap.data();
+          state = normalizeVaultState(remote);
+          try {
+            localStorage.setItem(getUserCloudCacheKey(user.uid), JSON.stringify(state));
+          } catch (e) {}
+        } else if (cachedUserState) {
+          // Restore UID-scoped cache to Firestore if remote document wasn't created yet
+          state = cachedUserState;
+          docRef.set(JSON.parse(JSON.stringify(state))).catch(() => {});
+        } else {
+          // Brand-new account starts completely empty (no sample pots or sample holdings)
+          state = createEmptyState();
+          try {
+            localStorage.setItem(getUserCloudCacheKey(user.uid), JSON.stringify(state));
+          } catch (e) {}
+          docRef.set(JSON.parse(JSON.stringify(state))).catch((err) => {
+            console.error('Initial Firestore write error:', err);
+          });
+        }
+        renderAll();
+      }, (err) => {
+        console.error('Firestore snapshot error:', err);
+        if (!cachedUserState) {
+          state = createEmptyState();
+          renderAll();
+        }
+        showToast('Cloud sync warning: check Firestore database & security rules.', 'warning');
+      });
+
+      refreshLiveFX(false);
+    }
+
+    function updateSessionBadges(name, email, path, isCloud) {
+      const initials = name.slice(0, 2).toUpperCase();
+      document.getElementById('sidebar-avatar').textContent = initials;
+      document.getElementById('sidebar-user-name').textContent = name;
+      document.getElementById('sidebar-user-email').textContent = email;
+
+      document.getElementById('settings-session-mode').textContent = isCloud ? 'Firebase Cloud Sync (Live)' : 'Local Sandbox';
+      document.getElementById('settings-user-email').textContent = email;
+      document.getElementById('settings-firestore-path').textContent = path;
+
+      const dotClass = isCloud ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-400';
+      const sDot = document.getElementById('sidebar-sync-dot');
+      const sText = document.getElementById('sidebar-sync-text');
+      const mDot = document.getElementById('mobile-sync-dot');
+      const mText = document.getElementById('mobile-sync-text');
+      if (sDot) sDot.className = dotClass;
+      if (sText) sText.textContent = isCloud ? 'Cloud Synced' : 'Offline / Local';
+      if (mDot) mDot.className = dotClass;
+      if (mText) mText.textContent = isCloud ? 'Synced' : 'Local';
+    }
+
+    function showAuthScreen() {
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('flex');
+      document.getElementById('auth-screen').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function flushPendingCloudSave() {
+      if (cloudSaveTimer) {
+        clearTimeout(cloudSaveTimer);
+        cloudSaveTimer = null;
+      }
+      if (pendingCloudSaveFn) {
+        const fn = pendingCloudSaveFn;
+        pendingCloudSaveFn = null;
+        await fn();
+      }
+    }
+
+    async function handleSignOut() {
+      await flushPendingCloudSave();
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+      if (fbAuth && currentUser) {
+        await fbAuth.signOut();
+      }
+      currentUser = null;
+      isSandboxMode = false;
+      state = createEmptyState();
+      showAuthScreen();
+      showToast('Signed out of vault.', 'info');
+    }
+
+    async function persistState(immediate = false) {
+      if (isSandboxMode || !currentUser || !fbDb) {
+        try {
+          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+        return;
+      }
+
+      const uid = currentUser.uid;
+      const snapshotPayload = JSON.parse(JSON.stringify(state));
+
+      // Always update per-UID local backup immediately so data survives transient network issues
+      try {
+        localStorage.setItem(getUserCloudCacheKey(uid), JSON.stringify(snapshotPayload));
+      } catch (e) {}
+
+      const saveFn = async () => {
+        try {
+          const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
+          await docRef.set(snapshotPayload);
+          hasShownCloudErrorToast = false;
+        } catch (err) {
+          console.error('Firestore write error:', err);
+          if (!hasShownCloudErrorToast) {
+            hasShownCloudErrorToast = true;
+            showToast(`Cloud save failed (${err.code || 'Firestore error'}). Check Firestore Rules.`, 'error');
+          }
+        }
+      };
+
+      if (immediate) {
+        if (cloudSaveTimer) {
+          clearTimeout(cloudSaveTimer);
+          cloudSaveTimer = null;
+        }
+        pendingCloudSaveFn = null;
+        await saveFn();
+      } else {
+        clearTimeout(cloudSaveTimer);
+        pendingCloudSaveFn = saveFn;
+        cloudSaveTimer = setTimeout(async () => {
+          cloudSaveTimer = null;
+          pendingCloudSaveFn = null;
+          await saveFn();
+        }, 350);
       }
     }
 
@@ -3052,19 +3326,36 @@ service cloud.firestore {
       showToast('Cloudflare Worker code copied to clipboard.', 'success');
     }
 
+    function normalizeWorkerUrl(rawUrl) {
+      const trimmed = (rawUrl || '').trim();
+      if (!trimmed) return '';
+      const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      return withProtocol.replace(/\/+$/, '');
+    }
+
     async function testIBKRWorkerConnection() {
-      const rawUrl = (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim();
-      if (!rawUrl) {
+      const inputEl = document.getElementById('ibkr-custom-proxy-url');
+      const cleaned = normalizeWorkerUrl(inputEl?.value || '');
+      if (!cleaned) {
         setIBKRFlexStatus('Enter your Cloudflare Worker URL first.', 'warning');
         return;
       }
-      const cleaned = rawUrl.replace(/\/+$/, '');
+      if (inputEl) inputEl.value = cleaned;
+
       const probeEndpoint = 'https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest';
       const testUrl = `${cleaned}${cleaned.includes('?') ? '&' : '/?'}url=${encodeURIComponent(probeEndpoint)}&_t=${Date.now()}`;
       setIBKRFlexStatus('Testing connection to Cloudflare Worker...', 'info');
       try {
         const res = await fetchWithTimeout(testUrl, 8000);
-        const body = (await res.text().catch(() => '')).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+        const rawText = await res.text().catch(() => '');
+        if (/GitHub Pages/i.test(rawText)) {
+          setIBKRFlexStatus(
+            'Error: Request hit GitHub Pages instead of Cloudflare. Ensure your Worker URL starts with https:// (e.g., https://vaultflow-ibkr-proxy.ccmps-business.workers.dev).',
+            'error'
+          );
+          return;
+        }
+        const body = rawText.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
         setIBKRFlexStatus(
           `Worker reachable! (HTTP ${res.status}${body ? `: ${body}` : ''}). Click "Save Credentials & Fetch Flex Positions" to sync.`,
           'success'
@@ -3093,10 +3384,10 @@ service cloud.firestore {
       const cacheBust = Date.now();
       const attempts = [];
       if (proxyMode === 'custom') {
-        if (!customProxyUrl) {
+        const cleaned = normalizeWorkerUrl(customProxyUrl);
+        if (!cleaned) {
           throw new Error('Enter your Cloudflare Worker URL or switch Browser CORS Transport to Auto.');
         }
-        const cleaned = customProxyUrl.replace(/\/+$/, '');
         const sep = cleaned.includes('?') ? '&url=' : '/?url=';
         attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
       } else if (proxyMode === 'direct') {
@@ -3114,6 +3405,10 @@ service cloud.firestore {
           const res = await fetchWithTimeout(attempt.url, 12000);
           if (!res.ok) {
             const rawErr = await res.text().catch(() => '');
+            if (/GitHub Pages/i.test(rawErr)) {
+              failures.push(`${attempt.label}: Hit GitHub Pages 404 — make sure Worker URL starts with https://`);
+              continue;
+            }
             const cleanSnippet = rawErr.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
             failures.push(`${attempt.label}: HTTP ${res.status}${cleanSnippet ? ` (${cleanSnippet})` : ''}`);
             continue;
@@ -3148,7 +3443,7 @@ service cloud.firestore {
       const token = (creds.flexToken || '').trim();
       const queryId = (creds.flexQueryId || '').trim();
       const proxyMode = creds.proxyMode || 'auto';
-      const customProxyUrl = creds.customProxyUrl || '';
+      const customProxyUrl = normalizeWorkerUrl(creds.customProxyUrl || '');
 
       if (!token || !queryId) {
         openModal('ibkr-sync-modal');
@@ -3167,13 +3462,13 @@ service cloud.firestore {
       try {
         setIBKRFlexStatus('Step 1/2: Requesting statement from IBKR Flex Web Service...', 'info');
         const primarySendUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
-        const backupSendUrl = `https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
+        const backupSendUrl = `https://gdcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
 
         let sendXmlText = '';
         try {
           sendXmlText = await fetchTextWithCORSFallback(primarySendUrl, proxyMode, customProxyUrl, 'Step 1 (SendRequest)');
         } catch (step1Err) {
-          if (String(step1Err?.message || '').includes('HTTP 404')) {
+          if (String(step1Err?.message || '').includes('HTTP 404') && !String(step1Err?.message || '').includes('GitHub Pages')) {
             setIBKRFlexStatus('Step 1/2: Retrying via backup IBKR Flex gateway...', 'info');
             sendXmlText = await fetchTextWithCORSFallback(backupSendUrl, proxyMode, customProxyUrl, 'Step 1 Backup (SendRequest)');
           } else {
@@ -3452,7 +3747,7 @@ service cloud.firestore {
           if (!Array.isArray(parsed.accounts) || !Array.isArray(parsed.holdings)) {
             throw new Error('Invalid structure');
           }
-          state = { ...createSampleState(), ...parsed };
+          state = normalizeVaultState(parsed);
           persistState(true);
           renderAll();
           showToast('JSON backup restored successfully!', 'success');
@@ -3462,6 +3757,23 @@ service cloud.firestore {
       };
       reader.readAsText(file);
       e.target.value = '';
+    }
+
+    function importFromLocalSandbox() {
+      try {
+        const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
+        if (!saved) {
+          showToast('No saved Local Sandbox data found on this browser.', 'warning');
+          return;
+        }
+        const parsed = normalizeVaultState(JSON.parse(saved));
+        state = parsed;
+        persistState(true);
+        renderAll();
+        showToast('Imported Local Sandbox data & IBKR settings into your current vault!', 'success');
+      } catch (err) {
+        showToast('Could not read Local Sandbox storage.', 'error');
+      }
     }
 
     function resetToSampleData() {
@@ -4189,6 +4501,12 @@ service cloud.firestore {
     // =========================================================================
     // BOOTSTRAP ON WINDOW LOAD
     // =========================================================================
+    window.addEventListener('beforeunload', () => {
+      if (pendingCloudSaveFn) {
+        pendingCloudSaveFn();
+      }
+    });
+
     window.onload = function () {
       if (window.lucide) lucide.createIcons();
       switchSection('overview');
