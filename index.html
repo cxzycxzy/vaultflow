@@ -2272,7 +2272,7 @@ service cloud.firestore {
               </td>
               <td class="py-3.5 px-4 text-right font-mono text-slate-200">${Number(h.shares).toLocaleString()}</td>
               <td class="py-3.5 px-4 text-right font-mono text-slate-300">${formatMoney(h.avgCost, h.currency)}</td>
-              <td class="py-3.5 px-4 text-right font-mono font-semibold text-white">${formatMoney(h.price, h.currency)}</td>
+              <td class="py-3.5 px-4 text-right font-mono font-semibold text-white">${formatHoldingUnitPrice(h)}</td>
               <td class="py-3.5 px-4 text-right font-mono font-bold text-white">${formatMoney(mktVal, h.currency)}</td>
               <td class="py-3.5 px-4 text-right font-mono ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
                 <div>${formatMoney(pnl, h.currency, true)}</div>
@@ -2958,7 +2958,7 @@ function getHoldingUITFSpec(h) {
   const curr = (h.currency || 'PHP').toUpperCase();
 
   if (sym === 'ATRAM-TECH' || name.includes('global technology feeder')) {
-    return { bankId: '31', keywords: ['global technology', 'feeder'], currency: curr };
+    return { bankId: '31', keywords: ['global technology', 'feeder', 'a php unit class'], currency: curr };
   }
   if (sym === 'ATRAM-CONSUMER' || name.includes('global consumer trends')) {
     return { bankId: '31', keywords: ['global consumer trends', 'feeder'], currency: curr };
@@ -2999,21 +2999,26 @@ function extractUITFNavpuFromHTML(html, keywords, targetCurrency = 'PHP') {
     const matchesFund = keywords.every((kw) => rowText.includes(kw.toLowerCase()));
     if (!matchesFund) continue;
 
-    // uitf.com.ph columns: [Bank, Fund Name, Classification, Currency, NAVPU, Date, ...]
+    // Older uitf.com.ph layout includes a Currency column immediately before NAVPU.
     const currIdx = cells.findIndex((c) => c.toUpperCase() === targetCurrency.toUpperCase());
     if (currIdx !== -1 && cells[currIdx + 1]) {
-      const nav = parseFloat(cells[currIdx + 1].replace(/,/g, ''));
-      if (!isNaN(nav) && nav > 0) return nav;
+      const navCell = cells[currIdx + 1].replace(/,/g, '').trim();
+      if (/^\d+(?:\.\d+)?$/.test(navCell)) {
+        const nav = Number(navCell);
+        if (Number.isFinite(nav) && nav > 0) return nav;
+      }
     }
 
-    // Fallback: locate 4-decimal NAVPU cell (excluding % return columns)
-    for (const cell of cells) {
-      if (cell.includes('%') || cell.includes('/')) continue;
-      const match = cell.match(/^\d{1,4}(?:,\d{3})*\.\d{4}$/);
-      if (match) {
-        const nav = parseFloat(match[0].replace(/,/g, ''));
-        if (!isNaN(nav) && nav > 0) return nav;
-      }
+    // Current layout groups funds by currency and omits the Currency column.
+    // NAVPU is the FIRST numeric cell in the matching fund row. ROI-YOY/YTD
+    // values follow it (often four decimals), so never select a later number.
+    const navCell = cells.find((cell) => {
+      const normalized = cell.replace(/,/g, '').trim();
+      return /^\d+(?:\.\d+)?$/.test(normalized) && Number(normalized) > 0;
+    });
+    if (navCell) {
+      const nav = Number(navCell.replace(/,/g, '').trim());
+      if (Number.isFinite(nav) && nav > 0) return nav;
     }
   }
   return null;
@@ -3072,7 +3077,7 @@ async function refreshIBKRQuotes(manual = false) {
             );
             if (navpu && navpu > 0) {
               h.prevClose = Number(h.price) > 1 ? Number(h.price) : navpu;
-              h.price = Number(navpu.toFixed(4));
+              h.price = Number(navpu.toFixed(6));
               liveHits++;
               return;
             }
@@ -3416,6 +3421,14 @@ async function refreshIBKRQuotes(manual = false) {
       });
       const sign = isNeg ? '-' : showPlus && num > 0 ? '+' : '';
       return `${sign}${meta.symbol}${absFormatted}`;
+    }
+
+    function formatHoldingUnitPrice(h) {
+      if (getHoldingUITFSpec(h)) {
+        const value = Number(h.price) || 0;
+        return `₱${value.toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 })}`;
+      }
+      return formatMoney(h.price, h.currency);
     }
 
     function changeDisplayCurrency(curr) {
