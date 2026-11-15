@@ -1009,7 +1009,7 @@
 
           <!-- Category Filter Pills -->
           <div id="inst-category-pills" class="flex items-center gap-1.5 overflow-x-auto pb-1">
-            <button type="button" onclick="setInstitutionCategory('ALL')" data-inst-cat="ALL" class="inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white shrink-0">All (66)</button>
+            <button type="button" onclick="setInstitutionCategory('ALL')" data-inst-cat="ALL" class="inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-600 text-white shrink-0">All (67)</button>
             <button type="button" onclick="setInstitutionCategory('global')" data-inst-cat="global" class="inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[#080c14] text-slate-400 hover:text-white shrink-0">Global & Maritime</button>
             <button type="button" onclick="setInstitutionCategory('ph-digital')" data-inst-cat="ph-digital" class="inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[#080c14] text-slate-400 hover:text-white shrink-0">PH Digital Banks</button>
             <button type="button" onclick="setInstitutionCategory('ph-banks')" data-inst-cat="ph-banks" class="inst-cat-btn px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[#080c14] text-slate-400 hover:text-white shrink-0">PH Traditional</button>
@@ -1373,10 +1373,121 @@ service cloud.firestore {
   <!-- ===================================================================== -->
   <script>
     // =========================================================================
-    // PUBLIC GITHUB PAGES FIREBASE CONFIG
+    // 67-INSTITUTION BRAND ICON CATALOG (REAL BRAND LOGOS + VECTOR FALLBACKS)
     // =========================================================================
-    // Replace the placeholder values below with your actual Firebase Web App
-    // credentials before deploying to GitHub Pages:
+    const INSTITUTION_CATALOG = [
+      // Global & Maritime (21)
+      { id: 'wise', name: 'Wise', category: 'global', domain: 'wise.com', bg: '#9fe870', fg: '#163300', mono: 'WISE' },
+      { id: 'brightwell', name: 'Brightwell', category: 'global', domain: 'brightwell.com', bg: '#0ea5e9', fg: '#ffffff', mono: 'BW' },
+      { id: 'ibkr', name: 'Interactive Brokers', category: 'global', domain: 'interactivebrokers.com', bg: '#dc2626', fg: '#ffffff', mono: 'IBKR' },
+      { id: 'revolut', name: 'Revolut', category: 'global', domain: 'revolut.com', bg: '#111827', fg: '#ffffff', mono: 'REV' },
+      { id: 'payoneer', name: 'Payoneer', category: 'global', domain: 'payoneer.com', bg: '#ff4800', fg: '#ffffff', mono: 'PYN' },
+      { id: 'hsbc', name: 'HSBC', category: 'global', domain: 'hsbc.com', bg: '#db0011', fg: '#ffffff', mono: 'HSBC' },
+      { id: 'citi', name: 'Citibank', category: 'global', domain: 'citibank.com', bg: '#003b70', fg: '#ffffff', mono: 'CITI' },
+      { id: 'scb', name: 'Standard Chartered', category: 'global', domain: 'sc.com', bg: '#0072aa', fg: '#ffffff', mono: 'SCB' },
+      { id: 'chase', name: 'Chase', category: 'global', domain: 'chase.com', bg: '#117aca', fg: '#ffffff', mono: 'CHS' },
+      { id: 'bofa', name: 'Bank of America', category: 'global', domain: 'bankofamerica.com', bg: '#e31837', fg: '#ffffff', mono: 'BOA' },
+      { id: 'wellsfargo', name: 'Wells Fargo', category: 'global', domain: 'wellsfargo.com', bg: '#d71e28', fg: '#ffff00', mono: 'WF' },
+      { id: 'schwab', name: 'Charles Schwab', category: 'global', domain: 'schwab.com', bg: '#00a0df', fg: '#ffffff', mono: 'SCHW' },
+      { id: 'fidelity', name: 'Fidelity', category: 'global', domain: 'fidelity.com', bg: '#4e8a18', fg: '#ffffff', mono: 'FID' },
+      { id: 'dbs', name: 'DBS Bank', category: 'global', domain: 'dbs.com', bg: '#e11d48', fg: '#ffffff', mono: 'DBS' },
+      { id: 'ocbc', name: 'OCBC Bank', category: 'global', domain: 'ocbc.com', bg: '#dc2626', fg: '#ffffff', mono: 'OCBC' },
+      { id: 'uob', name: 'UOB', category: 'global', domain: 'uobgroup.com', bg: '#1d4ed8', fg: '#ffffff', mono: 'UOB' },
+      { id: 'monzo', name: 'Monzo', category: 'global', domain: 'monzo.com', bg: '#ff4d4d', fg: '#ffffff', mono: 'MNZ' },
+      { id: 'starling', name: 'Starling Bank', category: 'global', domain: 'starlingbank.com', bg: '#6935d3', fg: '#ffffff', mono: 'STR' },
+      { id: 'n26', name: 'N26', category: 'global', domain: 'n26.com', bg: '#36a18b', fg: '#ffffff', mono: 'N26' },
+      { id: 'remitly', name: 'Remitly', category: 'global', domain: 'remitly.com', bg: '#2563eb', fg: '#ffffff', mono: 'RMT' },
+      { id: 'westernunion', name: 'Western Union', category: 'global', domain: 'westernunion.com', bg: '#facc15', fg: '#111827', mono: 'WU' },
+
+      // PH Digital Banks (13)
+      { id: 'maribank', name: 'MariBank', category: 'ph-digital', domain: 'maribank.ph', bg: '#f97316', fg: '#ffffff', mono: 'MARI' },
+      { id: 'bpi-banko', name: 'BPI BanKo', category: 'ph-digital', domain: 'banko.com.ph', bg: '#b91c1c', fg: '#ffffff', mono: 'BanKo' },
+      { id: 'maya-bank', name: 'Maya Bank', category: 'ph-digital', domain: 'mayabank.ph', bg: '#10b981', fg: '#062c1e', mono: 'MAYA' },
+      { id: 'gotyme', name: 'GoTyme Bank', category: 'ph-digital', domain: 'gotyme.com.ph', bg: '#06b6d4', fg: '#082f49', mono: 'GO' },
+      { id: 'cimb', name: 'CIMB Bank PH', category: 'ph-digital', domain: 'cimbbank.com.ph', bg: '#b91c1c', fg: '#ffffff', mono: 'CIMB' },
+      { id: 'tonik', name: 'Tonik Digital', category: 'ph-digital', domain: 'tonikbank.com', bg: '#7c3aed', fg: '#ffffff', mono: 'TNK' },
+      { id: 'unobank', name: 'UNO Digital Bank', category: 'ph-digital', domain: 'uno.bank', bg: '#ef4444', fg: '#ffffff', mono: 'UNO' },
+      { id: 'ownbank', name: 'OwnBank', category: 'ph-digital', domain: 'ownbank.com.ph', bg: '#f59e0b', fg: '#111827', mono: 'OWN' },
+      { id: 'netbank', name: 'Netbank', category: 'ph-digital', domain: 'netbank.ph', bg: '#0284c7', fg: '#ffffff', mono: 'NET' },
+      { id: 'uniondigital', name: 'UnionDigital', category: 'ph-digital', domain: 'uniondigitalbank.io', bg: '#ea580c', fg: '#ffffff', mono: 'UD' },
+      { id: 'diskartech', name: 'DiskarTech', category: 'ph-digital', domain: 'diskartech.ph', bg: '#14b8a6', fg: '#042f2e', mono: 'DSK' },
+      { id: 'komo', name: 'Komo (EastWest)', category: 'ph-digital', domain: 'komo.ph', bg: '#8b5cf6', fg: '#ffffff', mono: 'KOMO' },
+      { id: 'ofbank', name: 'OFBank', category: 'ph-digital', domain: 'ofbank.com.ph', bg: '#15803d', fg: '#ffffff', mono: 'OFB' },
+
+      // PH Traditional Banks (14)
+      { id: 'bpi', name: 'BPI', category: 'ph-banks', domain: 'bpi.com.ph', bg: '#991b1b', fg: '#ffffff', mono: 'BPI' },
+      { id: 'bdo', name: 'BDO Unibank', category: 'ph-banks', domain: 'bdo.com.ph', bg: '#1e3a8a', fg: '#facc15', mono: 'BDO' },
+      { id: 'metrobank', name: 'Metrobank', category: 'ph-banks', domain: 'metrobank.com.ph', bg: '#1d4ed8', fg: '#ffffff', mono: 'MBTC' },
+      { id: 'unionbank', name: 'UnionBank PH', category: 'ph-banks', domain: 'unionbankph.com', bg: '#f97316', fg: '#ffffff', mono: 'UBP' },
+      { id: 'landbank', name: 'LandBank', category: 'ph-banks', domain: 'landbank.com', bg: '#166534', fg: '#ffffff', mono: 'LBP' },
+      { id: 'rcbc', name: 'RCBC', category: 'ph-banks', domain: 'rcbc.com', bg: '#0369a1', fg: '#ffffff', mono: 'RCBC' },
+      { id: 'secbank', name: 'Security Bank', category: 'ph-banks', domain: 'securitybank.com', bg: '#1e40af', fg: '#38bdf8', mono: 'SBC' },
+      { id: 'chinabank', name: 'China Bank', category: 'ph-banks', domain: 'chinabank.ph', bg: '#b91c1c', fg: '#fde047', mono: 'CBC' },
+      { id: 'pnb', name: 'PNB', category: 'ph-banks', domain: 'pnb.com.ph', bg: '#0f172a', fg: '#38bdf8', mono: 'PNB' },
+      { id: 'eastwest', name: 'EastWest Bank', category: 'ph-banks', domain: 'eastwestbanker.com', bg: '#6d28d9', fg: '#ffffff', mono: 'EWB' },
+      { id: 'psbank', name: 'PSBank', category: 'ph-banks', domain: 'psbank.com.ph', bg: '#1e3a8a', fg: '#ffffff', mono: 'PSB' },
+      { id: 'robinsons', name: 'Robinsons Bank', category: 'ph-banks', domain: 'robinsonsbank.com.ph', bg: '#047857', fg: '#ffffff', mono: 'RBK' },
+      { id: 'maybank', name: 'Maybank PH', category: 'ph-banks', domain: 'maybank.com.ph', bg: '#eab308', fg: '#111827', mono: 'MBB' },
+      { id: 'aub', name: 'Asia United Bank', category: 'ph-banks', domain: 'aub.com.ph', bg: '#b91c1c', fg: '#ffffff', mono: 'AUB' },
+
+      // E-Wallets & Govt Savings (8)
+      { id: 'gcash', name: 'GCash', category: 'ph-wallets', domain: 'gcash.com', bg: '#007dfe', fg: '#ffffff', mono: 'GC' },
+      { id: 'maya-wallet', name: 'Maya Wallet', category: 'ph-wallets', domain: 'maya.ph', bg: '#22c55e', fg: '#052e16', mono: 'MYW' },
+      { id: 'grabpay', name: 'GrabPay', category: 'ph-wallets', domain: 'grab.com', bg: '#00b14f', fg: '#ffffff', mono: 'GRB' },
+      { id: 'shopeepay', name: 'ShopeePay', category: 'ph-wallets', domain: 'shopee.ph', bg: '#ee4d2d', fg: '#ffffff', mono: 'SPP' },
+      { id: 'coinsph', name: 'Coins.ph', category: 'ph-wallets', domain: 'coins.ph', bg: '#2563eb', fg: '#ffffff', mono: 'COIN' },
+      { id: 'mp2', name: 'Pag-IBIG MP2', category: 'ph-wallets', domain: 'pagibigfund.gov.ph', bg: '#1d4ed8', fg: '#facc15', mono: 'MP2' },
+      { id: 'sss', name: 'SSS WISP+', category: 'ph-wallets', domain: 'sss.gov.ph', bg: '#0369a1', fg: '#ffffff', mono: 'SSS' },
+      { id: 'paypal', name: 'PayPal', category: 'ph-wallets', domain: 'paypal.com', bg: '#003087', fg: '#ffffff', mono: 'PP' },
+
+      // Credit Cards (10)
+      { id: 'cc-bpi', name: 'BPI Credit Card', category: 'credit-cards', domain: 'bpi.com.ph', bg: '#7f1d1d', fg: '#fecaca', mono: 'BPI•C' },
+      { id: 'cc-bdo', name: 'BDO Credit Card', category: 'credit-cards', domain: 'bdo.com.ph', bg: '#172554', fg: '#fde047', mono: 'BDO•C' },
+      { id: 'cc-ub', name: 'UnionBank Card', category: 'credit-cards', domain: 'unionbankph.com', bg: '#9a3412', fg: '#ffedd5', mono: 'UB•C' },
+      { id: 'cc-mb', name: 'Metrobank Card', category: 'credit-cards', domain: 'metrobank.com.ph', bg: '#1e3a8a', fg: '#dbeafe', mono: 'MB•C' },
+      { id: 'cc-rcbc', name: 'RCBC Credit Card', category: 'credit-cards', domain: 'rcbc.com', bg: '#0c4a6e', fg: '#e0f2fe', mono: 'RC•C' },
+      { id: 'cc-ew', name: 'EastWest Card', category: 'credit-cards', domain: 'eastwestbanker.com', bg: '#4c1d95', fg: '#ede9fe', mono: 'EW•C' },
+      { id: 'cc-sb', name: 'Security Bank Card', category: 'credit-cards', domain: 'securitybank.com', bg: '#1e293b', fg: '#38bdf8', mono: 'SB•C' },
+      { id: 'cc-hsbc', name: 'HSBC Credit Card', category: 'credit-cards', domain: 'hsbc.com.ph', bg: '#991b1b', fg: '#ffffff', mono: 'HS•C' },
+      { id: 'cc-citi', name: 'Citi / UB Rewards', category: 'credit-cards', domain: 'citibank.com.ph', bg: '#0f172a', fg: '#93c5fd', mono: 'CT•C' },
+      { id: 'cc-amex', name: 'American Express', category: 'credit-cards', domain: 'americanexpress.com', bg: '#0284c7', fg: '#ffffff', mono: 'AMEX' },
+
+      // Custom (1)
+      { id: 'custom', name: 'Custom Vault', category: 'global', domain: null, bg: '#6366f1', fg: '#ffffff', mono: 'VAULT' }
+    ];
+
+    // =========================================================================
+    // CURRENCY METADATA, DEFAULT FX RATES & STORAGE CONSTANTS
+    // =========================================================================
+    const DEFAULT_FX_RATES = {
+      USD: 1.0,
+      PHP: 58.25,
+      EUR: 0.92,
+      GBP: 0.79,
+      SGD: 1.34,
+      JPY: 153.40,
+      AUD: 1.52,
+      CAD: 1.39
+    };
+
+    const CURRENCY_META = {
+      USD: { symbol: '$', name: 'US Dollar', decimals: 2 },
+      PHP: { symbol: '₱', name: 'Philippine Peso', decimals: 2 },
+      EUR: { symbol: '€', name: 'Euro', decimals: 2 },
+      GBP: { symbol: '£', name: 'British Pound', decimals: 2 },
+      SGD: { symbol: 'S$', name: 'Singapore Dollar', decimals: 2 },
+      JPY: { symbol: '¥', name: 'Japanese Yen', decimals: 0 },
+      AUD: { symbol: 'A$', name: 'Australian Dollar', decimals: 2 },
+      CAD: { symbol: 'C$', name: 'Canadian Dollar', decimals: 2 }
+    };
+
+    const TX_CATEGORIES = {
+      expense: ['Groceries', 'Dining & Coffee', 'Bills & Utilities', 'Housing / Rent', 'Transport & Travel', 'Healthcare', 'Shopping', 'Subscriptions', 'Credit Card Payment', 'Other Expense'],
+      income: ['Salary / Allotment', 'Bonus / Overtime', 'Dividends', 'Freelance / Business', 'Refund / Cashback', 'Other Income'],
+      transfer: ['FX Transfer', 'Internal Rebalance', 'Savings Deposit', 'Brokerage Funding'],
+      interest: ['Interest Credit']
+    };
+
     const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyDPEZeres-rG_ci4XFiJYY1uR_BzsDJj1M",
   authDomain: "vaultflow-fa8bb.firebaseapp.com",
@@ -1387,121 +1498,8 @@ service cloud.firestore {
   measurementId: "G-FE2G42K26P"
 };
 
-    const FIREBASE_CFG_KEY = 'vaultflow_firebase_cfg_v2';
+    const FB_CONFIG_STORAGE_KEY = 'vaultflow_firebase_config_v1';
     const SANDBOX_STORAGE_KEY = 'vaultflow_sandbox_state_v2';
-
-    // =========================================================================
-    // CONSTANTS & CURRENCY METADATA
-    // =========================================================================
-    const CURRENCIES = {
-      USD: { symbol: '$', name: 'US Dollar', flag: '🇺🇸', decimals: 2 },
-      PHP: { symbol: '₱', name: 'Philippine Peso', flag: '🇵🇭', decimals: 2 },
-      EUR: { symbol: '€', name: 'Euro', flag: '🇪🇺', decimals: 2 },
-      GBP: { symbol: '£', name: 'British Pound', flag: '🇬🇧', decimals: 2 },
-      SGD: { symbol: 'S$', name: 'Singapore Dollar', flag: '🇸🇬', decimals: 2 },
-      JPY: { symbol: '¥', name: 'Japanese Yen', flag: '🇯🇵', decimals: 0 },
-      AUD: { symbol: 'A$', name: 'Australian Dollar', flag: '🇦🇺', decimals: 2 },
-      CAD: { symbol: 'C$', name: 'Canadian Dollar', flag: '🇨🇦', decimals: 2 }
-    };
-
-    const DEFAULT_FX_RATES = {
-      USD: 1.0,
-      PHP: 58.25,
-      EUR: 0.92,
-      GBP: 0.79,
-      SGD: 1.34,
-      JPY: 154.50,
-      AUD: 1.52,
-      CAD: 1.38
-    };
-
-    const CATEGORIES = {
-      expense: ['Housing & Rent', 'Food & Dining', 'Groceries', 'Transport & Fuel', 'Utilities & Fiber', 'Healthcare', 'Shopping', 'Travel', 'Subscriptions', 'Credit Card Payment', 'Other Expense'],
-      income: ['Salary / Allotment', 'Dividend / Distribution', 'Freelance / Consulting', 'Bonus', 'Refund / Cashback', 'Other Income']
-    };
-
-    // =========================================================================
-    // 66-INSTITUTION BRAND ICON CATALOG (SQUIRCLE SVG GENERATOR)
-    // =========================================================================
-    const INSTITUTION_CATALOG = [
-      // Global & Maritime (21)
-      { id: 'wise', name: 'Wise', category: 'global', bg: '#9fe870', fg: '#163300', mono: 'WISE' },
-      { id: 'brightwell', name: 'Brightwell', category: 'global', bg: '#0ea5e9', fg: '#ffffff', mono: 'BW' },
-      { id: 'ibkr', name: 'Interactive Brokers', category: 'global', bg: '#dc2626', fg: '#ffffff', mono: 'IBKR' },
-      { id: 'revolut', name: 'Revolut', category: 'global', bg: '#111827', fg: '#ffffff', mono: 'REV' },
-      { id: 'payoneer', name: 'Payoneer', category: 'global', bg: '#ff4800', fg: '#ffffff', mono: 'PYN' },
-      { id: 'hsbc', name: 'HSBC', category: 'global', bg: '#db0011', fg: '#ffffff', mono: 'HSBC' },
-      { id: 'citi', name: 'Citibank', category: 'global', bg: '#003b70', fg: '#ffffff', mono: 'CITI' },
-      { id: 'scb', name: 'Standard Chartered', category: 'global', bg: '#0072aa', fg: '#ffffff', mono: 'SCB' },
-      { id: 'chase', name: 'Chase', category: 'global', bg: '#117aca', fg: '#ffffff', mono: 'CHS' },
-      { id: 'bofa', name: 'Bank of America', category: 'global', bg: '#e31837', fg: '#ffffff', mono: 'BOA' },
-      { id: 'wellsfargo', name: 'Wells Fargo', category: 'global', bg: '#d71e28', fg: '#ffff00', mono: 'WF' },
-      { id: 'schwab', name: 'Charles Schwab', category: 'global', bg: '#00a0df', fg: '#ffffff', mono: 'SCHW' },
-      { id: 'fidelity', name: 'Fidelity', category: 'global', bg: '#4e8a18', fg: '#ffffff', mono: 'FID' },
-      { id: 'dbs', name: 'DBS Bank', category: 'global', bg: '#e11d48', fg: '#ffffff', mono: 'DBS' },
-      { id: 'ocbc', name: 'OCBC Bank', category: 'global', bg: '#dc2626', fg: '#ffffff', mono: 'OCBC' },
-      { id: 'uob', name: 'UOB', category: 'global', bg: '#1d4ed8', fg: '#ffffff', mono: 'UOB' },
-      { id: 'monzo', name: 'Monzo', category: 'global', bg: '#ff4d4d', fg: '#ffffff', mono: 'MNZ' },
-      { id: 'starling', name: 'Starling Bank', category: 'global', bg: '#6935d3', fg: '#ffffff', mono: 'STR' },
-      { id: 'n26', name: 'N26', category: 'global', bg: '#36a18b', fg: '#ffffff', mono: 'N26' },
-      { id: 'remitly', name: 'Remitly', category: 'global', bg: '#2563eb', fg: '#ffffff', mono: 'RMT' },
-      { id: 'westernunion', name: 'Western Union', category: 'global', bg: '#facc15', fg: '#111827', mono: 'WU' },
-
-      // PH Digital Banks (12)
-      { id: 'maya-bank', name: 'Maya Bank', category: 'ph-digital', bg: '#10b981', fg: '#062c1e', mono: 'MAYA' },
-      { id: 'seabank', name: 'SeaBank PH', category: 'ph-digital', bg: '#f97316', fg: '#ffffff', mono: 'SEA' },
-      { id: 'gotyme', name: 'GoTyme Bank', category: 'ph-digital', bg: '#06b6d4', fg: '#082f49', mono: 'GO' },
-      { id: 'cimb', name: 'CIMB Bank PH', category: 'ph-digital', bg: '#b91c1c', fg: '#ffffff', mono: 'CIMB' },
-      { id: 'tonik', name: 'Tonik Digital', category: 'ph-digital', bg: '#7c3aed', fg: '#ffffff', mono: 'TNK' },
-      { id: 'unobank', name: 'UNO Digital Bank', category: 'ph-digital', bg: '#ef4444', fg: '#ffffff', mono: 'UNO' },
-      { id: 'ownbank', name: 'OwnBank', category: 'ph-digital', bg: '#f59e0b', fg: '#111827', mono: 'OWN' },
-      { id: 'netbank', name: 'Netbank', category: 'ph-digital', bg: '#0284c7', fg: '#ffffff', mono: 'NET' },
-      { id: 'uniondigital', name: 'UnionDigital', category: 'ph-digital', bg: '#ea580c', fg: '#ffffff', mono: 'UD' },
-      { id: 'diskartech', name: 'DiskarTech', category: 'ph-digital', bg: '#14b8a6', fg: '#042f2e', mono: 'DSK' },
-      { id: 'komo', name: 'Komo (EastWest)', category: 'ph-digital', bg: '#8b5cf6', fg: '#ffffff', mono: 'KOMO' },
-      { id: 'ofbank', name: 'OFBank', category: 'ph-digital', bg: '#15803d', fg: '#ffffff', mono: 'OFB' },
-
-      // PH Traditional Banks (14)
-      { id: 'bpi', name: 'BPI', category: 'ph-banks', bg: '#991b1b', fg: '#ffffff', mono: 'BPI' },
-      { id: 'bdo', name: 'BDO Unibank', category: 'ph-banks', bg: '#1e3a8a', fg: '#facc15', mono: 'BDO' },
-      { id: 'metrobank', name: 'Metrobank', category: 'ph-banks', bg: '#1d4ed8', fg: '#ffffff', mono: 'MBTC' },
-      { id: 'unionbank', name: 'UnionBank PH', category: 'ph-banks', bg: '#f97316', fg: '#ffffff', mono: 'UBP' },
-      { id: 'landbank', name: 'LandBank', category: 'ph-banks', bg: '#166534', fg: '#ffffff', mono: 'LBP' },
-      { id: 'rcbc', name: 'RCBC', category: 'ph-banks', bg: '#0369a1', fg: '#ffffff', mono: 'RCBC' },
-      { id: 'secbank', name: 'Security Bank', category: 'ph-banks', bg: '#1e40af', fg: '#38bdf8', mono: 'SBC' },
-      { id: 'chinabank', name: 'China Bank', category: 'ph-banks', bg: '#b91c1c', fg: '#fde047', mono: 'CBC' },
-      { id: 'pnb', name: 'PNB', category: 'ph-banks', bg: '#0f172a', fg: '#38bdf8', mono: 'PNB' },
-      { id: 'eastwest', name: 'EastWest Bank', category: 'ph-banks', bg: '#6d28d9', fg: '#ffffff', mono: 'EWB' },
-      { id: 'psbank', name: 'PSBank', category: 'ph-banks', bg: '#1e3a8a', fg: '#ffffff', mono: 'PSB' },
-      { id: 'robinsons', name: 'Robinsons Bank', category: 'ph-banks', bg: '#047857', fg: '#ffffff', mono: 'RBK' },
-      { id: 'maybank', name: 'Maybank PH', category: 'ph-banks', bg: '#eab308', fg: '#111827', mono: 'MBB' },
-      { id: 'aub', name: 'Asia United Bank', category: 'ph-banks', bg: '#b91c1c', fg: '#ffffff', mono: 'AUB' },
-
-      // E-Wallets & Govt Savings (8)
-      { id: 'gcash', name: 'GCash', category: 'ph-wallets', bg: '#007dfe', fg: '#ffffff', mono: 'GC' },
-      { id: 'maya-wallet', name: 'Maya Wallet', category: 'ph-wallets', bg: '#22c55e', fg: '#052e16', mono: 'MYW' },
-      { id: 'grabpay', name: 'GrabPay', category: 'ph-wallets', bg: '#00b14f', fg: '#ffffff', mono: 'GRB' },
-      { id: 'shopeepay', name: 'ShopeePay', category: 'ph-wallets', bg: '#ee4d2d', fg: '#ffffff', mono: 'SPP' },
-      { id: 'coinsph', name: 'Coins.ph', category: 'ph-wallets', bg: '#2563eb', fg: '#ffffff', mono: 'COIN' },
-      { id: 'mp2', name: 'Pag-IBIG MP2', category: 'ph-wallets', bg: '#1d4ed8', fg: '#facc15', mono: 'MP2' },
-      { id: 'sss', name: 'SSS WISP+', category: 'ph-wallets', bg: '#0369a1', fg: '#ffffff', mono: 'SSS' },
-      { id: 'paypal', name: 'PayPal', category: 'ph-wallets', bg: '#003087', fg: '#ffffff', mono: 'PP' },
-
-      // Credit Cards (10)
-      { id: 'cc-bpi', name: 'BPI Credit Card', category: 'credit-cards', bg: '#7f1d1d', fg: '#fecaca', mono: 'BPI•C' },
-      { id: 'cc-bdo', name: 'BDO Credit Card', category: 'credit-cards', bg: '#172554', fg: '#fde047', mono: 'BDO•C' },
-      { id: 'cc-ub', name: 'UnionBank Card', category: 'credit-cards', bg: '#9a3412', fg: '#ffedd5', mono: 'UB•C' },
-      { id: 'cc-mb', name: 'Metrobank Card', category: 'credit-cards', bg: '#1e3a8a', fg: '#dbeafe', mono: 'MB•C' },
-      { id: 'cc-rcbc', name: 'RCBC Credit Card', category: 'credit-cards', bg: '#0c4a6e', fg: '#e0f2fe', mono: 'RC•C' },
-      { id: 'cc-ew', name: 'EastWest Card', category: 'credit-cards', bg: '#4c1d95', fg: '#ede9fe', mono: 'EW•C' },
-      { id: 'cc-sb', name: 'Security Bank Card', category: 'credit-cards', bg: '#1e293b', fg: '#38bdf8', mono: 'SB•C' },
-      { id: 'cc-hsbc', name: 'HSBC Credit Card', category: 'credit-cards', bg: '#991b1b', fg: '#ffffff', mono: 'HS•C' },
-      { id: 'cc-citi', name: 'Citi / UB Rewards', category: 'credit-cards', bg: '#0f172a', fg: '#93c5fd', mono: 'CT•C' },
-      { id: 'cc-amex', name: 'American Express', category: 'credit-cards', bg: '#0284c7', fg: '#ffffff', mono: 'AMEX' },
-
-      // Custom (1)
-      { id: 'custom', name: 'Custom Vault', category: 'global', bg: '#6366f1', fg: '#ffffff', mono: 'VAULT' }
-    ];
 
     // =========================================================================
     // APPLICATION STATE & RUNTIME HANDLES
@@ -1556,181 +1554,8 @@ service cloud.firestore {
     let state = createEmptyState();
 
     // =========================================================================
-    // SAMPLE DATA GENERATOR (LOCAL SANDBOX ONLY)
+    // GENERAL UTILITIES, TOASTS & MODALS
     // =========================================================================
-    function createSampleState() {
-      const today = new Date().toISOString().split('T')[0];
-      const d1 = new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0];
-      const d2 = new Date(Date.now() - 86400000 * 5).toISOString().split('T')[0];
-      const d3 = new Date(Date.now() - 86400000 * 9).toISOString().split('T')[0];
-
-      return {
-        displayCurrency: 'USD',
-        fxRates: { ...DEFAULT_FX_RATES },
-        fxOverrides: {},
-        fxLastSync: 'Cached mid-market',
-        accounts: [
-          {
-            id: 'acc-1',
-            name: 'Brightwell / Wise USD',
-            institution: 'brightwell',
-            type: 'FX / Maritime Wallet',
-            currency: 'USD',
-            balance: 14850.00,
-            apy: 4.15,
-            tax: 0,
-            freq: 'monthly',
-            tag: 'Allotment & FX Hub'
-          },
-          {
-            id: 'acc-2',
-            name: 'SeaBank High-Yield',
-            institution: 'seabank',
-            type: 'Savings',
-            currency: 'PHP',
-            balance: 420000.00,
-            apy: 4.50,
-            tax: 20,
-            freq: 'daily',
-            tag: 'Daily Liquid Reserve'
-          },
-          {
-            id: 'acc-3',
-            name: 'Maya Personal Goals',
-            institution: 'maya-bank',
-            type: 'Savings',
-            currency: 'PHP',
-            balance: 265000.00,
-            apy: 6.00,
-            tax: 20,
-            freq: 'monthly',
-            tag: 'Boosted Tier'
-          },
-          {
-            id: 'acc-4',
-            name: 'BPI Preferred Checking',
-            institution: 'bpi',
-            type: 'Checking',
-            currency: 'PHP',
-            balance: 145800.00,
-            apy: 0.25,
-            tax: 20,
-            freq: 'quarterly',
-            tag: 'Bills & Local Clearing'
-          },
-          {
-            id: 'acc-5',
-            name: 'Pag-IBIG MP2 Vault',
-            institution: 'mp2',
-            type: 'MP2 / Govt Savings',
-            currency: 'PHP',
-            balance: 500000.00,
-            apy: 7.05,
-            tax: 0,
-            freq: 'annually',
-            tag: 'Tax-Free Dividend'
-          },
-          {
-            id: 'acc-6',
-            name: 'BPI Visa Signature',
-            institution: 'cc-bpi',
-            type: 'Credit Card',
-            currency: 'PHP',
-            balance: 28450.00,
-            creditLimit: 250000,
-            dueDate: new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0],
-            apy: 0,
-            tax: 0,
-            freq: 'none',
-            tag: 'Statement Cycle'
-          }
-        ],
-        holdings: [
-          {
-            id: 'hold-1',
-            symbol: 'VWRA.L',
-            name: 'Vanguard FTSE All-World UCITS ETF (Acc)',
-            currency: 'USD',
-            shares: 145,
-            avgCost: 118.40,
-            price: 144.25,
-            prevClose: 143.10
-          },
-          {
-            id: 'hold-2',
-            symbol: 'IWDA.L',
-            name: 'iShares Core MSCI World UCITS ETF',
-            currency: 'USD',
-            shares: 95,
-            avgCost: 89.20,
-            price: 108.90,
-            prevClose: 108.15
-          },
-          {
-            id: 'hold-3',
-            symbol: 'SGOV',
-            name: 'iShares 0-3 Month Treasury Bond ETF',
-            currency: 'USD',
-            shares: 110,
-            avgCost: 100.15,
-            price: 100.52,
-            prevClose: 100.50
-          }
-        ],
-        transactions: [
-          {
-            id: 'tx-1',
-            type: 'transfer',
-            accountId: 'acc-1',
-            toAccountId: 'acc-2',
-            amount: 2000.00,
-            targetAmount: 116800.00,
-            appliedRate: 58.40,
-            category: 'FX Transfer',
-            date: today,
-            note: 'Wise USD remittance to SeaBank PHP'
-          },
-          {
-            id: 'tx-2',
-            type: 'income',
-            accountId: 'acc-1',
-            amount: 5400.00,
-            category: 'Salary / Allotment',
-            date: d1,
-            note: 'Monthly vessel allotment wire'
-          },
-          {
-            id: 'tx-3',
-            type: 'expense',
-            accountId: 'acc-6',
-            amount: 6450.00,
-            category: 'Groceries',
-            date: d2,
-            note: 'Landers & S&R household restock'
-          },
-          {
-            id: 'tx-4',
-            type: 'interest',
-            accountId: 'acc-3',
-            amount: 1060.00,
-            category: 'Interest Credit',
-            date: d3,
-            note: 'Maya Goals net monthly interest'
-          }
-        ],
-        ibkrCredentials: { flexToken: '', flexQueryId: '' },
-        ibkrQuoteSource: 'Simulated / Cached',
-        ibkrLastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-    }
-
-    // =========================================================================
-    // UTILITY FUNCTIONS (FORMATTING, FX CONVERSION, TOASTS, MODALS)
-    // =========================================================================
-    function generateId(prefix = 'id') {
-      return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    }
-
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str)
@@ -1741,66 +1566,22 @@ service cloud.firestore {
         .replace(/'/g, '&#39;');
     }
 
-    function getEffectiveRate(curr) {
-      if (curr === 'USD') return 1;
-      if (state.fxOverrides && state.fxOverrides[curr] && Number(state.fxOverrides[curr]) > 0) {
-        return Number(state.fxOverrides[curr]);
-      }
-      return Number(state.fxRates[curr] || DEFAULT_FX_RATES[curr] || 1);
-    }
-
-    function convertCurrency(amount, fromCurr, toCurr) {
-      const val = Number(amount) || 0;
-      if (fromCurr === toCurr) return val;
-      const fromRate = getEffectiveRate(fromCurr); // units of fromCurr per 1 USD
-      const toRate = getEffectiveRate(toCurr);     // units of toCurr per 1 USD
-      const inUSD = val / fromRate;
-      return inUSD * toRate;
-    }
-
-    function formatMoney(amount, curr = state.displayCurrency, showSign = false) {
-      const meta = CURRENCIES[curr] || CURRENCIES.USD;
-      const num = Number(amount) || 0;
-      const absVal = Math.abs(num);
-      const formatted = absVal.toLocaleString('en-US', {
-        minimumFractionDigits: meta.decimals,
-        maximumFractionDigits: meta.decimals
-      });
-      const sign = num < 0 ? '-' : (showSign && num > 0 ? '+' : '');
-      return `${sign}${meta.symbol}${formatted}`;
-    }
-
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       if (!container) return;
-
       const styles = {
-        success: 'bg-[#0f1623] border-emerald-500/40 text-emerald-300',
-        error: 'bg-[#0f1623] border-rose-500/40 text-rose-300',
-        warning: 'bg-[#0f1623] border-amber-500/40 text-amber-300',
-        info: 'bg-[#0f1623] border-indigo-500/40 text-indigo-200'
+        success: 'bg-emerald-950/95 border-emerald-500/40 text-emerald-200',
+        error: 'bg-rose-950/95 border-rose-500/40 text-rose-200',
+        warning: 'bg-amber-950/95 border-amber-500/40 text-amber-200',
+        info: 'bg-[#141d2e]/95 border-indigo-500/40 text-slate-100'
       };
-      const icons = {
-        success: 'check-circle-2',
-        error: 'alert-circle',
-        warning: 'alert-triangle',
-        info: 'info'
-      };
-
-      const toast = document.createElement('div');
-      toast.className = `pointer-events-auto flex items-start gap-2.5 px-4 py-3 rounded-2xl border shadow-2xl text-xs font-medium backdrop-blur-xl transition-all duration-200 ${styles[type] || styles.info}`;
-      toast.innerHTML = `
-        <i data-lucide="${icons[type] || 'info'}" class="w-4 h-4 shrink-0 mt-0.5"></i>
-        <span class="leading-snug flex-1">${escapeHTML(message)}</span>
-      `;
-      container.appendChild(toast);
-      if (window.lucide) lucide.createIcons({ nodes: [toast] });
-
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md text-xs font-medium flex items-center justify-between gap-3 transition-all ${styles[type] || styles.info}`;
+      el.innerHTML = `<span>${escapeHTML(message)}</span><button type="button" onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100 text-xs font-bold">&times;</button>`;
+      container.appendChild(el);
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-6px)';
-        setTimeout(() => toast.remove(), 220);
-      }, 3600);
+        if (el.parentElement) el.remove();
+      }, 4200);
     }
 
     function openModal(id) {
@@ -1808,17 +1589,22 @@ service cloud.firestore {
       if (!el) return;
       el.classList.remove('hidden');
       el.classList.add('flex');
-      if (id === 'firebase-setup-modal') {
-        const cfg = getActiveFirebaseConfig();
-        const input = document.getElementById('firebase-config-input');
-        if (cfg && input) input.value = JSON.stringify(cfg, null, 2);
-      }
+
       if (id === 'ibkr-sync-modal') {
-        document.getElementById('ibkr-flex-token').value = state.ibkrCredentials?.flexToken || '';
-        document.getElementById('ibkr-flex-query-id').value = state.ibkrCredentials?.flexQueryId || '';
-        document.getElementById('ibkr-proxy-mode').value = state.ibkrCredentials?.proxyMode || 'auto';
-        document.getElementById('ibkr-custom-proxy-url').value = state.ibkrCredentials?.customProxyUrl || '';
+        const creds = state.ibkrCredentials || {};
+        const tokenEl = document.getElementById('ibkr-flex-token');
+        const queryEl = document.getElementById('ibkr-flex-query-id');
+        const modeEl = document.getElementById('ibkr-proxy-mode');
+        const urlEl = document.getElementById('ibkr-custom-proxy-url');
+        if (tokenEl) tokenEl.value = creds.flexToken || '';
+        if (queryEl) queryEl.value = creds.flexQueryId || '';
+        if (modeEl) modeEl.value = creds.proxyMode || 'auto';
+        if (urlEl) urlEl.value = creds.customProxyUrl || '';
         handleIBKRProxyModeChange();
+      } else if (id === 'firebase-setup-modal') {
+        const cfgInput = document.getElementById('firebase-config-input');
+        const saved = localStorage.getItem(FB_CONFIG_STORAGE_KEY);
+        if (cfgInput && saved) cfgInput.value = saved;
       }
       if (window.lucide) lucide.createIcons();
     }
@@ -1830,291 +1616,399 @@ service cloud.firestore {
       el.classList.remove('flex');
     }
 
-    // =========================================================================
-    // FIREBASE MULTI-USER AUTHENTICATION & FIRESTORE SYNC ENGINE
-    // =========================================================================
-    function getActiveFirebaseConfig() {
-      if (
-        DEFAULT_FIREBASE_CONFIG &&
-        DEFAULT_FIREBASE_CONFIG.apiKey &&
-        DEFAULT_FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'
-      ) {
-        return DEFAULT_FIREBASE_CONFIG;
-      }
-      try {
-        const saved = localStorage.getItem(FIREBASE_CFG_KEY);
-        if (saved) return JSON.parse(saved);
-      } catch (e) {}
-      return null;
+    function switchSection(section) {
+      activeSection = section;
+      const sections = ['overview', 'pots', 'ibkr', 'transactions', 'analytics', 'settings'];
+      sections.forEach((sec) => {
+        const panel = document.getElementById(`section-${sec}`);
+        if (panel) panel.classList.toggle('hidden', sec !== section);
+      });
+
+      document.querySelectorAll('.sidebar-nav-btn').forEach((btn) => {
+        const isActive = btn.getAttribute('data-nav') === section;
+        btn.className = isActive
+          ? 'sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600/15 text-indigo-300 border border-indigo-500/25 transition'
+          : 'sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.04] transition';
+      });
+
+      document.querySelectorAll('.mobile-nav-btn').forEach((btn) => {
+        const isActive = btn.getAttribute('data-mobile-nav') === section;
+        btn.className = isActive
+          ? 'mobile-nav-btn flex flex-col items-center justify-center gap-1 text-[10px] font-semibold text-indigo-400'
+          : 'mobile-nav-btn flex flex-col items-center justify-center gap-1 text-[10px] font-medium text-slate-400';
+      });
+
+      const titles = {
+        overview: ['Portfolio Overview', 'Real-time multi-currency net worth & yield command center'],
+        pots: ['Money Pots & Accounts', 'Multi-currency savings, checking, e-wallets & credit cards'],
+        ibkr: ['IBKR Equity Portfolio', 'Interactive Brokers open positions, Flex sync & live quotes'],
+        transactions: ['Unified Ledger', 'Expenses, income, interest credits & cross-currency FX transfers'],
+        analytics: ['Yield & Passive Income', '12-month after-tax interest compounding forecast'],
+        settings: ['Settings & Cloud Sync', 'Per-user cloud vault synchronization & JSON backups']
+      };
+      const [title, sub] = titles[section] || titles.overview;
+      const titleEl = document.getElementById('topbar-page-title');
+      const subEl = document.getElementById('topbar-page-subtitle');
+      if (titleEl) titleEl.textContent = title;
+      if (subEl) subEl.textContent = sub;
     }
 
-    function initFirebase() {
-      const cfg = getActiveFirebaseConfig();
-      const cloudDot = document.getElementById('auth-cloud-dot');
-      const cloudText = document.getElementById('auth-cloud-status-text');
+    // =========================================================================
+    // MULTI-CURRENCY FX ENGINE & SLIDE-OVER DRAWER
+    // =========================================================================
+    function getEffectiveFXRate(currency) {
+      if (!currency || currency === 'USD') return 1.0;
+      const override = state.fxOverrides && Number(state.fxOverrides[currency]);
+      if (override && override > 0) return override;
+      const live = state.fxRates && Number(state.fxRates[currency]);
+      if (live && live > 0) return live;
+      return DEFAULT_FX_RATES[currency] || 1.0;
+    }
 
-      if (!cfg || !window.firebase) {
-        if (cloudDot) cloudDot.className = 'w-2 h-2 rounded-full bg-amber-400 shrink-0';
-        if (cloudText) cloudText.textContent = 'Local mode ready';
-        return false;
-      }
+    function convertCurrency(amount, fromCurr, toCurr) {
+      const val = Number(amount) || 0;
+      if (!fromCurr || !toCurr || fromCurr === toCurr) return val;
+      const fromRate = getEffectiveFXRate(fromCurr); // units of fromCurr per 1 USD
+      const toRate = getEffectiveFXRate(toCurr);     // units of toCurr per 1 USD
+      const usdAmount = val / fromRate;
+      return usdAmount * toRate;
+    }
 
-      try {
-        if (!firebase.apps.length) {
-          fbApp = firebase.initializeApp(cfg);
+    function formatMoney(amount, currency = 'USD', showPlus = false) {
+      const num = Number(amount) || 0;
+      const meta = CURRENCY_META[currency] || { symbol: `${currency} `, decimals: 2 };
+      const absFormatted = Math.abs(num).toLocaleString('en-US', {
+        minimumFractionDigits: meta.decimals,
+        maximumFractionDigits: meta.decimals
+      });
+      const sign = num < 0 ? '-' : (showPlus && num > 0 ? '+' : '');
+      return `${sign}${meta.symbol}${absFormatted}`;
+    }
+
+    function changeDisplayCurrency(newCurrency) {
+      if (!CURRENCY_META[newCurrency]) return;
+      state.displayCurrency = newCurrency;
+      persistState();
+      renderAll();
+    }
+
+    function updateTopbarFXPreview() {
+      const disp = state.displayCurrency;
+      const previewEl = document.getElementById('topbar-fx-preview');
+      const badgeEl = document.getElementById('fx-override-badge');
+      const hasOverrides = state.fxOverrides && Object.keys(state.fxOverrides).length > 0;
+
+      if (previewEl) {
+        if (disp === 'USD') {
+          const phpRate = getEffectiveFXRate('PHP');
+          previewEl.textContent = `1 USD = ${phpRate.toFixed(2)} PHP`;
         } else {
-          fbApp = firebase.app();
+          const dispRate = getEffectiveFXRate(disp);
+          previewEl.textContent = `1 USD = ${dispRate.toFixed(disp === 'JPY' ? 2 : 4)} ${disp}`;
         }
-        fbAuth = firebase.auth();
-        fbDb = firebase.firestore();
-
-        if (cloudDot) cloudDot.className = 'w-2 h-2 rounded-full bg-emerald-400 shrink-0';
-        if (cloudText) cloudText.textContent = `Connected: ${cfg.projectId}`;
-
-        fbAuth.onAuthStateChanged(async (user) => {
-          if (user) {
-            if (currentUser && currentUser.uid !== user.uid) {
-              await flushPendingCloudSave();
-              if (unsubscribeSnapshot) {
-                unsubscribeSnapshot();
-                unsubscribeSnapshot = null;
-              }
-              state = createEmptyState();
-            }
-            currentUser = user;
-            isSandboxMode = false;
-            enterAuthenticatedWorkspace(user);
-          } else if (!isSandboxMode) {
-            currentUser = null;
-            state = createEmptyState();
-            showAuthScreen();
-          }
-        });
-        return true;
-      } catch (err) {
-        console.error('Firebase init error:', err);
-        showToast('Firebase initialization error. Check config credentials.', 'error');
-        return false;
       }
+      if (badgeEl) {
+        badgeEl.classList.toggle('hidden', !hasOverrides);
+      }
+    }
+
+    function openFXDrawer() {
+      const listEl = document.getElementById('fx-drawer-list');
+      const syncLabel = document.getElementById('fx-last-sync-label');
+      if (syncLabel) syncLabel.textContent = `Base: 1 USD • ${state.fxLastSync || 'Cached mid-market'}`;
+
+      const currencies = Object.keys(CURRENCY_META).filter((c) => c !== 'USD');
+      listEl.innerHTML = currencies
+        .map((curr) => {
+          const marketRate = Number(state.fxRates[curr] || DEFAULT_FX_RATES[curr]);
+          const customRate = state.fxOverrides && state.fxOverrides[curr] ? Number(state.fxOverrides[curr]) : '';
+          return `
+            <div class="p-3 rounded-xl bg-[#141d2e] border border-white/[0.08] flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>1 USD &rarr; ${curr}</span>
+                  ${customRate ? '<span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">Override</span>' : ''}
+                </div>
+                <div class="text-[11px] font-mono text-slate-400 mt-0.5">Market: ${marketRate.toFixed(curr === 'JPY' ? 2 : 4)} ${curr}</div>
+              </div>
+              <div class="w-32">
+                <input
+                  type="number"
+                  step="any"
+                  min="0.0001"
+                  data-fx-curr="${curr}"
+                  value="${customRate}"
+                  placeholder="${marketRate.toFixed(curr === 'JPY' ? 2 : 4)}"
+                  class="fx-override-input w-full px-2.5 py-1.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-right text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      openModal('fx-drawer');
+    }
+
+    function saveFXOverrides() {
+      const nextOverrides = {};
+      document.querySelectorAll('.fx-override-input').forEach((inp) => {
+        const curr = inp.getAttribute('data-fx-curr');
+        const val = parseFloat(inp.value);
+        if (curr && !isNaN(val) && val > 0) {
+          nextOverrides[curr] = val;
+        }
+      });
+      state.fxOverrides = nextOverrides;
+      persistState();
+      closeModal('fx-drawer');
+      renderAll();
+      showToast('FX rates & overrides applied.', 'success');
+    }
+
+    function clearAllFXOverrides() {
+      state.fxOverrides = {};
+      persistState();
+      openFXDrawer();
+      renderAll();
+      showToast('Custom FX overrides cleared.', 'info');
+    }
+
+    async function refreshLiveFX(manual = false) {
+      try {
+        const res = await fetch('https://open.er-api.com/v6/latest/USD');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data && data.rates) {
+          Object.keys(DEFAULT_FX_RATES).forEach((curr) => {
+            if (data.rates[curr]) {
+              state.fxRates[curr] = Number(data.rates[curr]);
+            }
+          });
+          state.fxLastSync = `Live FX (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
+          persistState();
+          renderAll();
+          if (!document.getElementById('fx-drawer').classList.contains('hidden')) {
+            openFXDrawer();
+          }
+          if (manual) showToast('Live mid-market FX rates updated.', 'success');
+        }
+      } catch (err) {
+        if (manual) showToast('Could not fetch live FX API; using cached rates.', 'warning');
+      }
+    }
+
+    // =========================================================================
+    // FIREBASE CLOUD AUTH, PER-UID ISOLATION & LOCAL SANDBOX
+    // =========================================================================
+    function getSavedFirebaseConfig() {
+      try {
+        const raw = localStorage.getItem(FB_CONFIG_STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return DEFAULT_FIREBASE_CONFIG;
+    }
+
+    function updateAuthCloudIndicator(connected, label) {
+      const dot = document.getElementById('auth-cloud-dot');
+      const txt = document.getElementById('auth-cloud-status-text');
+      const sideDot = document.getElementById('sidebar-sync-dot');
+      const sideTxt = document.getElementById('sidebar-sync-text');
+      const mobDot = document.getElementById('mobile-sync-dot');
+      const mobTxt = document.getElementById('mobile-sync-text');
+
+      if (dot) dot.className = `w-2 h-2 rounded-full shrink-0 ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`;
+      if (txt) txt.textContent = label;
+      if (sideDot) sideDot.className = `w-2 h-2 rounded-full ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`;
+      if (sideTxt) sideTxt.textContent = label;
+      if (mobDot) mobDot.className = `w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400' : 'bg-amber-400'}`;
+      if (mobTxt) mobTxt.textContent = connected ? 'Synced' : 'Local';
     }
 
     function setAuthMode(mode) {
-      const modeInput = document.getElementById('auth-mode');
-      const heading = document.getElementById('auth-heading');
-      const submitBtn = document.getElementById('auth-submit-btn');
-      const tabLogin = document.getElementById('auth-tab-login');
-      const tabReg = document.getElementById('auth-tab-register');
-      const nameWrap = document.getElementById('auth-name-wrap');
+      document.getElementById('auth-mode').value = mode;
+      const isReg = mode === 'register';
+      document.getElementById('auth-heading').textContent = isReg ? 'Create your cloud vault' : 'Sign in to your vault';
+      document.getElementById('auth-submit-btn').textContent = isReg ? 'Create Account & Start Empty Vault' : 'Sign In to Portfolio';
+      document.getElementById('auth-name-wrap').classList.toggle('hidden', !isReg);
 
-      if (modeInput) modeInput.value = mode;
+      document.getElementById('auth-tab-login').className = !isReg
+        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition'
+        : 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
+      document.getElementById('auth-tab-register').className = isReg
+        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition'
+        : 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
+    }
 
-      if (mode === 'register') {
-        if (heading) heading.textContent = 'Create your private vault';
-        if (submitBtn) submitBtn.textContent = 'Create Empty Vault & Sync';
-        if (nameWrap) nameWrap.classList.remove('hidden');
-        if (tabReg) {
-          tabReg.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition';
-        }
-        if (tabLogin) {
-          tabLogin.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
-        }
-      } else {
-        if (heading) heading.textContent = 'Sign in to your vault';
-        if (submitBtn) submitBtn.textContent = 'Sign In to Portfolio';
-        if (nameWrap) nameWrap.classList.add('hidden');
-        if (tabLogin) {
-          tabLogin.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#141d2e] text-white shadow-sm transition';
-        }
-        if (tabReg) {
-          tabReg.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
-        }
+    function initFirebase() {
+      const cfg = getSavedFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !window.firebase) {
+        updateAuthCloudIndicator(false, 'Local Sandbox Ready');
+        return;
       }
+
+      try {
+        fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
+        fbAuth = firebase.auth();
+        fbDb = firebase.firestore();
+        updateAuthCloudIndicator(true, 'Cloud Connected');
+
+        fbAuth.onAuthStateChanged((user) => {
+          if (user) {
+            enterAuthenticatedWorkspace(user);
+          } else if (!isSandboxMode) {
+            showAuthScreen();
+          }
+        });
+      } catch (err) {
+        console.error('Firebase init error:', err);
+        updateAuthCloudIndicator(false, 'Firebase Config Error');
+      }
+    }
+
+    function showAuthScreen() {
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('flex');
+    }
+
+    function showAppShell() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      document.getElementById('app-shell').classList.add('flex');
     }
 
     async function handleEmailAuth(e) {
       e.preventDefault();
       if (!fbAuth) {
-        showToast('Cloud sign-in is not active yet. Click "Try Local Sandbox" to continue.', 'warning');
+        openModal('firebase-setup-modal');
+        showToast('Configure Firebase Cloud first or use Local Sandbox.', 'warning');
         return;
       }
-
       const mode = document.getElementById('auth-mode').value;
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const displayName = document.getElementById('auth-name').value.trim();
 
-      const btn = document.getElementById('auth-submit-btn');
-      const origText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = mode === 'register' ? 'Creating Vault...' : 'Signing In...';
-
       try {
         if (mode === 'register') {
           const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
-          if (displayName) {
+          if (displayName && cred.user) {
             await cred.user.updateProfile({ displayName });
           }
-          state = createEmptyState();
-          currentUser = cred.user;
-          isSandboxMode = false;
-          await persistState(true);
-          showToast('Empty vault created and synced to cloud!', 'success');
         } else {
           await fbAuth.signInWithEmailAndPassword(email, password);
-          showToast('Signed in to your cloud vault.', 'success');
         }
       } catch (err) {
         showToast(err.message || 'Authentication failed.', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = origText;
       }
     }
 
     async function handleGoogleSignIn() {
       if (!fbAuth) {
-        showToast('Cloud sign-in is not active yet. Click "Try Local Sandbox" to continue.', 'warning');
+        openModal('firebase-setup-modal');
+        showToast('Configure Firebase Cloud first or use Local Sandbox.', 'warning');
         return;
       }
       try {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
         await fbAuth.signInWithPopup(provider);
-        showToast('Signed in with Google.', 'success');
       } catch (err) {
         showToast(err.message || 'Google sign-in failed.', 'error');
       }
     }
 
     function enterLocalSandbox() {
-      isSandboxMode = true;
-      currentUser = null;
       if (unsubscribeSnapshot) {
         unsubscribeSnapshot();
         unsubscribeSnapshot = null;
       }
+      currentUser = null;
+      isSandboxMode = true;
 
       try {
         const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
-        if (saved) {
-          state = normalizeVaultState(JSON.parse(saved));
-        } else {
-          state = createSampleState();
-          localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
-        }
+        state = saved ? normalizeVaultState(JSON.parse(saved)) : createSampleState();
       } catch (e) {
         state = createSampleState();
       }
 
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('hidden');
-      document.getElementById('app-shell').classList.add('flex');
+      document.getElementById('sidebar-avatar').textContent = 'SB';
+      document.getElementById('sidebar-user-name').textContent = 'Local Sandbox';
+      document.getElementById('sidebar-user-email').textContent = 'Device-only sample vault';
+      document.getElementById('settings-session-mode').textContent = 'Local Sandbox (Sample Data)';
+      document.getElementById('settings-user-email').textContent = 'Device-only mode';
+      document.getElementById('settings-firestore-path').textContent = `localStorage/${SANDBOX_STORAGE_KEY}`;
+      updateAuthCloudIndicator(false, 'Local Sandbox');
 
-      updateSessionBadges('Local Sandbox', 'Device-only mode', 'localStorage', false);
+      showAppShell();
       renderAll();
       refreshLiveFX(false);
-      showToast('Entered Local Sandbox mode.', 'info');
-    }
-
-    function getUserCloudCacheKey(uid) {
-      return `vaultflow_cloud_cache_${uid}`;
     }
 
     function enterAuthenticatedWorkspace(user) {
-      const uid = user.uid;
-
-      // Always reset in-memory state first so a previous user's data can never bleed into this session
-      state = createEmptyState();
-      renderAll();
-
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('hidden');
-      document.getElementById('app-shell').classList.add('flex');
-
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+      isSandboxMode = false;
+      currentUser = user;
       hasShownCloudErrorToast = false;
-      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
-      const email = user.email || 'Authenticated User';
-      const docPath = `users/${uid}/vault/state`;
 
-      updateSessionBadges(name, email, docPath, true);
+      // Immediately isolate in-memory state to empty default before loading this UID's data
+      state = createEmptyState();
 
-      // Load UID-scoped local cache immediately while Firestore connects
-      let cachedUserState = null;
+      const uid = user.uid;
+      const cacheKey = `vaultflow_cloud_cache_${uid}`;
       try {
-        const rawCache = localStorage.getItem(getUserCloudCacheKey(uid));
-        if (rawCache) {
-          cachedUserState = normalizeVaultState(JSON.parse(rawCache));
-          state = cachedUserState;
-          renderAll();
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          state = normalizeVaultState(JSON.parse(cached));
         }
       } catch (e) {}
 
-      if (unsubscribeSnapshot) unsubscribeSnapshot();
-      const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
-
-      unsubscribeSnapshot = docRef.onSnapshot((snap) => {
-        if (!currentUser || currentUser.uid !== uid) return;
-
-        if (snap.exists) {
-          if (snap.metadata && snap.metadata.hasPendingWrites) return;
-          const remote = snap.data();
-          state = normalizeVaultState(remote);
-          try {
-            localStorage.setItem(getUserCloudCacheKey(uid), JSON.stringify(state));
-          } catch (e) {}
-        } else if (cachedUserState) {
-          state = cachedUserState;
-          docRef.set(JSON.parse(JSON.stringify(state))).catch(() => {});
-        } else {
-          // Brand-new account starts completely empty (no sample pots or sample holdings)
-          state = createEmptyState();
-          try {
-            localStorage.setItem(getUserCloudCacheKey(uid), JSON.stringify(state));
-          } catch (e) {}
-          docRef.set(JSON.parse(JSON.stringify(state))).catch((err) => {
-            console.error('Initial Firestore write error:', err);
-          });
-        }
-        renderAll();
-      }, (err) => {
-        if (!currentUser || currentUser.uid !== uid) return;
-        console.error('Firestore snapshot error:', err);
-        if (!cachedUserState) {
-          state = createEmptyState();
-          renderAll();
-        }
-        showToast('Cloud sync warning: check Firestore database & security rules.', 'warning');
-      });
-
-      refreshLiveFX(false);
-    }
-
-    function updateSessionBadges(name, email, path, isCloud) {
+      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Vault User');
       const initials = name.slice(0, 2).toUpperCase();
       document.getElementById('sidebar-avatar').textContent = initials;
       document.getElementById('sidebar-user-name').textContent = name;
-      document.getElementById('sidebar-user-email').textContent = email;
+      document.getElementById('sidebar-user-email').textContent = user.email || uid;
+      document.getElementById('settings-session-mode').textContent = 'Authenticated Cloud Vault';
+      document.getElementById('settings-user-email').textContent = user.email || 'Google / Email User';
+      document.getElementById('settings-firestore-path').textContent = `users/${uid}/vault/state`;
+      updateAuthCloudIndicator(true, 'Cloud Synced');
 
-      document.getElementById('settings-session-mode').textContent = isCloud ? 'Firebase Cloud Sync (Live)' : 'Local Sandbox';
-      document.getElementById('settings-user-email').textContent = email;
-      document.getElementById('settings-firestore-path').textContent = path;
+      showAppShell();
+      renderAll();
 
-      const dotClass = isCloud ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-amber-400';
-      const sDot = document.getElementById('sidebar-sync-dot');
-      const sText = document.getElementById('sidebar-sync-text');
-      const mDot = document.getElementById('mobile-sync-dot');
-      const mText = document.getElementById('mobile-sync-text');
-      if (sDot) sDot.className = dotClass;
-      if (sText) sText.textContent = isCloud ? 'Cloud Synced' : 'Offline / Local';
-      if (mDot) mDot.className = dotClass;
-      if (mText) mText.textContent = isCloud ? 'Synced' : 'Local';
-    }
-
-    function showAuthScreen() {
-      document.getElementById('app-shell').classList.add('hidden');
-      document.getElementById('app-shell').classList.remove('flex');
-      document.getElementById('auth-screen').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
+      if (fbDb) {
+        const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
+        unsubscribeSnapshot = docRef.onSnapshot(
+          (snap) => {
+            if (!currentUser || currentUser.uid !== uid) return;
+            if (snap.exists) {
+              state = normalizeVaultState(snap.data());
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify(state));
+              } catch (e) {}
+              renderAll();
+            } else {
+              // Brand-new account: seed empty state (no pre-filled sample data)
+              state = createEmptyState();
+              persistState(true);
+              renderAll();
+            }
+          },
+          (err) => {
+            console.error('Firestore listener error:', err);
+            if (!hasShownCloudErrorToast) {
+              hasShownCloudErrorToast = true;
+              showToast(`Cloud sync warning: ${err.message}`, 'warning');
+            }
+          }
+        );
+      }
+      refreshLiveFX(false);
     }
 
     async function flushPendingCloudSave() {
@@ -2131,22 +2025,28 @@ service cloud.firestore {
 
     async function handleSignOut() {
       await flushPendingCloudSave();
-      clearInterval(ibkrAutoRefreshTimer);
       if (unsubscribeSnapshot) {
         unsubscribeSnapshot();
         unsubscribeSnapshot = null;
       }
-      if (fbAuth && currentUser) {
-        await fbAuth.signOut();
+      if (ibkrAutoRefreshTimer) {
+        clearInterval(ibkrAutoRefreshTimer);
+        ibkrAutoRefreshTimer = null;
       }
+      state = createEmptyState();
       currentUser = null;
       isSandboxMode = false;
-      state = createEmptyState();
+
+      if (fbAuth && fbAuth.currentUser) {
+        try {
+          await fbAuth.signOut();
+        } catch (e) {}
+      }
       showAuthScreen();
-      showToast('Signed out of vault.', 'info');
+      showToast('Signed out safely.', 'info');
     }
 
-    async function persistState(immediate = false) {
+    function persistState(immediate = false) {
       if (isSandboxMode || !currentUser || !fbDb) {
         try {
           localStorage.setItem(SANDBOX_STORAGE_KEY, JSON.stringify(state));
@@ -2155,42 +2055,38 @@ service cloud.firestore {
       }
 
       const uid = currentUser.uid;
+      const cacheKey = `vaultflow_cloud_cache_${uid}`;
       const snapshotPayload = JSON.parse(JSON.stringify(state));
 
-      // Always update per-UID local backup immediately so data survives transient network issues
       try {
-        localStorage.setItem(getUserCloudCacheKey(uid), JSON.stringify(snapshotPayload));
+        localStorage.setItem(cacheKey, JSON.stringify(snapshotPayload));
       } catch (e) {}
 
-      const saveFn = async () => {
+      const writeToFirestore = async () => {
+        if (!currentUser || currentUser.uid !== uid || !fbDb) return;
         try {
-          const docRef = fbDb.collection('users').doc(uid).collection('vault').doc('state');
-          await docRef.set(snapshotPayload);
-          hasShownCloudErrorToast = false;
+          await fbDb.collection('users').doc(uid).collection('vault').doc('state').set(snapshotPayload);
+          updateAuthCloudIndicator(true, 'Cloud Synced');
         } catch (err) {
-          console.error('Firestore write error:', err);
+          console.error('Firestore write failed:', err);
+          updateAuthCloudIndicator(false, 'Sync Error');
           if (!hasShownCloudErrorToast) {
             hasShownCloudErrorToast = true;
-            showToast(`Cloud save failed (${err.code || 'Firestore error'}). Check Firestore Rules.`, 'error');
+            showToast(`Cloud save failed: ${err.message}`, 'error');
           }
         }
       };
 
+      if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
       if (immediate) {
-        if (cloudSaveTimer) {
-          clearTimeout(cloudSaveTimer);
-          cloudSaveTimer = null;
-        }
         pendingCloudSaveFn = null;
-        await saveFn();
+        writeToFirestore();
       } else {
-        clearTimeout(cloudSaveTimer);
-        pendingCloudSaveFn = saveFn;
-        cloudSaveTimer = setTimeout(async () => {
-          cloudSaveTimer = null;
+        pendingCloudSaveFn = writeToFirestore;
+        cloudSaveTimer = setTimeout(() => {
           pendingCloudSaveFn = null;
-          await saveFn();
-        }, 350);
+          writeToFirestore();
+        }, 450);
       }
     }
 
@@ -2198,22 +2094,21 @@ service cloud.firestore {
       const raw = document.getElementById('firebase-config-input').value.trim();
       try {
         const parsed = JSON.parse(raw);
-        if (!parsed.apiKey || !parsed.projectId) {
-          throw new Error('Missing apiKey or projectId');
-        }
-        localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(parsed));
+        if (!parsed.apiKey || !parsed.projectId) throw new Error('Missing apiKey or projectId');
+        localStorage.setItem(FB_CONFIG_STORAGE_KEY, JSON.stringify(parsed));
         closeModal('firebase-setup-modal');
         showToast('Firebase configuration saved. Reloading connection...', 'success');
-        setTimeout(() => window.location.reload(), 500);
+        initFirebase();
       } catch (err) {
-        showToast('Invalid JSON format. Ensure double quotes around keys.', 'error');
+        showToast(`Invalid Firebase JSON: ${err.message}`, 'error');
       }
     }
 
     function clearSavedFirebaseConfig() {
-      localStorage.removeItem(FIREBASE_CFG_KEY);
+      localStorage.removeItem(FB_CONFIG_STORAGE_KEY);
       document.getElementById('firebase-config-input').value = '';
-      showToast('Cleared saved Firebase configuration.', 'info');
+      updateAuthCloudIndicator(false, 'Local Sandbox Ready');
+      showToast('Saved Firebase configuration cleared.', 'info');
     }
 
     function copyFirestoreRules() {
@@ -2224,250 +2119,28 @@ service cloud.firestore {
       ta.select();
       document.execCommand('copy');
       ta.remove();
-      showToast('Firestore Security Rules copied to clipboard.', 'success');
+      showToast('Firestore security rules copied to clipboard.', 'success');
     }
 
     // =========================================================================
-    // NAVIGATION & SECTION SWITCHING
+    // MONEY POTS LOGIC, INSTITUTION PICKER & INTEREST CREDITING
     // =========================================================================
-    const SECTION_META = {
-      overview: { title: 'Portfolio Overview', subtitle: 'Real-time multi-currency net worth & yield command center' },
-      pots: { title: 'Money Pots', subtitle: 'Savings, checking, digital banks, FX wallets & credit liabilities' },
-      ibkr: { title: 'IBKR Portfolio', subtitle: 'Interactive Brokers UCITS ETFs, equities & live market valuation' },
-      transactions: { title: 'Unified Financial Ledger', subtitle: 'Track expenses, income, passive interest & FX transfers' },
-      analytics: { title: 'Analytics & Yield', subtitle: '12-month after-tax passive interest compounding forecast' },
-      settings: { title: 'Settings & Sync', subtitle: 'Cloud synchronization, JSON backups & sample dataset controls' }
-    };
-
-    function switchSection(section) {
-      activeSection = section;
-      const sections = ['overview', 'pots', 'ibkr', 'transactions', 'analytics', 'settings'];
-      sections.forEach((sec) => {
-        const el = document.getElementById(`section-${sec}`);
-        if (el) {
-          if (sec === section) el.classList.remove('hidden');
-          else el.classList.add('hidden');
-        }
-      });
-
-      const meta = SECTION_META[section] || SECTION_META.overview;
-      document.getElementById('topbar-page-title').textContent = meta.title;
-      document.getElementById('topbar-page-subtitle').textContent = meta.subtitle;
-
-      // Update Desktop Sidebar Active Styles
-      document.querySelectorAll('.sidebar-nav-btn').forEach((btn) => {
-        const isTarget = btn.getAttribute('data-nav') === section;
-        btn.className = isTarget
-          ? 'sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600/15 text-indigo-300 border border-indigo-500/25 transition'
-          : 'sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.04] transition';
-      });
-
-      // Update Mobile Bottom Nav Active Styles
-      document.querySelectorAll('.mobile-nav-btn').forEach((btn) => {
-        const isTarget = btn.getAttribute('data-mobile-nav') === section;
-        btn.className = isTarget
-          ? 'mobile-nav-btn flex flex-col items-center justify-center gap-1 text-[10px] font-semibold text-indigo-400'
-          : 'mobile-nav-btn flex flex-col items-center justify-center gap-1 text-[10px] font-medium text-slate-400';
-      });
-
-      renderAll();
-    }
-
-    // =========================================================================
-    // LIVE FX RATES & SPREAD OVERRIDES DRAWER
-    // =========================================================================
-    function changeDisplayCurrency(curr) {
-      state.displayCurrency = curr;
-      persistState();
-      renderAll();
-    }
-
-    async function refreshLiveFX(manual = false) {
-      try {
-        const res = await fetch('https://open.er-api.com/v6/latest/USD');
-        if (!res.ok) throw new Error('FX fetch failed');
-        const data = await res.json();
-        if (data && data.rates) {
-          Object.keys(CURRENCIES).forEach((code) => {
-            if (data.rates[code]) {
-              state.fxRates[code] = Number(data.rates[code]);
-            }
-          });
-          state.fxLastSync = `Live API • ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-          persistState();
-          renderAll();
-          if (document.getElementById('fx-drawer').classList.contains('flex')) {
-            renderFXDrawerList();
-          }
-          if (manual) showToast('Live mid-market FX rates updated.', 'success');
-        }
-      } catch (e) {
-        if (manual) showToast('Using cached FX rates (offline or API rate-limited).', 'warning');
-      }
-    }
-
-    function openFXDrawer() {
-      renderFXDrawerList();
-      openModal('fx-drawer');
-    }
-
-    function renderFXDrawerList() {
-      const list = document.getElementById('fx-drawer-list');
-      const syncLabel = document.getElementById('fx-last-sync-label');
-      if (syncLabel) syncLabel.textContent = `Base: 1 USD • ${state.fxLastSync || 'Mid-market'}`;
-
-      list.innerHTML = Object.entries(CURRENCIES)
-        .filter(([code]) => code !== 'USD')
-        .map(([code, meta]) => {
-          const midRate = Number(state.fxRates[code] || DEFAULT_FX_RATES[code]);
-          const overrideVal = state.fxOverrides?.[code] || '';
-          const hasOverride = overrideVal !== '' && Number(overrideVal) > 0;
-          return `
-            <div class="p-3 rounded-xl bg-[#141d2e] border ${hasOverride ? 'border-amber-500/40' : 'border-white/[0.08]'} flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5">
-                  <span class="text-sm">${meta.flag}</span>
-                  <span class="text-xs font-bold text-white">${code}</span>
-                  <span class="text-[11px] text-slate-400 truncate">${meta.name}</span>
-                </div>
-                <div class="text-[11px] font-mono text-slate-400 mt-0.5 tabular-nums">
-                  Mid-market: 1 USD = ${midRate.toFixed(code === 'JPY' ? 2 : 4)} ${code}
-                </div>
-              </div>
-              <div class="w-32 shrink-0">
-                <input
-                  type="number"
-                  step="any"
-                  min="0.0001"
-                  data-fx-code="${code}"
-                  value="${overrideVal}"
-                  placeholder="${midRate.toFixed(code === 'JPY' ? 2 : 4)}"
-                  class="fx-override-input w-full px-2.5 py-1.5 rounded-lg bg-[#080c14] border border-white/[0.08] text-xs font-mono text-right text-amber-300 placeholder-slate-500 focus:outline-none focus:border-amber-400 tabular-nums"
-                />
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-    }
-
-    function saveFXOverrides() {
-      const nextOverrides = {};
-      document.querySelectorAll('.fx-override-input').forEach((inp) => {
-        const code = inp.getAttribute('data-fx-code');
-        const val = parseFloat(inp.value);
-        if (!isNaN(val) && val > 0) {
-          nextOverrides[code] = val;
-        }
-      });
-      state.fxOverrides = nextOverrides;
-      persistState();
-      closeModal('fx-drawer');
-      renderAll();
-      showToast('FX rates & spread overrides applied.', 'success');
-    }
-
-    function clearAllFXOverrides() {
-      state.fxOverrides = {};
-      persistState();
-      renderFXDrawerList();
-      renderAll();
-      showToast('Reset to mid-market FX rates.', 'info');
-    }
-
-    // =========================================================================
-    // INSTITUTION SQUIRCLE SVG ICON HELPER
-    // =========================================================================
-    function getInstitutionMeta(instId, customColor = '#6366f1', customMono = 'VAULT') {
-      if (instId === 'custom') {
-        return {
-          id: 'custom',
-          name: 'Custom Vault',
-          bg: customColor || '#6366f1',
-          fg: '#ffffff',
-          mono: (customMono || 'VAULT').toUpperCase().slice(0, 5)
-        };
-      }
-      return INSTITUTION_CATALOG.find((i) => i.id === instId) || INSTITUTION_CATALOG[0];
-    }
-
-    function renderInstitutionBadgeSVG(instId, customColor, customMono) {
-      const meta = getInstitutionMeta(instId, customColor, customMono);
-      const fontSize = meta.mono.length >= 4 ? '11' : '13';
-      return `
-        <svg viewBox="0 0 48 48" class="w-full h-full block" xmlns="http://www.w3.org/2000/svg">
-          <rect width="48" height="48" rx="13" fill="${escapeHTML(meta.bg)}" />
-          <rect x="1" y="1" width="46" height="46" rx="12" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1" />
-          <text x="24" y="25" dominant-baseline="central" text-anchor="middle" fill="${escapeHTML(meta.fg)}" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="${fontSize}" letter-spacing="-0.02em">
-            ${escapeHTML(meta.mono)}
-          </text>
-        </svg>
-      `;
-    }
-
-    // =========================================================================
-    // MONEY POTS: CALCULATIONS, MODAL, CRUD & INTEREST CREDITING
-    // =========================================================================
-    function getCycleDivisor(freq) {
-      if (freq === 'daily') return 365;
-      if (freq === 'monthly') return 12;
-      if (freq === 'quarterly') return 4;
-      if (freq === 'annually') return 1;
-      return 0;
-    }
-
     function calculatePotYieldMetrics(acc) {
-      if (!acc || acc.type === 'Credit Card' || acc.freq === 'none' || !acc.apy || acc.apy <= 0) {
-        return { netApy: 0, cyclePayout: 0, monthlyNet: 0, annualNet: 0 };
+      if (!acc || acc.type === 'Credit Card' || acc.freq === 'none') {
+        return { netApy: 0, annualNet: 0, monthlyNet: 0, cyclePayout: 0 };
       }
-      const grossApy = Number(acc.apy) || 0;
-      const taxRate = Number(acc.tax) || 0;
-      const netApy = grossApy * (1 - taxRate / 100);
-      const balance = Math.max(0, Number(acc.balance) || 0);
-      const annualNet = balance * (netApy / 100);
+      const grossApy = Math.max(0, Number(acc.apy) || 0);
+      const taxPct = Math.min(100, Math.max(0, Number(acc.tax) || 0));
+      const netApy = grossApy * (1 - taxPct / 100);
+      const bal = Math.max(0, Number(acc.balance) || 0);
+      const annualNet = bal * (netApy / 100);
       const monthlyNet = annualNet / 12;
-      const divisor = getCycleDivisor(acc.freq);
-      const cyclePayout = divisor > 0 ? annualNet / divisor : 0;
-      return { netApy, cyclePayout, monthlyNet, annualNet };
-    }
 
-    function openAccountModal(accountId = null) {
-      const form = document.getElementById('account-form');
-      form.reset();
-      document.getElementById('acc-id').value = '';
-      document.getElementById('acc-institution').value = 'wise';
-      document.getElementById('acc-custom-color').value = '#6366f1';
-      document.getElementById('acc-custom-mono').value = 'VAULT';
-      document.getElementById('inst-search-input').value = '';
-      selectedInstCategory = 'ALL';
+      const divisors = { daily: 365, monthly: 12, quarterly: 4, annually: 1 };
+      const div = divisors[acc.freq] || 12;
+      const cyclePayout = annualNet / div;
 
-      if (accountId) {
-        const acc = state.accounts.find((a) => a.id === accountId);
-        if (acc) {
-          document.getElementById('account-modal-title').textContent = 'Edit Money Pot';
-          document.getElementById('acc-id').value = acc.id;
-          document.getElementById('acc-institution').value = acc.institution || 'wise';
-          document.getElementById('acc-name').value = acc.name;
-          document.getElementById('acc-type').value = acc.type;
-          document.getElementById('acc-currency').value = acc.currency;
-          document.getElementById('acc-balance').value = acc.balance;
-          document.getElementById('acc-tag').value = acc.tag || '';
-          document.getElementById('acc-interest').value = acc.apy || 0;
-          document.getElementById('acc-tax').value = acc.tax ?? 20;
-          document.getElementById('acc-freq').value = acc.freq || 'monthly';
-          if (acc.customColor) document.getElementById('acc-custom-color').value = acc.customColor;
-          if (acc.customMono) document.getElementById('acc-custom-mono').value = acc.customMono;
-          if (acc.creditLimit) document.getElementById('acc-credit-limit').value = acc.creditLimit;
-          if (acc.dueDate) document.getElementById('acc-due-date').value = acc.dueDate;
-        }
-      } else {
-        document.getElementById('account-modal-title').textContent = 'Create Money Pot';
-      }
-
-      handleAccountTypeChange();
-      renderInstitutionPickerGrid();
-      updateAccountModalPreview();
-      openModal('account-modal');
+      return { netApy, annualNet, monthlyNet, cyclePayout };
     }
 
     function setInstitutionCategory(cat) {
@@ -2483,50 +2156,59 @@ service cloud.firestore {
 
     function renderInstitutionPickerGrid() {
       const grid = document.getElementById('inst-picker-grid');
-      const query = (document.getElementById('inst-search-input').value || '').trim().toLowerCase();
-      const currentInst = document.getElementById('acc-institution').value;
+      if (!grid) return;
+      const query = (document.getElementById('inst-search-input')?.value || '').trim().toLowerCase();
+      const selectedId = document.getElementById('acc-institution')?.value || 'wise';
 
       const filtered = INSTITUTION_CATALOG.filter((item) => {
-        const matchesCat = selectedInstCategory === 'ALL' || item.category === selectedInstCategory || item.id === 'custom';
-        const matchesQuery = !query || item.name.toLowerCase().includes(query) || item.mono.toLowerCase().includes(query);
-        return matchesCat && matchesQuery;
+        const matchCat = selectedInstCategory === 'ALL' || item.category === selectedInstCategory;
+        const matchSearch = !query || item.name.toLowerCase().includes(query) || item.mono.toLowerCase().includes(query) || item.id.includes(query);
+        return matchCat && matchSearch;
       });
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="col-span-full py-4 text-center text-xs text-slate-500">No matching institution found. Try "Custom Vault".</div>`;
+        return;
+      }
 
       grid.innerHTML = filtered
         .map((item) => {
-          const isSelected = item.id === currentInst;
-          const svg = renderInstitutionBadgeSVG(
-            item.id,
-            document.getElementById('acc-custom-color').value,
-            document.getElementById('acc-custom-mono').value
-          );
+          const isSelected = item.id === selectedId;
+          const svg = renderInstitutionBadgeSVG(item.id);
           return `
             <button
               type="button"
               onclick="selectInstitution('${item.id}')"
               class="p-2 rounded-xl border text-center flex flex-col items-center gap-1.5 transition ${
                 isSelected
-                  ? 'bg-indigo-600/20 border-indigo-400 text-white shadow-sm'
-                  : 'bg-[#080c14] border-white/[0.06] text-slate-400 hover:text-white hover:border-white/20'
+                  ? 'bg-indigo-600/20 border-indigo-400 ring-1 ring-indigo-400/50'
+                  : 'bg-[#080c14] border-white/[0.06] hover:border-white/20'
               }"
             >
-              <div class="w-8 h-8 rounded-lg overflow-hidden shrink-0">${svg}</div>
-              <span class="text-[10px] font-medium leading-tight line-clamp-1 w-full">${escapeHTML(item.name)}</span>
+              <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0">${svg}</div>
+              <span class="text-[10px] font-medium text-slate-200 truncate w-full">${escapeHTML(item.name)}</span>
             </button>
           `;
         })
         .join('');
-
-      updateSelectedInstitutionHeader();
     }
 
     function selectInstitution(instId) {
-      document.getElementById('acc-institution').value = instId;
-      const meta = getInstitutionMeta(instId);
-      const nameInput = document.getElementById('acc-name');
-      if (!document.getElementById('acc-id').value && (!nameInput.value || INSTITUTION_CATALOG.some((i) => i.name === nameInput.value))) {
-        if (instId !== 'custom') nameInput.value = meta.name;
-      }
+      const normalized = instId === 'seabank' ? 'maribank' : instId;
+      document.getElementById('acc-institution').value = normalized;
+      const meta = getInstitutionMeta(
+        normalized,
+        document.getElementById('acc-custom-color')?.value,
+        document.getElementById('acc-custom-mono')?.value
+      );
+      document.getElementById('acc-selected-icon-preview').innerHTML = renderInstitutionBadgeSVG(
+        normalized,
+        document.getElementById('acc-custom-color')?.value,
+        document.getElementById('acc-custom-mono')?.value
+      );
+      document.getElementById('acc-selected-inst-label').textContent = meta.name;
+      document.getElementById('custom-inst-controls').classList.toggle('hidden', normalized !== 'custom');
+
       if (meta.category === 'credit-cards') {
         document.getElementById('acc-type').value = 'Credit Card';
         handleAccountTypeChange();
@@ -2534,174 +2216,180 @@ service cloud.firestore {
       renderInstitutionPickerGrid();
     }
 
-    function updateSelectedInstitutionHeader() {
-      const instId = document.getElementById('acc-institution').value;
-      const customColor = document.getElementById('acc-custom-color').value;
-      const customMono = document.getElementById('acc-custom-mono').value;
-      const meta = getInstitutionMeta(instId, customColor, customMono);
-
-      document.getElementById('acc-selected-icon-preview').innerHTML = renderInstitutionBadgeSVG(instId, customColor, customMono);
-      document.getElementById('acc-selected-inst-label').textContent = `Selected: ${meta.name}`;
-
-      const customControls = document.getElementById('custom-inst-controls');
-      if (instId === 'custom') customControls.classList.remove('hidden');
-      else customControls.classList.add('hidden');
-    }
-
     function updateCustomInstitutionPreview() {
-      const hex = document.getElementById('acc-custom-color').value.toUpperCase();
-      document.getElementById('acc-custom-hex').textContent = hex;
-      renderInstitutionPickerGrid();
+      const color = document.getElementById('acc-custom-color').value;
+      const mono = document.getElementById('acc-custom-mono').value || 'VAULT';
+      document.getElementById('acc-custom-hex').textContent = color.toUpperCase();
+      document.getElementById('acc-selected-icon-preview').innerHTML = renderInstitutionBadgeSVG('custom', color, mono);
     }
 
     function handleAccountTypeChange() {
-      const type = document.getElementById('acc-type').value;
-      const isCC = type === 'Credit Card';
+      const isCC = document.getElementById('acc-type').value === 'Credit Card';
       document.getElementById('acc-cc-settings-box').classList.toggle('hidden', !isCC);
       document.getElementById('acc-yield-settings-box').classList.toggle('hidden', isCC);
-      document.getElementById('acc-balance-label').textContent = isCC ? 'Current Statement / Unbilled Balance' : 'Current Balance';
+      document.getElementById('acc-balance-label').textContent = isCC ? 'Current Statement / Owed Balance' : 'Current Balance';
+      updateAccountModalPreview();
     }
 
     function updateAccountModalPreview() {
-      const curr = document.getElementById('acc-currency').value;
-      const balance = parseFloat(document.getElementById('acc-balance').value) || 0;
+      const curr = document.getElementById('acc-currency').value || 'PHP';
+      const bal = parseFloat(document.getElementById('acc-balance').value) || 0;
       const apy = parseFloat(document.getElementById('acc-interest').value) || 0;
       const tax = parseFloat(document.getElementById('acc-tax').value) || 0;
-      const freq = document.getElementById('acc-freq').value;
+      const freq = document.getElementById('acc-freq').value || 'monthly';
 
-      const metrics = calculatePotYieldMetrics({ type: 'Savings', balance, apy, tax, freq });
-      document.getElementById('acc-yield-preview').innerHTML = `
-        <span>Net APY: <strong class="text-emerald-400">${metrics.netApy.toFixed(2)}%</strong></span>
-        <span>Cycle Payout: <strong class="text-white">${formatMoney(metrics.cyclePayout, curr)}</strong></span>
-      `;
+      const metrics = calculatePotYieldMetrics({ type: 'Savings', balance: bal, apy, tax, freq });
+      const prevEl = document.getElementById('acc-yield-preview');
+      if (prevEl) {
+        prevEl.innerHTML = `
+          <span>Net APY: <strong class="text-emerald-400">${metrics.netApy.toFixed(2)}%</strong></span>
+          <span>Cycle Payout: <strong class="text-white">${formatMoney(metrics.cyclePayout, curr)}</strong></span>
+        `;
+      }
+    }
+
+    function openAccountModal(accId = null) {
+      const acc = accId ? state.accounts.find((a) => a.id === accId) : null;
+      document.getElementById('account-modal-title').textContent = acc ? 'Edit Money Pot' : 'Create Money Pot';
+      document.getElementById('acc-id').value = acc ? acc.id : '';
+      document.getElementById('acc-name').value = acc ? acc.name : '';
+      document.getElementById('acc-type').value = acc ? acc.type : 'Savings';
+      document.getElementById('acc-currency').value = acc ? acc.currency : 'PHP';
+      document.getElementById('acc-balance').value = acc ? acc.balance : '';
+      document.getElementById('acc-tag').value = acc ? (acc.tag || '') : '';
+      document.getElementById('acc-interest').value = acc ? (acc.apy ?? 0) : 0;
+      document.getElementById('acc-tax').value = acc ? (acc.tax ?? 20) : 20;
+      document.getElementById('acc-freq').value = acc ? (acc.freq || 'monthly') : 'monthly';
+      document.getElementById('acc-credit-limit').value = acc && acc.creditLimit ? acc.creditLimit : '';
+      document.getElementById('acc-due-date').value = acc && acc.dueDate ? acc.dueDate : '';
+      document.getElementById('acc-custom-color').value = acc?.customColor || '#6366f1';
+      document.getElementById('acc-custom-mono').value = acc?.customMono || 'VAULT';
+      document.getElementById('inst-search-input').value = '';
+
+      selectedInstCategory = 'ALL';
+      setInstitutionCategory('ALL');
+      selectInstitution(acc ? acc.institution : 'wise');
+      handleAccountTypeChange();
+      openModal('account-modal');
     }
 
     function submitAccount(e) {
       e.preventDefault();
       const id = document.getElementById('acc-id').value;
-      const type = document.getElementById('acc-type').value;
+      const isCC = document.getElementById('acc-type').value === 'Credit Card';
       const payload = {
-        id: id || generateId('acc'),
-        institution: document.getElementById('acc-institution').value,
-        customColor: document.getElementById('acc-custom-color').value,
-        customMono: document.getElementById('acc-custom-mono').value,
+        id: id || `acc-${Date.now()}`,
         name: document.getElementById('acc-name').value.trim(),
-        type,
+        institution: document.getElementById('acc-institution').value || 'wise',
+        customColor: document.getElementById('acc-custom-color').value,
+        customMono: document.getElementById('acc-custom-mono').value.trim().toUpperCase(),
+        type: document.getElementById('acc-type').value,
         currency: document.getElementById('acc-currency').value,
         balance: parseFloat(document.getElementById('acc-balance').value) || 0,
         tag: document.getElementById('acc-tag').value.trim(),
-        apy: type === 'Credit Card' ? 0 : (parseFloat(document.getElementById('acc-interest').value) || 0),
-        tax: type === 'Credit Card' ? 0 : (parseFloat(document.getElementById('acc-tax').value) || 0),
-        freq: type === 'Credit Card' ? 'none' : document.getElementById('acc-freq').value,
-        creditLimit: type === 'Credit Card' ? (parseFloat(document.getElementById('acc-credit-limit').value) || 0) : 0,
-        dueDate: type === 'Credit Card' ? document.getElementById('acc-due-date').value : ''
+        apy: isCC ? 0 : (parseFloat(document.getElementById('acc-interest').value) || 0),
+        tax: isCC ? 0 : (parseFloat(document.getElementById('acc-tax').value) || 0),
+        freq: isCC ? 'none' : document.getElementById('acc-freq').value,
+        creditLimit: isCC ? (parseFloat(document.getElementById('acc-credit-limit').value) || 0) : 0,
+        dueDate: isCC ? document.getElementById('acc-due-date').value : ''
       };
 
       if (id) {
         const idx = state.accounts.findIndex((a) => a.id === id);
         if (idx !== -1) state.accounts[idx] = payload;
-        showToast(`Updated "${payload.name}".`, 'success');
       } else {
         state.accounts.push(payload);
-        showToast(`Added "${payload.name}" money pot.`, 'success');
       }
 
       persistState();
       closeModal('account-modal');
       renderAll();
+      showToast(id ? 'Money pot updated.' : 'New money pot added.', 'success');
     }
 
-    function deleteAccount(id) {
-      const acc = state.accounts.find((a) => a.id === id);
-      if (!acc) return;
-      state.accounts = state.accounts.filter((a) => a.id !== id);
+    function deleteAccount(accId) {
+      state.accounts = state.accounts.filter((a) => a.id !== accId);
       persistState();
       renderAll();
-      showToast(`Removed "${acc.name}".`, 'info');
+      showToast('Money pot removed.', 'info');
     }
 
-    function creditPotInterest(id) {
-      const acc = state.accounts.find((a) => a.id === id);
+    function creditPotInterest(accId) {
+      const acc = state.accounts.find((a) => a.id === accId);
       if (!acc) return;
       const metrics = calculatePotYieldMetrics(acc);
       if (metrics.cyclePayout <= 0) {
         showToast('This pot has 0% net yield configured.', 'warning');
         return;
       }
-
       const payout = Number(metrics.cyclePayout.toFixed(2));
-      acc.balance = Number((Number(acc.balance) + payout).toFixed(2));
+      acc.balance = Number((acc.balance + payout).toFixed(2));
       state.transactions.unshift({
-        id: generateId('tx'),
+        id: `tx-${Date.now()}`,
         type: 'interest',
         accountId: acc.id,
         amount: payout,
         category: 'Interest Credit',
         date: new Date().toISOString().split('T')[0],
-        note: `${acc.name} (${acc.freq} net interest @ ${metrics.netApy.toFixed(2)}% APY)`
+        note: `${acc.name} net ${acc.freq} interest (${metrics.netApy.toFixed(2)}% net APY)`
       });
-
       persistState();
       renderAll();
-      showToast(`Credited ${formatMoney(payout, acc.currency)} net interest to ${acc.name}.`, 'success');
+      showToast(`Credited ${formatMoney(payout, acc.currency)} to ${acc.name}.`, 'success');
     }
 
     function creditAllDuePots() {
-      let creditedCount = 0;
+      let count = 0;
       const today = new Date().toISOString().split('T')[0];
-
       state.accounts.forEach((acc) => {
         const metrics = calculatePotYieldMetrics(acc);
-        if (metrics.cyclePayout > 0) {
+        if (acc.type !== 'Credit Card' && metrics.cyclePayout > 0) {
           const payout = Number(metrics.cyclePayout.toFixed(2));
-          acc.balance = Number((Number(acc.balance) + payout).toFixed(2));
+          acc.balance = Number((acc.balance + payout).toFixed(2));
           state.transactions.unshift({
-            id: generateId('tx'),
+            id: `tx-${Date.now()}-${count}`,
             type: 'interest',
             accountId: acc.id,
             amount: payout,
             category: 'Interest Credit',
             date: today,
-            note: `${acc.name} (${acc.freq} net yield @ ${metrics.netApy.toFixed(2)}% APY)`
+            note: `${acc.name} net ${acc.freq} interest`
           });
-          creditedCount++;
+          count++;
         }
       });
-
-      if (creditedCount === 0) {
-        showToast('No yield-bearing pots with positive payouts found.', 'warning');
+      if (!count) {
+        showToast('No yield-bearing money pots to credit.', 'warning');
         return;
       }
-
       persistState();
       renderAll();
-      showToast(`Credited net cycle interest across ${creditedCount} money pot(s)!`, 'success');
+      showToast(`Credited net cycle interest across ${count} money pot(s).`, 'success');
     }
 
     // =========================================================================
-    // UNIFIED TRANSACTIONS & TWO-WAY CROSS-CURRENCY TRANSFERS
+    // UNIFIED LEDGER & CROSS-CURRENCY TRANSFERS
     // =========================================================================
     function openTransactionModal(mode = 'expense') {
       if (!state.accounts.length) {
-        showToast('Create at least one Money Pot first.', 'warning');
+        showToast('Create at least one Money Pot before logging entries.', 'warning');
         openAccountModal();
         return;
       }
 
-      document.getElementById('tx-form').reset();
-      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
-
-      const optionsHTML = state.accounts
+      const srcSel = document.getElementById('tx-account-id');
+      const dstSel = document.getElementById('tx-to-account-id');
+      const optsHTML = state.accounts
         .map((a) => `<option value="${a.id}">${escapeHTML(a.name)} (${a.currency} • ${formatMoney(a.balance, a.currency)})</option>`)
         .join('');
+      srcSel.innerHTML = optsHTML;
+      dstSel.innerHTML = optsHTML;
+      if (state.accounts.length > 1) dstSel.selectedIndex = 1;
 
-      const srcSelect = document.getElementById('tx-account-id');
-      const dstSelect = document.getElementById('tx-to-account-id');
-      srcSelect.innerHTML = optionsHTML;
-      dstSelect.innerHTML = optionsHTML;
-      if (state.accounts.length > 1) {
-        dstSelect.selectedIndex = 1;
-      }
+      document.getElementById('tx-amount').value = '';
+      document.getElementById('tx-target-amount').value = '';
+      document.getElementById('tx-note').value = '';
+      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
 
       setTxMode(mode);
       openModal('tx-modal');
@@ -2709,276 +2397,230 @@ service cloud.firestore {
 
     function setTxMode(mode) {
       document.getElementById('tx-type').value = mode;
-      const modes = ['expense', 'income', 'transfer'];
-      modes.forEach((m) => {
+      const isTransfer = mode === 'transfer';
+
+      ['expense', 'income', 'transfer'].forEach((m) => {
         const btn = document.getElementById(`tx-mode-${m}`);
-        if (!btn) return;
         const active = m === mode;
         const activeColors = {
-          expense: 'bg-rose-600 text-white shadow-sm',
-          income: 'bg-emerald-600 text-white shadow-sm',
-          transfer: 'bg-sky-600 text-white shadow-sm'
+          expense: 'bg-rose-600 text-white',
+          income: 'bg-emerald-600 text-white',
+          transfer: 'bg-sky-600 text-white'
         };
         btn.className = active
           ? `py-2 rounded-lg text-xs font-semibold transition ${activeColors[m]}`
-          : 'py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition';
+          : 'py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
       });
 
-      const isTransfer = mode === 'transfer';
-      document.getElementById('tx-to-account-wrap').classList.toggle('hidden', !isTransfer);
-      document.getElementById('tx-category-wrap').classList.toggle('hidden', isTransfer);
       document.getElementById('tx-account-label').textContent = isTransfer ? 'Source Money Pot' : 'Money Pot';
+      document.getElementById('tx-to-account-wrap').classList.toggle('hidden', !isTransfer);
 
-      if (!isTransfer) {
-        const cats = CATEGORIES[mode] || CATEGORIES.expense;
-        document.getElementById('tx-category').innerHTML = cats
-          .map((c) => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`)
-          .join('');
-      }
+      const catSel = document.getElementById('tx-category');
+      const cats = TX_CATEGORIES[mode] || TX_CATEGORIES.expense;
+      catSel.innerHTML = cats.map((c) => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
 
       handleTransferSourceOrAmountChange();
     }
 
-    function getSelectedTransferAccounts() {
-      const mode = document.getElementById('tx-type').value;
-      const srcId = document.getElementById('tx-account-id').value;
-      const dstId = document.getElementById('tx-to-account-id').value;
-      const srcAcc = state.accounts.find((a) => a.id === srcId);
-      const dstAcc = state.accounts.find((a) => a.id === dstId);
-      return { mode, srcAcc, dstAcc };
-    }
-
     function handleTransferSourceOrAmountChange() {
-      const { mode, srcAcc, dstAcc } = getSelectedTransferAccounts();
-      const amountLabel = document.getElementById('tx-amount-label');
-      const amountCol = document.getElementById('tx-amount-col');
-      const targetWrap = document.getElementById('tx-target-amount-wrap');
-      const fxBox = document.getElementById('tx-fx-box');
+      const isTransfer = document.getElementById('tx-type').value === 'transfer';
+      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id').value);
+      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id').value);
+      const isCrossCurr = isTransfer && src && dst && src.currency !== dst.currency;
 
-      if (srcAcc) {
-        amountLabel.textContent = mode === 'transfer' ? `Source Amount (${srcAcc.currency})` : `Amount (${srcAcc.currency})`;
-      }
+      document.getElementById('tx-amount-label').textContent = src ? `Amount (${src.currency})` : 'Amount';
+      document.getElementById('tx-target-amount-wrap').classList.toggle('hidden', !isCrossCurr);
+      document.getElementById('tx-fx-box').classList.toggle('hidden', !isCrossCurr);
+      document.getElementById('tx-amount-col').className = isCrossCurr ? 'sm:col-span-1' : 'sm:col-span-2';
 
-      if (mode === 'transfer' && srcAcc && dstAcc && srcAcc.currency !== dstAcc.currency) {
-        amountCol.className = 'sm:col-span-1';
-        targetWrap.classList.remove('hidden');
-        fxBox.classList.remove('hidden');
-
-        document.getElementById('tx-target-amount-label').textContent = `Destination (${dstAcc.currency})`;
-        document.getElementById('tx-applied-rate-label').textContent = `Applied Rate (1 ${srcAcc.currency} → ${dstAcc.currency})`;
-
-        const midRate = convertCurrency(1, srcAcc.currency, dstAcc.currency);
+      if (isCrossCurr) {
+        const marketPairRate = convertCurrency(1, src.currency, dst.currency);
         const rateInput = document.getElementById('tx-applied-rate');
-        if (!rateInput.dataset.pair || rateInput.dataset.pair !== `${srcAcc.currency}_${dstAcc.currency}`) {
-          rateInput.value = midRate.toFixed(dstAcc.currency === 'JPY' ? 3 : 4);
-          rateInput.dataset.pair = `${srcAcc.currency}_${dstAcc.currency}`;
+        if (!rateInput.dataset.pair || rateInput.dataset.pair !== `${src.currency}->${dst.currency}`) {
+          rateInput.value = marketPairRate.toFixed(4);
+          rateInput.dataset.pair = `${src.currency}->${dst.currency}`;
         }
+        document.getElementById('tx-applied-rate-label').textContent = `Applied Rate (1 ${src.currency} → ${dst.currency})`;
+        document.getElementById('tx-target-amount-label').textContent = `Destination (${dst.currency})`;
 
         const srcAmt = parseFloat(document.getElementById('tx-amount').value) || 0;
-        const appliedRate = parseFloat(rateInput.value) || midRate;
-        const targetAmt = srcAmt * appliedRate;
-        document.getElementById('tx-target-amount').value = srcAmt > 0 ? targetAmt.toFixed(2) : '';
-        updateTransferSpreadIndicator(appliedRate, midRate);
-      } else {
-        amountCol.className = 'sm:col-span-2';
-        targetWrap.classList.add('hidden');
-        fxBox.classList.add('hidden');
-        const rateInput = document.getElementById('tx-applied-rate');
-        if (rateInput) delete rateInput.dataset.pair;
+        const appliedRate = parseFloat(rateInput.value) || marketPairRate;
+        document.getElementById('tx-target-amount').value = srcAmt > 0 ? (srcAmt * appliedRate).toFixed(2) : '';
+        updateTransferSpreadLabel(appliedRate, marketPairRate);
       }
     }
 
     function handleTransferTargetAmountEdit() {
-      const { srcAcc, dstAcc } = getSelectedTransferAccounts();
-      if (!srcAcc || !dstAcc) return;
+      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id').value);
+      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id').value);
+      if (!src || !dst || src.currency === dst.currency) return;
       const srcAmt = parseFloat(document.getElementById('tx-amount').value) || 0;
       const dstAmt = parseFloat(document.getElementById('tx-target-amount').value) || 0;
       if (srcAmt > 0 && dstAmt > 0) {
         const impliedRate = dstAmt / srcAmt;
         document.getElementById('tx-applied-rate').value = impliedRate.toFixed(6);
-        const midRate = convertCurrency(1, srcAcc.currency, dstAcc.currency);
-        updateTransferSpreadIndicator(impliedRate, midRate);
+        updateTransferSpreadLabel(impliedRate, convertCurrency(1, src.currency, dst.currency));
       }
     }
 
     function handleTransferRateEdit() {
-      const { srcAcc, dstAcc } = getSelectedTransferAccounts();
-      if (!srcAcc || !dstAcc) return;
+      const src = state.accounts.find((a) => a.id === document.getElementById('tx-account-id').value);
+      const dst = state.accounts.find((a) => a.id === document.getElementById('tx-to-account-id').value);
+      if (!src || !dst || src.currency === dst.currency) return;
       const srcAmt = parseFloat(document.getElementById('tx-amount').value) || 0;
-      const appliedRate = parseFloat(document.getElementById('tx-applied-rate').value) || 0;
-      if (srcAmt > 0 && appliedRate > 0) {
-        document.getElementById('tx-target-amount').value = (srcAmt * appliedRate).toFixed(2);
+      const rate = parseFloat(document.getElementById('tx-applied-rate').value) || 0;
+      if (srcAmt > 0 && rate > 0) {
+        document.getElementById('tx-target-amount').value = (srcAmt * rate).toFixed(2);
       }
-      const midRate = convertCurrency(1, srcAcc.currency, dstAcc.currency);
-      updateTransferSpreadIndicator(appliedRate, midRate);
+      updateTransferSpreadLabel(rate, convertCurrency(1, src.currency, dst.currency));
     }
 
-    function updateTransferSpreadIndicator(appliedRate, midRate) {
+    function updateTransferSpreadLabel(applied, market) {
       const el = document.getElementById('tx-spread-indicator');
-      if (!el || !midRate) return;
-      const diffPct = ((appliedRate - midRate) / midRate) * 100;
-      if (Math.abs(diffPct) < 0.01) {
-        el.textContent = 'Mid-market rate';
-        el.className = 'text-[11px] font-mono text-emerald-400';
-      } else {
-        const sign = diffPct > 0 ? '+' : '';
-        el.textContent = `${sign}${diffPct.toFixed(2)}% vs mid (${midRate.toFixed(4)})`;
-        el.className = `text-[11px] font-mono ${diffPct >= 0 ? 'text-emerald-400' : 'text-amber-400'}`;
-      }
+      if (!el || !market) return;
+      const diffPct = ((applied - market) / market) * 100;
+      el.textContent = Math.abs(diffPct) < 0.01 ? 'At mid-market' : `${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(2)}% vs mid-market`;
     }
 
     function submitTransaction(e) {
       e.preventDefault();
       const type = document.getElementById('tx-type').value;
       const accountId = document.getElementById('tx-account-id').value;
-      const amount = parseFloat(document.getElementById('tx-amount').value);
+      const toAccountId = document.getElementById('tx-to-account-id').value;
+      const amount = parseFloat(document.getElementById('tx-amount').value) || 0;
+      const category = document.getElementById('tx-category').value;
       const date = document.getElementById('tx-date').value;
       const note = document.getElementById('tx-note').value.trim();
 
-      const srcAcc = state.accounts.find((a) => a.id === accountId);
-      if (!srcAcc || isNaN(amount) || amount <= 0) return;
+      const src = state.accounts.find((a) => a.id === accountId);
+      if (!src || amount <= 0) return;
 
       if (type === 'transfer') {
-        const toAccountId = document.getElementById('tx-to-account-id').value;
-        const dstAcc = state.accounts.find((a) => a.id === toAccountId);
-        if (!dstAcc || dstAcc.id === srcAcc.id) {
-          showToast('Select two distinct Money Pots for a transfer.', 'warning');
+        const dst = state.accounts.find((a) => a.id === toAccountId);
+        if (!dst || dst.id === src.id) {
+          showToast('Choose a different destination money pot for transfers.', 'warning');
           return;
         }
-
-        const isCrossCurr = srcAcc.currency !== dstAcc.currency;
-        const targetAmount = isCrossCurr
-          ? (parseFloat(document.getElementById('tx-target-amount').value) || amount)
+        const isCross = src.currency !== dst.currency;
+        const targetAmount = isCross
+          ? (parseFloat(document.getElementById('tx-target-amount').value) || convertCurrency(amount, src.currency, dst.currency))
           : amount;
-        const appliedRate = isCrossCurr ? (targetAmount / amount) : 1;
+        const appliedRate = isCross ? (targetAmount / amount) : 1;
 
-        srcAcc.balance = Number((Number(srcAcc.balance) - amount).toFixed(2));
-        // If destination is a Credit Card, paying it reduces its liability balance
-        if (dstAcc.type === 'Credit Card') {
-          dstAcc.balance = Number(Math.max(0, Number(dstAcc.balance) - targetAmount).toFixed(2));
+        src.balance = Number((src.balance - amount).toFixed(2));
+        // If destination is a Credit Card, paying it reduces the owed liability balance
+        if (dst.type === 'Credit Card') {
+          dst.balance = Number(Math.max(0, dst.balance - targetAmount).toFixed(2));
         } else {
-          dstAcc.balance = Number((Number(dstAcc.balance) + targetAmount).toFixed(2));
+          dst.balance = Number((dst.balance + targetAmount).toFixed(2));
         }
 
         state.transactions.unshift({
-          id: generateId('tx'),
+          id: `tx-${Date.now()}`,
           type: 'transfer',
-          accountId: srcAcc.id,
-          toAccountId: dstAcc.id,
+          accountId: src.id,
+          toAccountId: dst.id,
           amount,
-          targetAmount,
+          targetAmount: Number(targetAmount.toFixed(2)),
           appliedRate,
-          category: isCrossCurr ? 'FX Transfer' : 'Internal Transfer',
+          category,
           date,
-          note: note || `${srcAcc.name} → ${dstAcc.name}`
+          note
         });
-
-        showToast(`Transferred ${formatMoney(amount, srcAcc.currency)} to ${dstAcc.name}.`, 'success');
       } else if (type === 'expense') {
-        if (srcAcc.type === 'Credit Card') {
-          srcAcc.balance = Number((Number(srcAcc.balance) + amount).toFixed(2));
+        // Spending on a Credit Card increases the owed balance; spending from cash reduces balance
+        if (src.type === 'Credit Card') {
+          src.balance = Number((src.balance + amount).toFixed(2));
         } else {
-          srcAcc.balance = Number((Number(srcAcc.balance) - amount).toFixed(2));
+          src.balance = Number((src.balance - amount).toFixed(2));
         }
-
         state.transactions.unshift({
-          id: generateId('tx'),
+          id: `tx-${Date.now()}`,
           type: 'expense',
-          accountId: srcAcc.id,
+          accountId: src.id,
           amount,
-          category: document.getElementById('tx-category').value,
+          category,
           date,
           note
         });
-        showToast(`Logged expense of ${formatMoney(amount, srcAcc.currency)}.`, 'success');
-      } else if (type === 'income') {
-        if (srcAcc.type === 'Credit Card') {
-          srcAcc.balance = Number(Math.max(0, Number(srcAcc.balance) - amount).toFixed(2));
+      } else {
+        // Income or interest
+        if (src.type === 'Credit Card') {
+          src.balance = Number(Math.max(0, src.balance - amount).toFixed(2));
         } else {
-          srcAcc.balance = Number((Number(srcAcc.balance) + amount).toFixed(2));
+          src.balance = Number((src.balance + amount).toFixed(2));
         }
-
         state.transactions.unshift({
-          id: generateId('tx'),
-          type: 'income',
-          accountId: srcAcc.id,
+          id: `tx-${Date.now()}`,
+          type,
+          accountId: src.id,
           amount,
-          category: document.getElementById('tx-category').value,
+          category,
           date,
           note
         });
-        showToast(`Logged income of ${formatMoney(amount, srcAcc.currency)}.`, 'success');
       }
 
       persistState();
       closeModal('tx-modal');
       renderAll();
+      showToast('Ledger entry recorded.', 'success');
     }
 
     function undoTransaction(txId) {
-      const tx = state.transactions.find((t) => t.id === txId);
-      if (!tx) return;
+      const idx = state.transactions.findIndex((t) => t.id === txId);
+      if (idx === -1) return;
+      const tx = state.transactions[idx];
+      const src = state.accounts.find((a) => a.id === tx.accountId);
+      const dst = tx.toAccountId ? state.accounts.find((a) => a.id === tx.toAccountId) : null;
 
-      const srcAcc = state.accounts.find((a) => a.id === tx.accountId);
       if (tx.type === 'transfer') {
-        const dstAcc = state.accounts.find((a) => a.id === tx.toAccountId);
-        if (srcAcc) srcAcc.balance = Number((Number(srcAcc.balance) + Number(tx.amount)).toFixed(2));
-        if (dstAcc) {
-          const revAmt = Number(tx.targetAmount ?? tx.amount);
-          if (dstAcc.type === 'Credit Card') {
-            dstAcc.balance = Number((Number(dstAcc.balance) + revAmt).toFixed(2));
+        if (src) src.balance = Number((src.balance + tx.amount).toFixed(2));
+        if (dst) {
+          const tAmt = tx.targetAmount || tx.amount;
+          if (dst.type === 'Credit Card') {
+            dst.balance = Number((dst.balance + tAmt).toFixed(2));
           } else {
-            dstAcc.balance = Number((Number(dstAcc.balance) - revAmt).toFixed(2));
+            dst.balance = Number((dst.balance - tAmt).toFixed(2));
           }
         }
       } else if (tx.type === 'expense') {
-        if (srcAcc) {
-          if (srcAcc.type === 'Credit Card') {
-            srcAcc.balance = Number(Math.max(0, Number(srcAcc.balance) - Number(tx.amount)).toFixed(2));
+        if (src) {
+          if (src.type === 'Credit Card') {
+            src.balance = Number(Math.max(0, src.balance - tx.amount).toFixed(2));
           } else {
-            srcAcc.balance = Number((Number(srcAcc.balance) + Number(tx.amount)).toFixed(2));
+            src.balance = Number((src.balance + tx.amount).toFixed(2));
           }
         }
-      } else if (tx.type === 'income' || tx.type === 'interest') {
-        if (srcAcc) {
-          srcAcc.balance = Number((Number(srcAcc.balance) - Number(tx.amount)).toFixed(2));
+      } else {
+        if (src) {
+          if (src.type === 'Credit Card') {
+            src.balance = Number((src.balance + tx.amount).toFixed(2));
+          } else {
+            src.balance = Number((src.balance - tx.amount).toFixed(2));
+          }
         }
       }
 
-      state.transactions = state.transactions.filter((t) => t.id !== txId);
+      state.transactions.splice(idx, 1);
       persistState();
       renderAll();
-      showToast('Transaction undone and balances restored.', 'info');
+      showToast('Transaction undone and balances reverted.', 'info');
     }
 
     // =========================================================================
-    // IBKR PORTFOLIO, LIVE QUOTES & FLEX/CSV PARSER
+    // IBKR PORTFOLIO, LIVE QUOTES & FLEX WEB SERVICE (2-STEP SYNC)
     // =========================================================================
-    function openHoldingModal(holdingId = null) {
-      document.getElementById('hold-id').value = '';
-      document.getElementById('hold-symbol').value = '';
-      document.getElementById('hold-name').value = '';
-      document.getElementById('hold-currency').value = 'USD';
-      document.getElementById('hold-shares').value = '';
-      document.getElementById('hold-cost').value = '';
-      document.getElementById('hold-price').value = '';
-
-      if (holdingId) {
-        const h = state.holdings.find((item) => item.id === holdingId);
-        if (h) {
-          document.getElementById('holding-modal-title').textContent = `Edit ${h.symbol}`;
-          document.getElementById('hold-id').value = h.id;
-          document.getElementById('hold-symbol').value = h.symbol;
-          document.getElementById('hold-name').value = h.name || '';
-          document.getElementById('hold-currency').value = h.currency || 'USD';
-          document.getElementById('hold-shares').value = h.shares;
-          document.getElementById('hold-cost').value = h.avgCost;
-          document.getElementById('hold-price').value = h.price;
-        }
-      } else {
-        document.getElementById('holding-modal-title').textContent = 'Add IBKR Holding';
-      }
-
+    function openHoldingModal(holdId = null) {
+      const h = holdId ? state.holdings.find((item) => item.id === holdId) : null;
+      document.getElementById('holding-modal-title').textContent = h ? 'Edit IBKR Holding' : 'Add IBKR Holding';
+      document.getElementById('hold-id').value = h ? h.id : '';
+      document.getElementById('hold-symbol').value = h ? h.symbol : '';
+      document.getElementById('hold-currency').value = h ? h.currency : 'USD';
+      document.getElementById('hold-name').value = h ? h.name : '';
+      document.getElementById('hold-shares').value = h ? h.shares : '';
+      document.getElementById('hold-cost').value = h ? h.avgCost : '';
+      document.getElementById('hold-price').value = h ? h.price : '';
       openModal('holding-modal');
     }
 
@@ -2987,9 +2629,8 @@ service cloud.firestore {
       const id = document.getElementById('hold-id').value;
       const symbol = document.getElementById('hold-symbol').value.trim().toUpperCase();
       const price = parseFloat(document.getElementById('hold-price').value) || 0;
-
       const payload = {
-        id: id || generateId('hold'),
+        id: id || `hold-${Date.now()}`,
         symbol,
         name: document.getElementById('hold-name').value.trim() || symbol,
         currency: document.getElementById('hold-currency').value,
@@ -3005,89 +2646,30 @@ service cloud.firestore {
           payload.prevClose = state.holdings[idx].prevClose || price;
           state.holdings[idx] = payload;
         }
-        showToast(`Updated ${symbol} position.`, 'success');
       } else {
         state.holdings.push(payload);
-        showToast(`Added ${symbol} to IBKR portfolio.`, 'success');
       }
 
       persistState();
       closeModal('holding-modal');
       renderAll();
+      showToast(id ? 'Holding updated.' : 'IBKR position added.', 'success');
     }
 
-    function deleteHolding(id) {
-      const h = state.holdings.find((item) => item.id === id);
-      if (!h) return;
-      state.holdings = state.holdings.filter((item) => item.id !== id);
+    function deleteHolding(holdId) {
+      state.holdings = state.holdings.filter((h) => h.id !== holdId);
       persistState();
       renderAll();
-      showToast(`Removed ${h.symbol} from IBKR holdings.`, 'info');
+      showToast('Position removed.', 'info');
     }
 
-    async function refreshIBKRQuotes(manual = false) {
-      if (!state.holdings.length) {
-        if (state.ibkrCredentials?.flexToken && state.ibkrCredentials?.flexQueryId) {
-          await fetchIBKRFlexPositions(manual);
-          return;
-        }
-        if (manual) showToast('No IBKR holdings yet. Click "Import / Setup" to sync Flex or add a ticker.', 'warning');
-        return;
+    function normalizeWorkerUrl(rawUrl) {
+      let url = (rawUrl || '').trim();
+      if (!url) return '';
+      if (!/^https?:\/\//i.test(url)) {
+        url = `https://${url}`;
       }
-
-      const btn = document.getElementById('ibkr-refresh-btn');
-      if (btn) btn.disabled = true;
-
-      let liveHits = 0;
-
-      await Promise.all(
-        state.holdings.map(async (h) => {
-          try {
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(h.symbol)}?interval=1d&range=1d`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('CORS or network');
-            const json = await res.json();
-            const meta = json?.chart?.result?.[0]?.meta;
-            if (meta && meta.regularMarketPrice) {
-              h.prevClose = Number(meta.chartPreviousClose || meta.previousClose || h.price);
-              h.price = Number(meta.regularMarketPrice);
-              liveHits++;
-              return;
-            }
-            throw new Error('No quote payload');
-          } catch (_) {
-            // Intraday market tick simulation fallback when browser CORS blocks direct Yahoo requests
-            const drift = 1 + (Math.random() - 0.48) * 0.006;
-            if (!h.prevClose) h.prevClose = h.price;
-            h.price = Number((h.price * drift).toFixed(2));
-          }
-        })
-      );
-
-      state.ibkrQuoteSource = liveHits > 0 ? 'Live Market Feed' : 'Simulated Intraday';
-      state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      if (btn) btn.disabled = false;
-      persistState();
-      renderAll();
-      if (manual) {
-        showToast(
-          liveHits > 0
-            ? `Refreshed ${liveHits} live quote(s).`
-            : 'Updated IBKR intraday market marks.',
-          'success'
-        );
-      }
-    }
-
-    function toggleIBKRAutoRefresh(enabled) {
-      clearInterval(ibkrAutoRefreshTimer);
-      if (enabled) {
-        ibkrAutoRefreshTimer = setInterval(() => refreshIBKRQuotes(false), 60000);
-        showToast('IBKR 60-second auto-refresh enabled.', 'info');
-      } else {
-        showToast('IBKR auto-refresh paused.', 'info');
-      }
+      return url.replace(/\/+$/, '');
     }
 
     function handleIBKRProxyModeChange() {
@@ -3099,504 +2681,683 @@ service cloud.firestore {
     function setIBKRFlexStatus(message, tone = 'info') {
       const box = document.getElementById('ibkr-flex-status');
       if (!box) return;
+      box.classList.remove('hidden');
       const toneClasses = {
-        info: 'border-sky-500/30 bg-sky-500/10 text-sky-200',
-        success: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
-        warning: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-        error: 'border-rose-500/30 bg-rose-500/10 text-rose-300'
+        info: 'bg-[#080c14] border-white/[0.08] text-slate-300',
+        success: 'bg-emerald-950/50 border-emerald-500/30 text-emerald-300',
+        error: 'bg-rose-950/50 border-rose-500/30 text-rose-300'
       };
       box.className = `p-3 rounded-lg border text-xs font-mono leading-relaxed ${toneClasses[tone] || toneClasses.info}`;
       box.textContent = message;
-      box.classList.remove('hidden');
-    }
-
-    function saveIBKRCredentialsOnly() {
-      const flexToken = (document.getElementById('ibkr-flex-token')?.value || '').trim();
-      const flexQueryId = (document.getElementById('ibkr-flex-query-id')?.value || '').trim();
-      const proxyMode = document.getElementById('ibkr-proxy-mode')?.value || 'auto';
-      const customProxyUrl = (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim();
-
-      state.ibkrCredentials = { flexToken, flexQueryId, proxyMode, customProxyUrl };
-      persistState(true);
-      setIBKRFlexStatus('IBKR Flex credentials and transport settings saved to your vault.', 'success');
-      showToast('IBKR Flex credentials saved.', 'success');
-    }
-
-    async function syncIBKRFlexWebService() {
-      const flexToken = (document.getElementById('ibkr-flex-token')?.value || '').trim();
-      const flexQueryId = (document.getElementById('ibkr-flex-query-id')?.value || '').trim();
-      const proxyMode = document.getElementById('ibkr-proxy-mode')?.value || 'auto';
-      const customProxyUrl = (document.getElementById('ibkr-custom-proxy-url')?.value || '').trim();
-
-      if (!flexToken || !flexQueryId) {
-        setIBKRFlexStatus('Please enter both your IBKR Flex Token and Flex Query ID.', 'warning');
-        showToast('Enter both Flex Token and Query ID.', 'warning');
-        return;
-      }
-
-      state.ibkrCredentials = { flexToken, flexQueryId, proxyMode, customProxyUrl };
-      persistState(true);
-      await fetchIBKRFlexPositions(true);
     }
 
     function copyCloudflareWorkerSnippet() {
-      const text = document.getElementById('cf-worker-snippet')?.textContent || '';
+      const code = document.getElementById('cf-worker-snippet')?.textContent || '';
       const ta = document.createElement('textarea');
-      ta.value = text;
+      ta.value = code;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand('copy');
       ta.remove();
-      showToast('Cloudflare Worker code copied to clipboard.', 'success');
-    }
-
-    function normalizeWorkerUrl(rawUrl) {
-      const trimmed = (rawUrl || '').trim();
-      if (!trimmed) return '';
-      const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-      return withProtocol.replace(/\/+$/, '');
-    }
-
-    async function testIBKRWorkerConnection() {
-      const inputEl = document.getElementById('ibkr-custom-proxy-url');
-      const cleaned = normalizeWorkerUrl(inputEl?.value || '');
-      if (!cleaned) {
-        setIBKRFlexStatus('Enter your Cloudflare Worker URL first.', 'warning');
-        return;
-      }
-      if (inputEl) inputEl.value = cleaned;
-
-      const probeEndpoint = 'https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest';
-      const testUrl = `${cleaned}${cleaned.includes('?') ? '&' : '/?'}url=${encodeURIComponent(probeEndpoint)}&_t=${Date.now()}`;
-      setIBKRFlexStatus('Testing connection to Cloudflare Worker...', 'info');
-      try {
-        const res = await fetchWithTimeout(testUrl, 8000);
-        const rawText = await res.text().catch(() => '');
-        if (/GitHub Pages/i.test(rawText)) {
-          setIBKRFlexStatus(
-            'Error: Request hit GitHub Pages instead of Cloudflare. Ensure your Worker URL starts with https:// (e.g., https://vaultflow-ibkr-proxy.ccmps-business.workers.dev).',
-            'error'
-          );
-          return;
-        }
-        const body = rawText.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
-        setIBKRFlexStatus(
-          `Worker reachable! (HTTP ${res.status}${body ? `: ${body}` : ''}). Click "Save Credentials & Fetch Flex Positions" to sync.`,
-          'success'
-        );
-      } catch (err) {
-        const detail = err?.message || 'NetworkError';
-        setIBKRFlexStatus(
-          `Worker test failed (${detail}). If using Firefox, click the Shield icon in the address bar and disable Enhanced Tracking Protection for this page, then retry.`,
-          'error'
-        );
-      }
+      showToast('Cloudflare Worker proxy code copied.', 'success');
     }
 
     async function fetchWithTimeout(url, timeoutMs = 12000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        // Simple CORS GET (no custom headers or cache directives) to avoid browser OPTIONS preflight blocks
         return await fetch(url, { signal: controller.signal });
       } finally {
         clearTimeout(timer);
       }
     }
 
-    async function fetchTextWithCORSFallback(targetUrl, proxyMode = 'auto', customProxyUrl = '', stepLabel = '') {
-      const cacheBust = Date.now();
-      const attempts = [];
+    async function fetchTextWithCORSFallback(targetUrl) {
+      const creds = state.ibkrCredentials || {};
+      const proxyMode = creds.proxyMode || 'auto';
+      const workerUrl = normalizeWorkerUrl(creds.customProxyUrl);
+
       if (proxyMode === 'custom') {
-        const cleaned = normalizeWorkerUrl(customProxyUrl);
-        if (!cleaned) {
-          throw new Error('Enter your Cloudflare Worker URL or switch Browser CORS Transport to Auto.');
-        }
-        const sep = cleaned.includes('?') ? '&url=' : '/?url=';
-        attempts.push({ label: 'Private Worker', url: `${cleaned}${sep}${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
-      } else if (proxyMode === 'direct') {
-        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
-      } else {
-        attempts.push({ label: 'CodeTabs Relay', url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
-        attempts.push({ label: 'AllOrigins JSON', url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'allorigins-json' });
-        attempts.push({ label: 'CorsProxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}&_cb=${cacheBust}`, mode: 'text' });
-        attempts.push({ label: 'Direct', url: targetUrl, mode: 'text' });
-      }
-
-      const failures = [];
-      for (const attempt of attempts) {
+        if (!workerUrl) throw new Error('Private Worker URL is empty.');
+        const proxied = `${workerUrl}?url=${encodeURIComponent(targetUrl)}&_cb=${Date.now()}`;
+        let res;
         try {
-          const res = await fetchWithTimeout(attempt.url, 12000);
-          if (!res.ok) {
-            const rawErr = await res.text().catch(() => '');
-            if (/GitHub Pages/i.test(rawErr)) {
-              failures.push(`${attempt.label}: Hit GitHub Pages 404 — make sure Worker URL starts with https://`);
-              continue;
-            }
-            const cleanSnippet = rawErr.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
-            failures.push(`${attempt.label}: HTTP ${res.status}${cleanSnippet ? ` (${cleanSnippet})` : ''}`);
-            continue;
-          }
-          if (attempt.mode === 'allorigins-json') {
-            const wrapper = await res.json();
-            if (wrapper && typeof wrapper.contents === 'string' && wrapper.contents.trim().length > 0) {
-              return wrapper.contents;
-            }
-            failures.push(`${attempt.label}: Empty payload`);
-            continue;
-          }
-          const text = await res.text();
-          if (text && text.trim().length > 0) return text;
-          failures.push(`${attempt.label}: Empty response`);
-        } catch (err) {
-          const reason = err?.name === 'AbortError'
-            ? 'Timed out'
-            : `${err?.message || 'NetworkError'} (check Firefox Shield / Tracking Protection)`;
-          failures.push(`${attempt.label}: ${reason}`);
+          res = await fetchWithTimeout(proxied, 15000);
+        } catch (netErr) {
+          throw new Error('Private Worker: Blocked by browser CORS / Tracking Protection.');
         }
+        const text = await res.text();
+        if (text.includes('Page not found') && text.includes('GitHub Pages')) {
+          throw new Error('Private Worker: HTTP 404 (Check Worker URL starts with https://)');
+        }
+        if (!res.ok) {
+          const snippet = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 90);
+          throw new Error(`Private Worker: HTTP ${res.status}${snippet ? ` (${snippet})` : ''}`);
+        }
+        return text;
       }
 
-      const prefix = stepLabel ? `${stepLabel} failed` : 'Could not reach IBKR from browser';
-      throw new Error(
-        `${prefix} (${failures.join(' | ')}). Use Method B below to upload/paste your Flex XML/CSV, or check your Flex Query ID & Token.`
-      );
+      if (proxyMode === 'direct') {
+        const res = await fetchWithTimeout(targetUrl, 12000);
+        if (!res.ok) throw new Error(`Direct HTTP ${res.status}`);
+        return await res.text();
+      }
+
+      // Auto mode: try public CORS relays
+      const relays = [
+        {
+          name: 'CodeTabs',
+          url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+          parse: async (r) => await r.text()
+        },
+        {
+          name: 'AllOrigins',
+          url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+          parse: async (r) => {
+            const j = await r.json();
+            return j.contents || '';
+          }
+        },
+        {
+          name: 'CorsProxy',
+          url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+          parse: async (r) => await r.text()
+        }
+      ];
+
+      let lastErr = 'All CORS relays blocked';
+      for (const relay of relays) {
+        try {
+          const res = await fetchWithTimeout(relay.url, 10000);
+          if (!res.ok) {
+            lastErr = `${relay.name}: HTTP ${res.status}`;
+            continue;
+          }
+          const body = await relay.parse(res);
+          if (body && body.length > 10) return body;
+        } catch (err) {
+          lastErr = `${relay.name}: Blocked by browser CORS / Tracking Protection`;
+        }
+      }
+      throw new Error(lastErr);
     }
 
-    async function fetchIBKRFlexPositions(manual = true) {
-      const creds = state.ibkrCredentials || {};
-      const token = (creds.flexToken || '').trim();
-      const queryId = (creds.flexQueryId || '').trim();
-      const proxyMode = creds.proxyMode || 'auto';
-      const customProxyUrl = normalizeWorkerUrl(creds.customProxyUrl || '');
+    async function testIBKRWorkerConnection() {
+      const inputEl = document.getElementById('ibkr-custom-proxy-url');
+      const normalized = normalizeWorkerUrl(inputEl?.value || '');
+      if (!normalized) {
+        setIBKRFlexStatus('Enter your Cloudflare Worker URL first.', 'error');
+        return;
+      }
+      if (inputEl) inputEl.value = normalized;
+      setIBKRFlexStatus('Testing Worker reachability...', 'info');
+      try {
+        const res = await fetchWithTimeout(`${normalized}?ping=1&_cb=${Date.now()}`, 8000);
+        setIBKRFlexStatus(`Worker reachable! (HTTP ${res.status}). Click "Save Credentials & Fetch Flex Positions" to sync.`, 'success');
+      } catch (err) {
+        setIBKRFlexStatus('Could not reach Worker from browser (Blocked by Firefox Tracking Protection or invalid URL).', 'error');
+      }
+    }
 
-      if (!token || !queryId) {
-        openModal('ibkr-sync-modal');
-        showToast('Enter your IBKR Flex Token and Query ID first.', 'warning');
+    function saveIBKRCredentialsOnly() {
+      const flexToken = (document.getElementById('ibkr-flex-token')?.value || '').trim();
+      const flexQueryId = (document.getElementById('ibkr-flex-query-id')?.value || '').trim();
+      const proxyMode = document.getElementById('ibkr-proxy-mode')?.value || 'auto';
+      const customProxyUrl = normalizeWorkerUrl(document.getElementById('ibkr-custom-proxy-url')?.value || '');
+      if (document.getElementById('ibkr-custom-proxy-url')) {
+        document.getElementById('ibkr-custom-proxy-url').value = customProxyUrl;
+      }
+
+      state.ibkrCredentials = { flexToken, flexQueryId, proxyMode, customProxyUrl };
+      persistState(true);
+      setIBKRFlexStatus('IBKR Flex credentials saved to your vault.', 'success');
+      showToast('IBKR Flex credentials saved.', 'success');
+    }
+
+    async function syncIBKRFlexWebService() {
+      saveIBKRCredentialsOnly();
+      await fetchIBKRFlexPositions(true);
+    }
+
+    async function fetchIBKRFlexPositions(manual = false) {
+      const creds = state.ibkrCredentials || {};
+      if (!creds.flexToken || !creds.flexQueryId) {
+        if (manual) {
+          openModal('ibkr-sync-modal');
+          setIBKRFlexStatus('Enter your IBKR Flex Token and Query ID first.', 'error');
+        }
         return;
       }
 
-      const toolbarBtn = document.getElementById('ibkr-flex-sync-btn');
-      const modalBtn = document.getElementById('ibkr-fetch-flex-btn');
-      if (toolbarBtn) toolbarBtn.disabled = true;
-      if (modalBtn) {
-        modalBtn.disabled = true;
-        modalBtn.textContent = 'Syncing with IBKR...';
-      }
+      const syncBtn = document.getElementById('ibkr-flex-sync-btn');
+      if (syncBtn) syncBtn.disabled = true;
+      setIBKRFlexStatus('Step 1/2: Requesting Flex statement from IBKR...', 'info');
 
       try {
-        setIBKRFlexStatus('Step 1/2: Requesting statement from IBKR Flex Web Service...', 'info');
-        const primarySendUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
-        const backupSendUrl = `https://gdcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(token)}&q=${encodeURIComponent(queryId)}&v=3`;
-
-        let sendXmlText = '';
+        const sendUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(creds.flexToken)}&q=${encodeURIComponent(creds.flexQueryId)}&v=3`;
+        let sendXml;
         try {
-          sendXmlText = await fetchTextWithCORSFallback(primarySendUrl, proxyMode, customProxyUrl, 'Step 1 (SendRequest)');
+          sendXml = await fetchTextWithCORSFallback(sendUrl);
         } catch (step1Err) {
-          if (String(step1Err?.message || '').includes('HTTP 404') && !String(step1Err?.message || '').includes('GitHub Pages')) {
-            setIBKRFlexStatus('Step 1/2: Retrying via backup IBKR Flex gateway...', 'info');
-            sendXmlText = await fetchTextWithCORSFallback(backupSendUrl, proxyMode, customProxyUrl, 'Step 1 Backup (SendRequest)');
+          if (step1Err.message.includes('404')) {
+            const backupUrl = `https://gdcdyn.interactivebrokers.com/AccountManagement/FlexWebService/SendRequest?t=${encodeURIComponent(creds.flexToken)}&q=${encodeURIComponent(creds.flexQueryId)}&v=3`;
+            try {
+              sendXml = await fetchTextWithCORSFallback(backupUrl);
+            } catch (backupErr) {
+              throw new Error(`Step 1 Backup (SendRequest) failed (${backupErr.message}).`);
+            }
           } else {
-            throw step1Err;
+            throw new Error(`Step 1 (SendRequest) failed (${step1Err.message}).`);
           }
         }
 
-        const parser = new DOMParser();
-        const sendDoc = parser.parseFromString(sendXmlText, 'text/xml');
-        const status = sendDoc.querySelector('Status')?.textContent?.trim();
+        const refMatch = sendXml.match(/<ReferenceCode>([^<]+)<\/ReferenceCode>/i);
+        const urlMatch = sendXml.match(/<Url>([^<]+)<\/Url>/i);
+        const errMsgMatch = sendXml.match(/<ErrorMessage>([^<]+)<\/ErrorMessage>/i);
 
-        if (status !== 'Success') {
-          const errCode = sendDoc.querySelector('ErrorCode')?.textContent?.trim() || 'Unknown';
-          const errMsg = sendDoc.querySelector('ErrorMessage')?.textContent?.trim() || 'IBKR rejected the Flex request.';
-          throw new Error(`IBKR Error ${errCode}: ${errMsg}`);
+        if (!refMatch) {
+          throw new Error(errMsgMatch ? `IBKR Error: ${errMsgMatch[1]}` : 'IBKR did not return a ReferenceCode.');
         }
 
-        const refCode = sendDoc.querySelector('ReferenceCode')?.textContent?.trim();
-        const baseStatementUrl =
-          sendDoc.querySelector('Url')?.textContent?.trim() ||
-          'https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/GetStatement';
+        const refCode = refMatch[1].trim();
+        const baseStmtUrl = urlMatch ? urlMatch[1].trim() : 'https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/GetStatement';
+        const sep = baseStmtUrl.includes('?') ? '&' : '?';
+        const stmtUrl = `${baseStmtUrl}${sep}q=${encodeURIComponent(refCode)}&t=${encodeURIComponent(creds.flexToken)}&v=3`;
 
-        if (!refCode) {
-          throw new Error('IBKR did not return a statement ReferenceCode.');
-        }
+        // Step 2: Poll GetStatement while IBKR generates report (ErrorCode 1019)
+        let statementText = '';
+        for (let attempt = 1; attempt <= 6; attempt++) {
+          setIBKRFlexStatus(`Step 2/2: Downloading Flex statement (attempt ${attempt}/6)...`, 'info');
+          await new Promise((r) => setTimeout(r, attempt === 1 ? 1500 : 2500));
+          statementText = await fetchTextWithCORSFallback(stmtUrl);
 
-        // Step 2: Poll GetStatement (up to 8 attempts for larger multi-section Flex queries)
-        let statementPayload = '';
-        const getSep = baseStatementUrl.includes('?') ? '&' : '?';
-        const getUrl = `${baseStatementUrl}${getSep}q=${encodeURIComponent(refCode)}&t=${encodeURIComponent(token)}&v=3`;
-
-        for (let attempt = 1; attempt <= 8; attempt++) {
-          setIBKRFlexStatus(`Step 2/2: Downloading Flex statement (attempt ${attempt}/8)...`, 'info');
-          await new Promise((r) => setTimeout(r, attempt === 1 ? 1800 : 2500));
-
-          const rawResp = await fetchTextWithCORSFallback(getUrl, proxyMode, customProxyUrl, 'Step 2 (GetStatement)');
-          if (rawResp.includes('<FlexStatementResponse')) {
-            const checkDoc = parser.parseFromString(rawResp, 'text/xml');
-            const st = checkDoc.querySelector('Status')?.textContent?.trim();
-            const code = checkDoc.querySelector('ErrorCode')?.textContent?.trim();
-            const msg = checkDoc.querySelector('ErrorMessage')?.textContent?.trim();
-            if (st === 'Fail' && (code === '1019' || code === '1018')) {
-              continue; // Statement still generating; retry
-            }
-            if (st === 'Fail') {
-              throw new Error(`IBKR Error ${code}: ${msg}`);
-            }
+          if (statementText.includes('<ErrorCode>1019</ErrorCode>')) {
+            continue;
           }
-          statementPayload = rawResp;
+          const stmtErr = statementText.match(/<ErrorMessage>([^<]+)<\/ErrorMessage>/i);
+          if (stmtErr && !statementText.includes('<OpenPosition')) {
+            throw new Error(`IBKR Statement Error: ${stmtErr[1]}`);
+          }
           break;
         }
 
-        if (!statementPayload) {
-          throw new Error('Timed out waiting for IBKR to generate the Flex report. Try clicking Sync Flex again in 5 seconds.');
+        const parsed = parseIBKRFlexContent(statementText);
+        if (!parsed.length) {
+          setIBKRFlexStatus('Connected to IBKR, but 0 Open Positions were found in the statement.', 'error');
+          showToast('Flex statement returned 0 open positions.', 'warning');
+          return;
         }
 
-        const imported = parseIBKRPayload(statementPayload);
-        if (!imported.length) {
-          throw new Error(
-            'Statement downloaded, but 0 Open Positions were found. Ensure your IBKR Flex Query includes the "Open Positions" section and Format is set to XML.'
-          );
-        }
-
-        imported.forEach((item) => {
-          const existingIdx = state.holdings.findIndex((h) => h.symbol === item.symbol);
-          if (existingIdx !== -1) {
-            state.holdings[existingIdx] = {
-              ...state.holdings[existingIdx],
-              ...item,
-              id: state.holdings[existingIdx].id
-            };
-          } else {
-            state.holdings.push(item);
-          }
-        });
-
-        state.ibkrQuoteSource = 'IBKR Flex Sync';
-        state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        state.holdings = parsed;
+        state.ibkrQuoteSource = 'IBKR Flex Live';
+        state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         persistState(true);
         renderAll();
-
-        setIBKRFlexStatus(`Synced ${imported.length} position(s) from IBKR Flex!`, 'success');
-        closeModal('ibkr-sync-modal');
-        if (manual) showToast(`Synced ${imported.length} IBKR position(s) from Flex!`, 'success');
+        setIBKRFlexStatus(`Synced ${parsed.length} IBKR position(s) successfully!`, 'success');
+        showToast(`Synced ${parsed.length} IBKR position(s) from Flex.`, 'success');
       } catch (err) {
-        console.error('IBKR Flex sync error:', err);
-        const msg = err?.message || 'Failed to reach IBKR Flex Web Service.';
-        setIBKRFlexStatus(msg, 'error');
-        if (manual) showToast(msg, 'error');
+        setIBKRFlexStatus(`${err.message} Use Method B below to upload/paste your Flex XML/CSV, or check your Flex Query ID & Token.`, 'error');
+        if (manual) showToast(err.message, 'error');
       } finally {
-        if (toolbarBtn) toolbarBtn.disabled = false;
-        if (modalBtn) {
-          modalBtn.disabled = false;
-          modalBtn.textContent = 'Save Credentials & Fetch Flex Positions';
-        }
+        if (syncBtn) syncBtn.disabled = false;
       }
     }
 
-    function parseIBKRPayload(rawInput) {
-      const raw = (rawInput || '').trim();
+    function parseIBKRFlexContent(text) {
+      const raw = (text || '').trim();
       if (!raw) return [];
-      const imported = [];
+      const results = [];
 
+      // 1. XML Format (<OpenPosition ... />)
       if (raw.startsWith('<')) {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(raw, 'text/xml');
-        let positions = Array.from(xml.querySelectorAll('OpenPosition'));
+        const doc = new DOMParser().parseFromString(raw, 'text/xml');
+        const nodes = Array.from(doc.querySelectorAll('OpenPosition'));
+        const summaryNodes = nodes.filter((n) => (n.getAttribute('levelOfDetail') || 'SUMMARY').toUpperCase() === 'SUMMARY');
+        const targetNodes = summaryNodes.length ? summaryNodes : nodes;
 
-        // Deduplicate if Flex query exported both SUMMARY and LOT rows
-        const summaryRows = positions.filter(
-          (n) => (n.getAttribute('levelOfDetail') || '').toUpperCase() === 'SUMMARY'
-        );
-        if (summaryRows.length > 0) {
-          positions = summaryRows;
-        }
-
-        positions.forEach((node) => {
-          const assetCat = (node.getAttribute('assetCategory') || '').toUpperCase();
-          if (assetCat === 'CASH') return;
-
+        targetNodes.forEach((node, idx) => {
           let symbol = (node.getAttribute('symbol') || '').trim().toUpperCase();
           const exchange = (node.getAttribute('listingExchange') || '').trim().toUpperCase();
           if (symbol && !symbol.includes('.') && (exchange === 'LSE' || exchange === 'LSEETF')) {
             symbol = `${symbol}.L`;
           }
+          const shares = parseFloat(node.getAttribute('position') || node.getAttribute('quantity') || '0') || 0;
+          if (!symbol || shares === 0) return;
 
-          const shares = parseFloat(node.getAttribute('position') || node.getAttribute('quantity') || '0');
-          const avgCost = parseFloat(node.getAttribute('costBasisPrice') || node.getAttribute('openPrice') || '0');
-          const price = parseFloat(node.getAttribute('markPrice') || avgCost || '0');
-          const rawCurr = (node.getAttribute('currency') || 'USD').toUpperCase();
-          const currency = CURRENCIES[rawCurr] ? rawCurr : 'USD';
-          const name = node.getAttribute('description') || symbol;
+          const avgCost = parseFloat(node.getAttribute('costBasisPrice') || node.getAttribute('openPrice') || '0') || 0;
+          const price = parseFloat(node.getAttribute('markPrice') || node.getAttribute('closePrice') || avgCost) || avgCost;
+          const currency = (node.getAttribute('currency') || 'USD').trim().toUpperCase();
+          const name = (node.getAttribute('description') || symbol).trim();
 
-          if (symbol && !isNaN(shares) && shares !== 0) {
-            imported.push({
-              id: generateId('hold'),
-              symbol,
-              name,
-              currency,
-              shares,
-              avgCost: isNaN(avgCost) ? price : avgCost,
-              price: isNaN(price) ? avgCost : price,
-              prevClose: isNaN(price) ? avgCost : price
-            });
-          }
+          results.push({
+            id: `hold-flex-${Date.now()}-${idx}`,
+            symbol,
+            name,
+            currency: CURRENCY_META[currency] ? currency : 'USD',
+            shares,
+            avgCost,
+            price,
+            prevClose: price
+          });
         });
-      } else {
-        // CSV Parser (supports standard IBKR Flex CSV or simplified Symbol,Quantity,CostBasisPrice,MarkPrice,CurrencyPrimary)
-        const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-        let colMap = { symbol: 0, shares: 1, cost: 2, price: 3, currency: 4 };
-
-        lines.forEach((line, idx) => {
-          const cols = line.split(',').map((c) => c.replace(/^"|"$/g, '').trim());
-          if (idx === 0 && cols.some((c) => /^(symbol|ticker)$/i.test(c))) {
-            const findCol = (patterns) => cols.findIndex((c) => patterns.some((rx) => rx.test(c)));
-            const sIdx = findCol([/^symbol$/i, /^ticker$/i]);
-            const qIdx = findCol([/^quantity$/i, /^position$/i, /^shares$/i]);
-            const cIdx = findCol([/^costbasisprice$/i, /^openprice$/i, /^avgcost$/i]);
-            const pIdx = findCol([/^markprice$/i, /^closeprice$/i, /^price$/i]);
-            const curIdx = findCol([/^currencyprimary$/i, /^currency$/i]);
-            if (sIdx !== -1 && qIdx !== -1) {
-              colMap = { symbol: sIdx, shares: qIdx, cost: cIdx, price: pIdx, currency: curIdx };
-            }
-            return;
-          }
-
-          const symbol = (cols[colMap.symbol] || '').toUpperCase();
-          const shares = parseFloat(cols[colMap.shares]);
-          const avgCost = colMap.cost !== -1 ? parseFloat(cols[colMap.cost]) : NaN;
-          const price = colMap.price !== -1 ? parseFloat(cols[colMap.price]) : NaN;
-          const rawCurr = colMap.currency !== -1 ? (cols[colMap.currency] || '').toUpperCase() : 'USD';
-          const currency = CURRENCIES[rawCurr] ? rawCurr : 'USD';
-
-          if (symbol && !isNaN(shares) && shares !== 0) {
-            const safePrice = !isNaN(price) ? price : (!isNaN(avgCost) ? avgCost : 0);
-            const safeCost = !isNaN(avgCost) ? avgCost : safePrice;
-            imported.push({
-              id: generateId('hold'),
-              symbol,
-              name: symbol,
-              currency,
-              shares,
-              avgCost: safeCost,
-              price: safePrice,
-              prevClose: safePrice
-            });
-          }
-        });
+        return results;
       }
 
-      return imported;
+      // 2. CSV Format
+      const lines = raw.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) return [];
+      const parseCSVLine = (line) => {
+        const cols = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            inQuotes = !inQuotes;
+          } else if (ch === ',' && !inQuotes) {
+            cols.push(cur.trim());
+            cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        cols.push(cur.trim());
+        return cols;
+      };
+
+      const headers = parseCSVLine(lines[0]).map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+      const symIdx = headers.findIndex((h) => h === 'symbol' || h === 'ticker');
+      const descIdx = headers.findIndex((h) => h === 'description' || h === 'name');
+      const qtyIdx = headers.findIndex((h) => h === 'quantity' || h === 'position');
+      const costIdx = headers.findIndex((h) => h === 'costbasisprice' || h === 'avgcost' || h === 'openprice');
+      const priceIdx = headers.findIndex((h) => h === 'markprice' || h === 'closeprice' || h === 'price');
+      const currIdx = headers.findIndex((h) => h === 'currency' || h === 'currencyprimary');
+      const lodIdx = headers.findIndex((h) => h === 'levelofdetail');
+
+      if (symIdx === -1 || qtyIdx === -1) return [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (lodIdx !== -1 && cols[lodIdx] && cols[lodIdx].toUpperCase() !== 'SUMMARY') continue;
+        const symbol = (cols[symIdx] || '').toUpperCase();
+        const shares = parseFloat(cols[qtyIdx] || '0') || 0;
+        if (!symbol || shares === 0) continue;
+
+        const avgCost = costIdx !== -1 ? (parseFloat(cols[costIdx] || '0') || 0) : 0;
+        const price = priceIdx !== -1 ? (parseFloat(cols[priceIdx] || '0') || avgCost) : avgCost;
+        const currency = currIdx !== -1 ? (cols[currIdx] || 'USD').toUpperCase() : 'USD';
+        const name = descIdx !== -1 && cols[descIdx] ? cols[descIdx] : symbol;
+
+        results.push({
+          id: `hold-csv-${Date.now()}-${i}`,
+          symbol,
+          name,
+          currency: CURRENCY_META[currency] ? currency : 'USD',
+          shares,
+          avgCost,
+          price,
+          prevClose: price
+        });
+      }
+      return results;
     }
 
     function handleIBKRDragOver(e) {
       e.preventDefault();
-      document.getElementById('ibkr-dropzone').classList.add('border-emerald-400', 'bg-emerald-500/10');
+      document.getElementById('ibkr-dropzone')?.classList.add('border-emerald-400', 'bg-emerald-500/10');
     }
 
     function handleIBKRDragLeave(e) {
       e.preventDefault();
-      document.getElementById('ibkr-dropzone').classList.remove('border-emerald-400', 'bg-emerald-500/10');
+      document.getElementById('ibkr-dropzone')?.classList.remove('border-emerald-400', 'bg-emerald-500/10');
     }
 
     function handleIBKRDrop(e) {
       e.preventDefault();
       handleIBKRDragLeave(e);
       const file = e.dataTransfer?.files?.[0];
-      if (file) readIBKRFile(file);
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById('ibkr-raw-import').value = reader.result || '';
+        parseAndImportIBKRText();
+      };
+      reader.readAsText(file);
     }
 
     function handleIBKRFileUpload(e) {
       const file = e.target?.files?.[0];
-      if (file) readIBKRFile(file);
-    }
-
-    function readIBKRFile(file) {
+      if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        document.getElementById('ibkr-raw-import').value = ev.target.result || '';
-        showToast(`Loaded "${file.name}". Click Parse & Import Holdings.`, 'info');
+      reader.onload = () => {
+        document.getElementById('ibkr-raw-import').value = reader.result || '';
+        parseAndImportIBKRText();
       };
       reader.readAsText(file);
     }
 
     function parseAndImportIBKRText() {
-      const raw = (document.getElementById('ibkr-raw-import').value || '').trim();
-      if (!raw) {
-        showToast('Paste IBKR CSV/XML data or drop a file first.', 'warning');
+      const raw = document.getElementById('ibkr-raw-import')?.value || '';
+      const parsed = parseIBKRFlexContent(raw);
+      if (!parsed.length) {
+        showToast('Could not detect any Open Positions in the pasted XML/CSV.', 'error');
         return;
       }
-
-      const imported = parseIBKRPayload(raw);
-
-      if (!imported.length) {
-        showToast('Could not detect valid IBKR positions. Check CSV/XML format.', 'error');
-        return;
-      }
-
-      imported.forEach((item) => {
-        const existingIdx = state.holdings.findIndex((h) => h.symbol === item.symbol);
-        if (existingIdx !== -1) {
-          state.holdings[existingIdx] = { ...state.holdings[existingIdx], ...item, id: state.holdings[existingIdx].id };
-        } else {
-          state.holdings.push(item);
-        }
-      });
-
-      persistState();
+      state.holdings = parsed;
+      state.ibkrQuoteSource = 'IBKR Flex Report';
+      state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      persistState(true);
       closeModal('ibkr-sync-modal');
       renderAll();
-      showToast(`Imported ${imported.length} IBKR position(s)!`, 'success');
+      showToast(`Imported ${parsed.length} IBKR position(s).`, 'success');
+    }
+
+    async function refreshIBKRQuotes(manual = false) {
+      if (!state.holdings.length) {
+        if (state.ibkrCredentials?.flexToken && state.ibkrCredentials?.flexQueryId) {
+          await fetchIBKRFlexPositions(manual);
+        } else if (manual) {
+          showToast('No IBKR holdings yet. Add a position or sync via Flex.', 'info');
+        }
+        return;
+      }
+
+      const btn = document.getElementById('ibkr-refresh-btn');
+      if (btn) btn.disabled = true;
+
+      try {
+        let updatedCount = 0;
+        for (const h of state.holdings) {
+          try {
+            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(h.symbol)}?interval=1d&range=2d`;
+            const text = await fetchTextWithCORSFallback(yahooUrl);
+            const data = JSON.parse(text);
+            const meta = data?.chart?.result?.[0]?.meta;
+            if (meta && meta.regularMarketPrice) {
+              h.prevClose = Number(meta.chartPreviousClose || meta.previousClose || h.price);
+              h.price = Number(meta.regularMarketPrice);
+              updatedCount++;
+            }
+          } catch (singleErr) {
+            // Keep existing cached price if a single symbol quote fails
+          }
+        }
+
+        if (updatedCount > 0) {
+          state.ibkrQuoteSource = 'Live Market Quotes';
+          state.ibkrLastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          persistState();
+          renderAll();
+          if (manual) showToast(`Refreshed live quotes for ${updatedCount} symbol(s).`, 'success');
+        } else if (manual) {
+          showToast('Could not reach live quote feed; keeping cached prices.', 'warning');
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function toggleIBKRAutoRefresh(enabled) {
+      if (ibkrAutoRefreshTimer) {
+        clearInterval(ibkrAutoRefreshTimer);
+        ibkrAutoRefreshTimer = null;
+      }
+      if (enabled) {
+        refreshIBKRQuotes(false);
+        ibkrAutoRefreshTimer = setInterval(() => refreshIBKRQuotes(false), 60000);
+        showToast('IBKR 60-second auto-refresh enabled.', 'info');
+      } else {
+        showToast('IBKR auto-refresh paused.', 'info');
+      }
     }
 
     // =========================================================================
-    // JSON BACKUP, RESTORE & SAMPLE DATA RESET
+    // MASTER RENDER PIPELINE, KPI AGGREGATION & SVG CHARTS
+    // =========================================================================
+    function hoverDonutSegment(label, valStr, pctStr) {
+      const pill = document.getElementById('donut-hover-pill');
+      if (pill) pill.textContent = `${label}: ${valStr} (${pctStr})`;
+    }
+
+    function renderSVGDonut(cashDisp, ibkrDisp) {
+      const container = document.getElementById('svg-donut-container');
+      if (!container) return;
+      const disp = state.displayCurrency;
+      const positiveCash = Math.max(0, cashDisp);
+      const positiveIbkr = Math.max(0, ibkrDisp);
+      const total = positiveCash + positiveIbkr;
+
+      if (total <= 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">Add a Money Pot or IBKR position to visualize asset allocation.</div>`;
+        return;
+      }
+
+      const cashPct = (positiveCash / total) * 100;
+      const ibkrPct = (positiveIbkr / total) * 100;
+      const radius = 56;
+      const circumference = 2 * Math.PI * radius;
+      const cashDash = (cashPct / 100) * circumference;
+      const ibkrDash = (ibkrPct / 100) * circumference;
+
+      container.innerHTML = `
+        <div class="relative w-40 h-40 shrink-0">
+          <svg viewBox="0 0 144 144" class="w-full h-full -rotate-90">
+            <circle cx="72" cy="72" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="18" />
+            <circle
+              cx="72" cy="72" r="${radius}" fill="none" stroke="#10b981" stroke-width="18"
+              stroke-dasharray="${cashDash} ${circumference}"
+              class="cursor-pointer transition-opacity hover:opacity-85"
+              onmouseenter="hoverDonutSegment('Liquid Cash', '${escapeHTML(formatMoney(positiveCash, disp))}', '${cashPct.toFixed(1)}%')"
+            />
+            <circle
+              cx="72" cy="72" r="${radius}" fill="none" stroke="#38bdf8" stroke-width="18"
+              stroke-dasharray="${ibkrDash} ${circumference}"
+              stroke-dashoffset="${-cashDash}"
+              class="cursor-pointer transition-opacity hover:opacity-85"
+              onmouseenter="hoverDonutSegment('IBKR Equity', '${escapeHTML(formatMoney(positiveIbkr, disp))}', '${ibkrPct.toFixed(1)}%')"
+            />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+            <span class="text-[10px] uppercase tracking-wider text-slate-400">Assets</span>
+            <span class="text-xs font-bold text-white tabular-nums">${formatMoney(total, disp)}</span>
+          </div>
+        </div>
+        <div class="space-y-2.5 text-xs w-full sm:w-auto">
+          <div class="flex items-center justify-between gap-4">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>Liquid Cash</span>
+            <span class="font-mono font-semibold text-white tabular-nums">${cashPct.toFixed(1)}%</span>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>IBKR Equity</span>
+            <span class="font-mono font-semibold text-white tabular-nums">${ibkrPct.toFixed(1)}%</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSVGCurrencyBar() {
+      const container = document.getElementById('svg-currency-bar-container');
+      const labelEl = document.getElementById('curr-bar-target-label');
+      if (!container) return;
+      const disp = state.displayCurrency;
+      if (labelEl) labelEl.textContent = disp;
+
+      const byCurr = {};
+      state.accounts.forEach((acc) => {
+        if (acc.type === 'Credit Card') return;
+        const valDisp = convertCurrency(Math.max(0, acc.balance), acc.currency, disp);
+        byCurr[acc.currency] = (byCurr[acc.currency] || 0) + valDisp;
+      });
+      state.holdings.forEach((h) => {
+        const valDisp = convertCurrency(Math.max(0, h.shares * h.price), h.currency, disp);
+        byCurr[h.currency] = (byCurr[h.currency] || 0) + valDisp;
+      });
+
+      const entries = Object.entries(byCurr)
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1]);
+      const total = entries.reduce((sum, [, v]) => sum + v, 0);
+
+      if (total <= 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-3">No currency exposure data yet.</div>`;
+        return;
+      }
+
+      const palette = ['#6366f1', '#10b981', '#38bdf8', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
+
+      const stackedSegments = entries
+        .map(([curr, val], idx) => {
+          const pct = (val / total) * 100;
+          return `<div title="${curr}: ${formatMoney(val, disp)} (${pct.toFixed(1)}%)" style="width:${pct}%; background-color:${palette[idx % palette.length]}" class="h-full transition-all"></div>`;
+        })
+        .join('');
+
+      const legendRows = entries
+        .map(([curr, val], idx) => {
+          const pct = (val / total) * 100;
+          return `
+            <div class="flex items-center justify-between text-xs tabular-nums">
+              <span class="flex items-center gap-2 text-slate-300">
+                <span class="w-2.5 h-2.5 rounded-sm" style="background-color:${palette[idx % palette.length]}"></span>
+                <span class="font-semibold text-white">${curr}</span>
+              </span>
+              <span class="font-mono text-slate-300">${formatMoney(val, disp)} <span class="text-slate-500">(${pct.toFixed(1)}%)</span></span>
+            </div>
+          `;
+        })
+        .join('');
+
+      container.innerHTML = `
+        <div class="w-full h-3 rounded-full bg-[#080c14] overflow-hidden flex gap-0.5">${stackedSegments}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">${legendRows}</div>
+      `;
+    }
+
+    function renderAll() {
+      const disp = state.displayCurrency;
+      const currSel = document.getElementById('global-currency-select');
+      if (currSel) currSel.value = disp;
+      updateTopbarFXPreview();
+
+      // 1. Aggregate Cash & Credit Cards
+      let cashDisp = 0;
+      let liabilitiesDisp = 0;
+      let monthlyYieldDisp = 0;
+      let annualYieldDisp = 0;
+
+      state.accounts.forEach((acc) => {
+        const valDisp = convertCurrency(acc.balance, acc.currency, disp);
+        if (acc.type === 'Credit Card') {
+          liabilitiesDisp += valDisp;
+        } else {
+          cashDisp += valDisp;
+          const m = calculatePotYieldMetrics(acc);
+          monthlyYieldDisp += convertCurrency(m.monthlyNet, acc.currency, disp);
+          annualYieldDisp += convertCurrency(m.annualNet, acc.currency, disp);
+        }
+      });
+
+      const netCashDisp = cashDisp - liabilitiesDisp;
+
+      // 2. Aggregate IBKR Portfolio
+      let ibkrValueDisp = 0;
+      let ibkrCostDisp = 0;
+      let ibkrDailyDisp = 0;
+
+      state.holdings.forEach((h) => {
+        const mktVal = h.shares * h.price;
+        const costVal = h.shares * h.avgCost;
+        const prevVal = h.shares * (h.prevClose || h.price);
+        ibkrValueDisp += convertCurrency(mktVal, h.currency, disp);
+        ibkrCostDisp += convertCurrency(costVal, h.currency, disp);
+        ibkrDailyDisp += convertCurrency(mktVal - prevVal, h.currency, disp);
+      });
+
+      const ibkrUnrealizedDisp = ibkrValueDisp - ibkrCostDisp;
+      const ibkrUnrealizedPct = ibkrCostDisp > 0 ? (ibkrUnrealizedDisp / ibkrCostDisp) * 100 : 0;
+      const netWorthDisp = netCashDisp + ibkrValueDisp;
+
+      // 3. Update Overview KPIs & Sidebar Counts
+      const totalPositiveAssets = Math.max(0, netCashDisp) + Math.max(0, ibkrValueDisp);
+      const cashShare = totalPositiveAssets > 0 ? Math.round((Math.max(0, netCashDisp) / totalPositiveAssets) * 100) : 0;
+      const ibkrShare = totalPositiveAssets > 0 ? 100 - cashShare : 0;
+
+      document.getElementById('kpi-net-worth').textContent = formatMoney(netWorthDisp, disp);
+      document.getElementById('kpi-net-worth-sub').textContent = `${cashShare}% Cash • ${ibkrShare}% IBKR`;
+      document.getElementById('kpi-cash-total').textContent = formatMoney(netCashDisp, disp);
+      document.getElementById('kpi-cash-sub').textContent = `${state.accounts.length} active account(s)${liabilitiesDisp > 0 ? ` • -${formatMoney(liabilitiesDisp, disp)} CC` : ''}`;
+      document.getElementById('kpi-ibkr-total').textContent = formatMoney(ibkrValueDisp, disp);
+
+      const kpiIbkrPnl = document.getElementById('kpi-ibkr-pnl');
+      kpiIbkrPnl.textContent = `${formatMoney(ibkrUnrealizedDisp, disp, true)} (${ibkrUnrealizedPct >= 0 ? '+' : ''}${ibkrUnrealizedPct.toFixed(2)}%)`;
+      kpiIbkrPnl.className = `mt-1.5 text-xs font-medium tabular-nums ${ibkrUnrealizedDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      document.getElementById('kpi-monthly-yield').textContent = formatMoney(monthlyYieldDisp, disp);
+      document.getElementById('kpi-annual-yield').textContent = `${formatMoney(annualYieldDisp, disp)} / yr after withholding tax`;
+
+      const potsBadge = document.getElementById('sidebar-pots-count');
+      const ibkrBadge = document.getElementById('sidebar-ibkr-count');
+      if (potsBadge) potsBadge.textContent = state.accounts.length;
+      if (ibkrBadge) ibkrBadge.textContent = state.holdings.length;
+
+      // 4. Render Sub-Views
+      renderSVGDonut(netCashDisp, ibkrValueDisp);
+      renderSVGCurrencyBar();
+      renderPots();
+      renderIBKR(ibkrValueDisp, ibkrCostDisp, ibkrUnrealizedDisp, ibkrUnrealizedPct, ibkrDailyDisp);
+      renderTransactions();
+      renderAnalytics();
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // =========================================================================
+    // DATA PORTABILITY (EXPORT JSON, IMPORT JSON, SANDBOX RECOVERY & RESET)
     // =========================================================================
     function exportDataJSON() {
-      const dataStr = JSON.stringify(state, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `vaultflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
       URL.revokeObjectURL(url);
-      showToast('Exported VaultFlow JSON backup.', 'success');
+      showToast('Vault JSON backup downloaded.', 'success');
     }
 
     function importDataJSON(e) {
       const file = e.target?.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
+      reader.onload = () => {
         try {
-          const parsed = JSON.parse(ev.target.result);
-          if (!Array.isArray(parsed.accounts) || !Array.isArray(parsed.holdings)) {
-            throw new Error('Invalid structure');
-          }
+          const parsed = JSON.parse(reader.result);
           state = normalizeVaultState(parsed);
           persistState(true);
           renderAll();
-          showToast('JSON backup restored successfully!', 'success');
+          showToast('JSON backup restored successfully.', 'success');
         } catch (err) {
-          showToast('Invalid VaultFlow JSON backup file.', 'error');
+          showToast('Invalid JSON backup file.', 'error');
         }
       };
       reader.readAsText(file);
-      e.target.value = '';
     }
 
     function importFromLocalSandbox() {
       try {
-        const saved = localStorage.getItem(SANDBOX_STORAGE_KEY);
-        if (!saved) {
-          showToast('No saved Local Sandbox data found on this browser.', 'warning');
+        const raw = localStorage.getItem(SANDBOX_STORAGE_KEY);
+        if (!raw) {
+          showToast('No Local Sandbox data found on this browser.', 'warning');
           return;
         }
-        const parsed = normalizeVaultState(JSON.parse(saved));
-        state = parsed;
+        state = normalizeVaultState(JSON.parse(raw));
         persistState(true);
         renderAll();
-        showToast('Imported Local Sandbox data & IBKR settings into your current vault!', 'success');
+        showToast('Imported Local Sandbox data into your current vault.', 'success');
       } catch (err) {
-        showToast('Could not read Local Sandbox storage.', 'error');
+        showToast('Failed to read Local Sandbox data.', 'error');
       }
     }
 
@@ -3605,237 +3366,7 @@ service cloud.firestore {
       persistState(true);
       closeModal('reset-modal');
       renderAll();
-      showToast('Sample portfolio dataset loaded.', 'success');
-    }
-
-    // =========================================================================
-    // MASTER RENDER PIPELINE (KPIs, CHARTS, POTS, IBKR, LEDGER, ANALYTICS)
-    // =========================================================================
-    function renderAll() {
-      const disp = state.displayCurrency || 'USD';
-      const currSelect = document.getElementById('global-currency-select');
-      if (currSelect) currSelect.value = disp;
-
-      // Topbar FX Pill
-      const phpRate = getEffectiveRate('PHP');
-      const topFx = document.getElementById('topbar-fx-preview');
-      if (topFx) topFx.textContent = `1 USD = ${phpRate.toFixed(2)} PHP`;
-
-      const hasOverrides = state.fxOverrides && Object.keys(state.fxOverrides).length > 0;
-      const overrideBadge = document.getElementById('fx-override-badge');
-      if (overrideBadge) overrideBadge.classList.toggle('hidden', !hasOverrides);
-
-      // Sidebar Counters
-      document.getElementById('sidebar-pots-count').textContent = state.accounts.length;
-      document.getElementById('sidebar-ibkr-count').textContent = state.holdings.length;
-
-      // Aggregate Totals in Display Currency
-      let cashAssetsDisp = 0;
-      let creditLiabilitiesDisp = 0;
-      let monthlyYieldDisp = 0;
-      let annualYieldDisp = 0;
-
-      state.accounts.forEach((acc) => {
-        const balDisp = convertCurrency(acc.balance, acc.currency, disp);
-        if (acc.type === 'Credit Card') {
-          creditLiabilitiesDisp += balDisp;
-        } else {
-          cashAssetsDisp += balDisp;
-          const y = calculatePotYieldMetrics(acc);
-          monthlyYieldDisp += convertCurrency(y.monthlyNet, acc.currency, disp);
-          annualYieldDisp += convertCurrency(y.annualNet, acc.currency, disp);
-        }
-      });
-
-      const netCashDisp = cashAssetsDisp - creditLiabilitiesDisp;
-
-      let ibkrValueDisp = 0;
-      let ibkrCostDisp = 0;
-      let ibkrDailyDisp = 0;
-
-      state.holdings.forEach((h) => {
-        const mktVal = (Number(h.shares) || 0) * (Number(h.price) || 0);
-        const costVal = (Number(h.shares) || 0) * (Number(h.avgCost) || 0);
-        const prevVal = (Number(h.shares) || 0) * (Number(h.prevClose || h.price) || 0);
-
-        ibkrValueDisp += convertCurrency(mktVal, h.currency, disp);
-        ibkrCostDisp += convertCurrency(costVal, h.currency, disp);
-        ibkrDailyDisp += convertCurrency(mktVal - prevVal, h.currency, disp);
-      });
-
-      const totalNetWorthDisp = netCashDisp + ibkrValueDisp;
-      const ibkrUnrealizedDisp = ibkrValueDisp - ibkrCostDisp;
-      const ibkrUnrealizedPct = ibkrCostDisp > 0 ? (ibkrUnrealizedDisp / ibkrCostDisp) * 100 : 0;
-
-      // Update Overview KPIs
-      document.getElementById('kpi-net-worth').textContent = formatMoney(totalNetWorthDisp, disp);
-      const cashPct = totalNetWorthDisp > 0 ? Math.max(0, (netCashDisp / totalNetWorthDisp) * 100) : 0;
-      const ibkrPct = totalNetWorthDisp > 0 ? Math.max(0, (ibkrValueDisp / totalNetWorthDisp) * 100) : 0;
-      document.getElementById('kpi-net-worth-sub').textContent = `${cashPct.toFixed(1)}% Net Cash • ${ibkrPct.toFixed(1)}% IBKR`;
-
-      document.getElementById('kpi-cash-total').textContent = formatMoney(netCashDisp, disp);
-      document.getElementById('kpi-cash-sub').textContent = creditLiabilitiesDisp > 0
-        ? `${state.accounts.length} pots (net of ${formatMoney(creditLiabilitiesDisp, disp)} CC)`
-        : `${state.accounts.length} active money pots`;
-
-      document.getElementById('kpi-ibkr-total').textContent = formatMoney(ibkrValueDisp, disp);
-      const pnlEl = document.getElementById('kpi-ibkr-pnl');
-      pnlEl.textContent = `${formatMoney(ibkrUnrealizedDisp, disp, true)} (${ibkrUnrealizedPct >= 0 ? '+' : ''}${ibkrUnrealizedPct.toFixed(2)}%)`;
-      pnlEl.className = `mt-1.5 text-xs font-medium tabular-nums ${ibkrUnrealizedDisp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      document.getElementById('kpi-monthly-yield').textContent = formatMoney(monthlyYieldDisp, disp);
-      document.getElementById('kpi-annual-yield').textContent = `${formatMoney(annualYieldDisp, disp)} / yr after withholding tax`;
-
-      renderOverviewVisuals(netCashDisp, ibkrValueDisp, totalNetWorthDisp);
-      renderPots();
-      renderIBKR(ibkrValueDisp, ibkrCostDisp, ibkrUnrealizedDisp, ibkrUnrealizedPct, ibkrDailyDisp);
-      renderTransactions();
-      renderAnalytics();
-      if (window.lucide) lucide.createIcons();
-    }
-
-    // =========================================================================
-    // SVG CHARTS ON OVERVIEW (ALLOCATION DONUT + CURRENCY EXPOSURE BAR)
-    // =========================================================================
-    function hoverDonutSegment(label, valStr, pctStr) {
-      const pill = document.getElementById('donut-hover-pill');
-      if (pill) pill.textContent = `${label}: ${valStr} (${pctStr})`;
-    }
-
-    function resetDonutHover() {
-      const pill = document.getElementById('donut-hover-pill');
-      if (pill) pill.textContent = 'Total Portfolio';
-    }
-
-    function renderOverviewVisuals(netCashDisp, ibkrValueDisp, totalNetWorthDisp) {
-      const disp = state.displayCurrency;
-      const donutContainer = document.getElementById('svg-donut-container');
-
-      const cashVal = Math.max(0, netCashDisp);
-      const ibkrVal = Math.max(0, ibkrValueDisp);
-      const sum = cashVal + ibkrVal;
-      const cashShare = sum > 0 ? cashVal / sum : 0.5;
-      const ibkrShare = sum > 0 ? ibkrVal / sum : 0.5;
-
-      const r = 56;
-      const circ = 2 * Math.PI * r;
-      const cashLen = circ * cashShare;
-      const ibkrLen = circ * ibkrShare;
-
-      donutContainer.innerHTML = `
-        <div class="relative w-36 h-36 shrink-0">
-          <svg viewBox="0 0 140 140" class="w-full h-full -rotate-90">
-            <circle cx="70" cy="70" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16" />
-            <circle
-              cx="70" cy="70" r="${r}" fill="none"
-              stroke="#10b981" stroke-width="16"
-              stroke-dasharray="${cashLen} ${circ}"
-              stroke-dashoffset="0"
-              class="cursor-pointer transition-opacity hover:opacity-85"
-              onmouseenter="hoverDonutSegment('Liquid Cash', '${escapeHTML(formatMoney(cashVal, disp))}', '${(cashShare * 100).toFixed(1)}%')"
-              onmouseleave="resetDonutHover()"
-            />
-            <circle
-              cx="70" cy="70" r="${r}" fill="none"
-              stroke="#38bdf8" stroke-width="16"
-              stroke-dasharray="${ibkrLen} ${circ}"
-              stroke-dashoffset="-${cashLen}"
-              class="cursor-pointer transition-opacity hover:opacity-85"
-              onmouseenter="hoverDonutSegment('IBKR Equity', '${escapeHTML(formatMoney(ibkrVal, disp))}', '${(ibkrShare * 100).toFixed(1)}%')"
-              onmouseleave="resetDonutHover()"
-            />
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-            <span class="text-[10px] uppercase tracking-wider text-slate-400">Net Worth</span>
-            <span class="text-xs font-bold text-white tabular-nums mt-0.5">${formatMoney(totalNetWorthDisp, disp)}</span>
-          </div>
-        </div>
-
-        <div class="space-y-3 flex-1 w-full">
-          <div class="p-3 rounded-xl bg-[#141d2e] border border-white/[0.06] flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-              <span class="text-xs font-medium text-slate-200">Liquid Cash Pots</span>
-            </div>
-            <div class="text-right tabular-nums">
-              <div class="text-xs font-bold text-white">${formatMoney(cashVal, disp)}</div>
-              <div class="text-[10px] font-mono text-emerald-400">${(cashShare * 100).toFixed(1)}%</div>
-            </div>
-          </div>
-          <div class="p-3 rounded-xl bg-[#141d2e] border border-white/[0.06] flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
-              <span class="text-xs font-medium text-slate-200">IBKR Equity & ETFs</span>
-            </div>
-            <div class="text-right tabular-nums">
-              <div class="text-xs font-bold text-white">${formatMoney(ibkrVal, disp)}</div>
-              <div class="text-[10px] font-mono text-sky-400">${(ibkrShare * 100).toFixed(1)}%</div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Currency Exposure Breakdown
-      document.getElementById('curr-bar-target-label').textContent = disp;
-      const exposureMap = {};
-      state.accounts.forEach((acc) => {
-        if (acc.type === 'Credit Card') return;
-        const valDisp = Math.max(0, convertCurrency(acc.balance, acc.currency, disp));
-        exposureMap[acc.currency] = (exposureMap[acc.currency] || 0) + valDisp;
-      });
-      state.holdings.forEach((h) => {
-        const mkt = (Number(h.shares) || 0) * (Number(h.price) || 0);
-        const valDisp = Math.max(0, convertCurrency(mkt, h.currency, disp));
-        exposureMap[h.currency] = (exposureMap[h.currency] || 0) + valDisp;
-      });
-
-      const entries = Object.entries(exposureMap)
-        .filter(([, v]) => v > 0)
-        .sort((a, b) => b[1] - a[1]);
-
-      const totalExp = entries.reduce((acc, [, v]) => acc + v, 0);
-      const palette = ['#6366f1', '#10b981', '#38bdf8', '#f59e0b', '#ec4899', '#8b5cf6'];
-      const barContainer = document.getElementById('svg-currency-bar-container');
-
-      if (!entries.length || totalExp <= 0) {
-        barContainer.innerHTML = `<div class="text-xs text-slate-500 py-4">Add assets to visualize currency exposure.</div>`;
-        return;
-      }
-
-      const stackedSegments = entries
-        .map(([code, val], i) => {
-          const pct = (val / totalExp) * 100;
-          return `<div style="width:${pct}%; background-color:${palette[i % palette.length]}" title="${code}: ${pct.toFixed(1)}%" class="h-full first:rounded-l-full last:rounded-r-full transition-all"></div>`;
-        })
-        .join('');
-
-      const pillsHTML = entries
-        .map(([code, val], i) => {
-          const pct = (val / totalExp) * 100;
-          const meta = CURRENCIES[code] || { flag: '🌐' };
-          return `
-            <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#141d2e] border border-white/[0.06] text-xs">
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color:${palette[i % palette.length]}"></span>
-                <span>${meta.flag} <strong class="text-white">${code}</strong></span>
-              </div>
-              <div class="tabular-nums text-right">
-                <span class="font-semibold text-white">${formatMoney(val, disp)}</span>
-                <span class="ml-1.5 text-[11px] font-mono text-slate-400">(${pct.toFixed(1)}%)</span>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      barContainer.innerHTML = `
-        <div class="w-full h-3.5 rounded-full bg-[#080c14] overflow-hidden flex gap-0.5 p-0.5 border border-white/[0.08]">
-          ${stackedSegments}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          ${pillsHTML}
-        </div>
-      `;
+      showToast('Sample multi-currency portfolio loaded.', 'success');
     }
 
     // =========================================================================
